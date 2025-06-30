@@ -1,4 +1,4 @@
-package htl.steyr.wechselgeldapp;
+package htl.steyr.wechselgeldapp.Bluetooth;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;

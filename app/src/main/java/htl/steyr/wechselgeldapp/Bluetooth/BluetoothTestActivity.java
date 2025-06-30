@@ -1,4 +1,4 @@
-package htl.steyr.wechselgeldapp;
+package htl.steyr.wechselgeldapp.Bluetooth;
 
 import android.Manifest;
 import android.bluetooth.BluetoothDevice;
@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
+
+import htl.steyr.wechselgeldapp.R;
 
 public class BluetoothTestActivity extends AppCompatActivity implements Bluetooth.BluetoothCallback {
     private Bluetooth bluetooth;
