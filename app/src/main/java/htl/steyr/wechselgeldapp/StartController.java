@@ -17,13 +17,13 @@ public class StartController extends Activity {
         Button customerBTN = findViewById(R.id.customerBTN);
         Button sellerBTN = findViewById(R.id.sellerBTN);
 
-        // Navigate to Sign in or Sign up screens
-        customerBTN.setOnClickListener(view -> navigateTo());
-        sellerBTN.setOnClickListener(view -> navigateTo());
+        customerBTN.setOnClickListener(view -> navigateTo("customer"));
+        sellerBTN.setOnClickListener(view -> navigateTo("seller"));
     }
 
-    private void navigateTo() {
+    private void navigateTo(String role) {
         Intent intent = new Intent(StartController.this, AuthController.class);
+        intent.putExtra("user_role", role);
         startActivity(intent);
     }
 }
