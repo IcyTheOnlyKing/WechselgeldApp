@@ -23,11 +23,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Weitere Activities -->
-        <activity android:name=".Authentication.Login.CustomerLogin" />
-        <activity android:name=".Authentication.Login.SellerLogin" />
-        <activity android:name=".Authentication.Registration.CustomerRegistration" />
-        <activity android:name=".Authentication.Registration.SellerRegistration" />
         <activity android:name=".AuthController"/>
 
     </application>
