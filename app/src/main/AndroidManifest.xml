@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="htl.steyr.wechselgeldapp">  <!-- Dein Package hier anpassen -->
 
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
