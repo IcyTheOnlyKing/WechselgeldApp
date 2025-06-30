@@ -1,4 +1,4 @@
-package htl.steyr.wechselgeldapp.Login;
+package htl.steyr.wechselgeldapp.Authentication.Login;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import htl.steyr.wechselgeldapp.R;
 
-public class CustomerLogin extends Activity {
+public class SellerLogin extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,10 +20,10 @@ public class CustomerLogin extends Activity {
         EditText passwordInput = findViewById(R.id.passwordInput);
         Button loginBTN = findViewById(R.id.loginBTN);
 
-        loginTitle.setText("Customer Login");
+        loginTitle.setText("Seller Login");
 
         loginBTN.setOnClickListener(view -> {
-            // Customer-specific login logic
+            // Seller-specific login logic
         });
     }
 }

@@ -5,8 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
-import htl.steyr.wechselgeldapp.Login.CustomerLogin;
-import htl.steyr.wechselgeldapp.Login.SellerLogin;
+import htl.steyr.wechselgeldapp.Authentication.AuthController;
 
 public class StartController extends Activity {
 
@@ -18,13 +17,13 @@ public class StartController extends Activity {
         Button customerBTN = findViewById(R.id.customerBTN);
         Button sellerBTN = findViewById(R.id.sellerBTN);
 
-        // Navigate to login screens
-        customerBTN.setOnClickListener(view -> navigateTo(CustomerLogin.class));
-        sellerBTN.setOnClickListener(view -> navigateTo(SellerLogin.class));
+        // Navigate to Sign in or Sign up screens
+        customerBTN.setOnClickListener(view -> navigateTo());
+        sellerBTN.setOnClickListener(view -> navigateTo());
     }
 
-    private void navigateTo(Class<?> targetActivity) {
-        Intent intent = new Intent(StartController.this, targetActivity);
+    private void navigateTo() {
+        Intent intent = new Intent(StartController.this, AuthController.class);
         startActivity(intent);
     }
 }
