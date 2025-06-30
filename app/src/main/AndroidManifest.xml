@@ -14,7 +14,7 @@
         android:theme="@style/Theme.WechselgeldApp"
         tools:targetApi="31">
 
-        <!-- Deine Start-Activity -->
+        <!-- Start-Activity -->
         <activity android:name=".StartController"
             android:exported="true">
             <intent-filter>
@@ -22,6 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Weitere Activities -->
+        <activity android:name=".Login.CustomerLogin" />
+        <activity android:name=".Login.SellerLogin" />
 
     </application>
 
