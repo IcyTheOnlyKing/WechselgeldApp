@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:padding="24dp"
     android:background="?android:attr/windowBackground"
-    tools:context=".Authentication.AuthController">
+    tools:context=".AuthController">
 
     <!-- Rollen Label -->
     <TextView
@@ -72,5 +72,35 @@
         app:layout_constraintTop_toBottomOf="@id/passwordLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Hinweis: Einloggen -->
+    <TextView
+        android:id="@+id/loginHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sie haben schon ein Konto? "
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/registerBTN"
+        app:layout_constraintEnd_toStartOf="@id/loginLink"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:textColor="?attr/colorOnBackground" />
+
+    <TextView
+        android:id="@+id/loginLink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="48dp"
+        android:text="Einloggen"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/loginHint"
+        app:layout_constraintStart_toEndOf="@id/loginHint"
+        app:layout_constraintTop_toBottomOf="@id/registerBTN" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

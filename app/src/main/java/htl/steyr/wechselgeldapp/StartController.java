@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
-import htl.steyr.wechselgeldapp.Authentication.AuthController;
-
 public class StartController extends Activity {
 
     @Override
