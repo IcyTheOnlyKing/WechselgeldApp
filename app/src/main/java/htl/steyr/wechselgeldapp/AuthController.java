@@ -118,21 +118,22 @@ public class AuthController extends Activity {
             boolean success = false;
 
             if ("seller".equals(role)) {
-                Seller seller = db.sellerDao().findByShopName(username);
+                Seller seller = db.sellerDao().findByShopName(hashDataViaSHA(username));
                 if (seller != null && BCrypt.checkpw(password, seller.passwordHash)) {
                     success = true;
+                    setContentView(R.layout.seller_ui);
                 }
-
             } else {
-                Customer customer = db.customerDao().findByDisplayName(username);
+                Customer customer = db.customerDao().findByDisplayName(hashDataViaSHA(username));
                 if (customer != null && BCrypt.checkpw(password, customer.passwordHash)) {
                     success = true;
+                    setContentView(R.layout.customer_ui);
                 }
             }
 
             if (success) {
                 Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
-                // Weiterleitung zur Hauptansicht etc.
+
             } else {
                 Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
             }
