@@ -33,7 +33,8 @@
         </activity>
 
         <activity android:name=".AuthController"/>
-
+        <activity android:name=".UI.SellerUIController"/>
+        <activity android:name=".UI.CustomerUIController"/>
     </application>
 
 </manifest>

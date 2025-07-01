@@ -1,6 +1,7 @@
 package htl.steyr.wechselgeldapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,7 +14,11 @@ import htl.steyr.wechselgeldapp.Database.AppDatabaseInstance;
 import htl.steyr.wechselgeldapp.Database.Entity.Customer;
 import htl.steyr.wechselgeldapp.Database.Entity.Seller;
 
+import htl.steyr.wechselgeldapp.UI.CustomerUIController;
+import htl.steyr.wechselgeldapp.UI.SellerUIController;
+
 import org.mindrot.jbcrypt.BCrypt;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -146,23 +151,25 @@ public class AuthController extends Activity {
             if ("seller".equals(role)) {
                 Seller seller = db.sellerDao().findByShopName(hashDataViaSHA(username));
                 if (seller != null && BCrypt.checkpw(password, seller.passwordHash)) {
-                    success = true;
-                    setContentView(R.layout.seller_ui);
+                    Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, SellerUIController.class);
+                    startActivity(intent);
+
+                } else {
+                    Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Customer customer = db.customerDao().findByDisplayName(hashDataViaSHA(username));
                 if (customer != null && BCrypt.checkpw(password, customer.passwordHash)) {
-                    success = true;
-                    setContentView(R.layout.customer_ui);
+                    Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, CustomerUIController.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
                 }
             }
 
-            if (success) {
-                Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
 
-            } else {
-                Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
-            }
         });
 
         registerLink.setOnClickListener(view -> showRegistrationView());
@@ -176,18 +183,18 @@ public class AuthController extends Activity {
         return currentLayoutResId == R.layout.login_view;
     }
 
-    public String hashPasswordViaBCrypt(String password){
+    public String hashPasswordViaBCrypt(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt(12));
     }
 
-    public String hashDataViaSHA(String data){
+    public String hashDataViaSHA(String data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(data.getBytes());
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
-                if(hex.length() == 1) hexString.append('0');
+                if (hex.length() == 1) hexString.append('0');
                 hexString.append(hex);
             }
             return hexString.toString();
