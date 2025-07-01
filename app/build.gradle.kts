@@ -35,6 +35,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation(libs.room.common.jvm)
+    implementation(libs.firebase.database)
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation(libs.appcompat)
     implementation(libs.material)
