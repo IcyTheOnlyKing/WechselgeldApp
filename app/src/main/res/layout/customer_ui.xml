@@ -3,46 +3,51 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="?android:attr/windowBackground">
 
     <!-- TopAppBar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="?attr/colorPrimary"
         app:navigationIcon="@android:drawable/ic_menu_sort_by_size"
         app:title="Bäckerei Müller"
-        app:titleTextColor="@android:color/black" />
+        app:titleTextColor="@android:color/white"
+        android:elevation="4dp" />
 
     <!-- Inhalt -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="64dp"
         android:layout_marginBottom="72dp"
         android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
             <!-- Transaktionskarten -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:orientation="horizontal"
-                android:weightSum="2">
+                android:gravity="center"
+                android:weightSum="2"
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/light_gray">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -54,7 +59,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Letzte Transaktion"
-                            android:textColor="#888888"
+                            android:textColor="@color/gray"
                             android:textSize="14sp" />
 
                         <TextView
@@ -62,16 +67,16 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="$45,678.90"
-                            android:textColor="#000000"
-                            android:textSize="24sp"
+                            android:textColor="@android:color/black"
+                            android:textSize="22sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="+20% month over month"
-                            android:textColor="#888888"
+                            android:text="+20% Monat über Monat"
+                            android:textColor="@color/gray"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -81,8 +86,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/light_gray">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -94,7 +101,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Heutige Transaktionen"
-                            android:textColor="#888888"
+                            android:textColor="@color/gray"
                             android:textSize="14sp" />
 
                         <TextView
@@ -102,16 +109,16 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="12"
-                            android:textColor="#000000"
-                            android:textSize="24sp"
+                            android:textColor="@android:color/black"
+                            android:textSize="22sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="+33% month over month"
-                            android:textColor="#888888"
+                            android:text="+33% Monat über Monat"
+                            android:textColor="@color/gray"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -122,8 +129,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="1dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -135,7 +144,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Geräte in der Nähe"
-                        android:textColor="#000000"
+                        android:textColor="@android:color/black"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -165,14 +174,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Elynn Lee"
-                                android:textColor="#000"
+                                android:textColor="@android:color/black"
                                 android:textSize="14sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Zuletzt: 11,50€"
-                                android:textColor="#888"
+                                android:textColor="@color/gray"
                                 android:textSize="12sp" />
                         </LinearLayout>
 
@@ -181,20 +190,18 @@
                             android:layout_height="24dp"
                             android:src="@android:drawable/ic_input_add" />
                     </LinearLayout>
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-
-    <!-- Bottom Navigation View (sichtbar unten) -->
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@android:color/white"
+        android:background="?attr/colorSurface"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
