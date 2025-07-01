@@ -49,9 +49,9 @@ public class BluetoothTestActivity extends AppCompatActivity implements Bluetoot
     }
 
     private String[] getPermissions() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                ? new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_FINE_LOCATION}
-                : new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            return new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_FINE_LOCATION};
+        return new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION};
     }
 
     private boolean hasPermissions() {
@@ -132,7 +132,8 @@ public class BluetoothTestActivity extends AppCompatActivity implements Bluetoot
         deviceCount++;
         String name = "Unbekannt";
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-            name = device.getName() != null ? device.getName() : "Unbekannt";
+            if (device.getName() != null) name = device.getName();
+            else name = "Unbekannt";
         }
         statusText.append(String.format("(%d) %s (%s)\n", deviceCount, name, device.getAddress()));
     }
