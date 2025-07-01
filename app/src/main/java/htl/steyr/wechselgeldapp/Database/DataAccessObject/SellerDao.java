@@ -11,11 +11,12 @@ public interface SellerDao {
     @Insert void insert(Seller seller);
     @Query("SELECT * FROM Seller WHERE shopName = :shopName LIMIT 1")
     Seller findByShopName(String shopName);
+
+    @Query("SELECT * FROM Seller WHERE email = :email LIMIT 1")
+    Seller findByEmail(String email);
     @Query("SELECT * FROM Seller WHERE id = :id")
     Seller getById(int id);
 
-    @Query("SELECT * FROM Seller WHERE email = :email")
-    Seller getByEmail(String email);
 
     @Query("DELETE FROM Seller")
     void deleteAll();

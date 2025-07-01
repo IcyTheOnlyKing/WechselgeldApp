@@ -17,9 +17,11 @@ public interface CustomerDao {
     @Query("SELECT * FROM Customer WHERE email = :email")
     Customer getByEmail(String email);
 
-    @Query("SELECT * FROM Customer WHERE displayName = :displayName")
+    @Query("SELECT * FROM Customer WHERE displayName = :displayName LIMIT 1")
     Customer findByDisplayName(String displayName);
 
+    @Query("SELECT * FROM Customer WHERE email = :email LIMIT 1")
+    Customer findByEmail(String email);
     @Query("DELETE FROM Customer")
     void deleteAll();
 }

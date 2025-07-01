@@ -67,16 +67,42 @@ public class AuthController extends Activity {
                 return;
             }
 
+            String hashedUsername = hashDataViaSHA(username);
+            String hashedEmail = hashDataViaSHA(email);
+
             if ("seller".equals(role)) {
+                Seller existingSellerByName = db.sellerDao().findByShopName(hashedUsername);
+                Seller existingSellerByEmail = db.sellerDao().findByEmail(hashedEmail);
+                if (existingSellerByName != null) {
+                    Toast.makeText(this, "Geschäftsname bereits vergeben!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (existingSellerByEmail != null) {
+                    Toast.makeText(this, "Email bereits vergeben!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Seller seller = new Seller();
-                seller.shopName = hashDataViaSHA(username);
-                seller.email = hashDataViaSHA(email);
+                seller.shopName = hashedUsername;
+                seller.email = hashedEmail;
                 seller.passwordHash = hashPasswordViaBCrypt(password);
                 db.sellerDao().insert(seller);
+
             } else {
+                Customer existingCustomerByName = db.customerDao().findByDisplayName(hashedUsername);
+                Customer existingCustomerByEmail = db.customerDao().findByEmail(hashedEmail);
+                if (existingCustomerByName != null) {
+                    Toast.makeText(this, "Benutzername bereits vergeben!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (existingCustomerByEmail != null) {
+                    Toast.makeText(this, "Email bereits vergeben!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Customer customer = new Customer();
-                customer.displayName = hashDataViaSHA(username);
-                customer.email = hashDataViaSHA(email);
+                customer.displayName = hashedUsername;
+                customer.email = hashedEmail;
                 customer.passwordHash = hashPasswordViaBCrypt(password);
                 db.customerDao().insert(customer);
             }
@@ -168,4 +194,5 @@ public class AuthController extends Activity {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-    }}
+    }
+}
