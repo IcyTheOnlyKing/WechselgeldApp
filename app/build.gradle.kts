@@ -33,6 +33,7 @@ android {
 
 dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation ("org.mindrot:jbcrypt:0.4")
     implementation(libs.room.common.jvm)
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation(libs.appcompat)
