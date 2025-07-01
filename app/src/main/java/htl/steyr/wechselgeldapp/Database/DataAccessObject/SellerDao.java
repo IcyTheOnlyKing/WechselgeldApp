@@ -20,4 +20,3 @@ public interface SellerDao {
     @Query("DELETE FROM Seller")
     void deleteAll();
 }
-
