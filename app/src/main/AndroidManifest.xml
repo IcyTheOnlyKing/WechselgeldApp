@@ -32,9 +32,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Weitere Activities -->
-        <activity android:name=".Login.CustomerLogin" />
-        <activity android:name=".Login.SellerLogin" />
+        <activity android:name=".AuthController"/>
 
     </application>
 
