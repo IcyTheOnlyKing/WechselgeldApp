@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,21 +12,21 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:paddingHorizontal="16dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <!-- Hamburger Menu Icon -->
         <ImageView
             android:id="@+id/menu_icon"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ic_menu"
             android:layout_marginEnd="16dp"
-            android:contentDescription="Menü"/>
+            android:contentDescription="Menü"
+            android:src="@drawable/ic_menu" />
 
         <!-- Editable Restaurant Name -->
         <EditText
@@ -35,41 +34,41 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@null"
+            android:gravity="center"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLines="1"
             android:text="Bäckerei Müller"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:background="@null"
-            android:inputType="text"
-            android:imeOptions="actionDone"
-            android:maxLines="1"/>
+            android:textStyle="bold" />
 
         <!-- Profile Picture -->
         <ImageView
             android:id="@+id/profile_image"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ic_profile"
-            android:layout_marginStart="16dp"/>
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_profile" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/info_cards"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginTop="50dp"
+        android:orientation="horizontal"
         android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/header">
 
         <!-- Card 1 -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
+            android:layout_weight="1"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -104,8 +103,8 @@
         <!-- Card 2 -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -131,8 +130,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="+33% month over month"
-                    android:textSize="12sp"
-                    android:textColor="#888888"/>
+                    android:textColor="#888888"
+                    android:textSize="12sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
@@ -143,38 +142,66 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginTop="150dp"
-        android:layout_marginBottom= "50dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="50dp"
         app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/info_cards"
         app:layout_constraintBottom_toTopOf="@id/bottom_icon_bar"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/info_cards">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:padding="16dp">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Geräte in der Nähe"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/scan_devices_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:backgroundTint="@color/purple_500"
+                    android:text="Scannen"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/device_status_text"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Geräte in der Nähe"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="Bereit zum Scannen nach Bluetooth-Geräten"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:visibility="visible" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/device_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:nestedScrollingEnabled="true" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Bottom Icon Bar (Original Icons) -->
+    <!-- Bottom Icon Bar -->
     <LinearLayout
         android:id="@+id/bottom_icon_bar"
         android:layout_width="match_parent"
@@ -184,10 +211,9 @@
         android:orientation="horizontal"
         android:paddingVertical="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Original Icons from your layout -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -198,15 +224,15 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_home"/>
+                android:src="@drawable/ic_home" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="Start"
-                android:textSize="12sp"
                 android:textColor="#000000"
-                android:layout_marginTop="4dp"/>
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -219,15 +245,15 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_connect"/>
+                android:src="@drawable/ic_connect" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="Koppeln"
-                android:textSize="12sp"
                 android:textColor="#000000"
-                android:layout_marginTop="4dp"/>
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -240,15 +266,15 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_transactions"/>
+                android:src="@drawable/ic_transactions" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="Transaktionen"
-                android:textSize="12sp"
                 android:textColor="#000000"
-                android:layout_marginTop="4dp"/>
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -261,15 +287,15 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_settings"/>
+                android:src="@drawable/ic_settings" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="Einstellungen"
-                android:textSize="12sp"
                 android:textColor="#000000"
-                android:layout_marginTop="4dp"/>
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
