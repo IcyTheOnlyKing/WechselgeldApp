@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 public class AuthController extends Activity {
 
     private int currentLayoutResId;
-    private String role; // "seller" oder "customer"
+    private String role; // "seller" or "customer"
     private AppDatabase db;
 
     @Override
@@ -48,7 +48,7 @@ public class AuthController extends Activity {
         Button registerBTN = findViewById(R.id.registerBTN);
         TextView loginLink = findViewById(R.id.loginLink);
 
-        // Dynamische UI je nach Rolle
+
         if ("seller".equals(role)) {
             roleLabel.setText("Registrierung für Verkäufer");
             usernameInput.setHint("Geschäftsname");
