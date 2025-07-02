@@ -13,9 +13,10 @@ import htl.steyr.wechselgeldapp.Database.Entity.Balance;
 import htl.steyr.wechselgeldapp.Database.Entity.Customer;
 import htl.steyr.wechselgeldapp.Database.Entity.Device;
 import htl.steyr.wechselgeldapp.Database.Entity.Seller;
+import htl.steyr.wechselgeldapp.Database.Entity.Transaction;
 
 
-@Database(entities = {Customer.class, Seller.class, Device.class, Balance.class}, version = 1)
+@Database(entities = {Customer.class, Seller.class, Device.class, Balance.class, Transaction.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract CustomerDao customerDao();

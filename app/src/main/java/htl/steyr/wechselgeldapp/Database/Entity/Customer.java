@@ -11,4 +11,5 @@ public class Customer {
     public String displayName;
     public String email;
     public String passwordHash;
+
 }
