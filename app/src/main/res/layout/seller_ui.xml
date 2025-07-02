@@ -226,7 +226,7 @@
                 android:layout_height="wrap_content"
                 android:text="Koppeln"
                 android:textSize="12sp"
-                android:textColor="#000000"
+                android:textColor="#808080"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
@@ -247,7 +247,7 @@
                 android:layout_height="wrap_content"
                 android:text="Transaktionen"
                 android:textSize="12sp"
-                android:textColor="#000000"
+                android:textColor="#808080"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
@@ -268,7 +268,7 @@
                 android:layout_height="wrap_content"
                 android:text="Einstellungen"
                 android:textSize="12sp"
-                android:textColor="#000000"
+                android:textColor="#808080"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
     </LinearLayout>
