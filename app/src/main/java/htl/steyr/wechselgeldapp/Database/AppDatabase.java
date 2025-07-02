@@ -8,6 +8,7 @@ import htl.steyr.wechselgeldapp.Database.DataAccessObject.BalanceDao;
 import htl.steyr.wechselgeldapp.Database.DataAccessObject.DeviceDao;
 import htl.steyr.wechselgeldapp.Database.DataAccessObject.SellerDao;
 
+import htl.steyr.wechselgeldapp.Database.DataAccessObject.TransactionDao;
 import htl.steyr.wechselgeldapp.Database.Entity.Balance;
 import htl.steyr.wechselgeldapp.Database.Entity.Customer;
 import htl.steyr.wechselgeldapp.Database.Entity.Device;
@@ -24,5 +25,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract DeviceDao deviceDao();
 
     public abstract BalanceDao balanceDao();
+
+    public abstract TransactionDao transactionDao();
 }
 
