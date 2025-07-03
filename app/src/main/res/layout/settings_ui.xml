@@ -6,13 +6,12 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Header with Editable Restaurant Name -->
+    <!-- Header mit bearbeitbarem Restaurant-Namen -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent"
@@ -29,20 +28,15 @@
             android:layout_marginEnd="16dp"
             android:contentDescription="Menü"/>
 
-        <!-- Editable Restaurant Name -->
-        <EditText
-            android:id="@+id/restaurant_name"
+        <!-- Restaurant Name -->
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Bäckerei Müller"
+            android:text="Einstellungen"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:gravity="center"
-            android:background="@null"
-            android:inputType="text"
-            android:imeOptions="actionDone"
-            android:maxLines="1"/>
+            android:gravity="center"/>
 
         <!-- Profile Picture -->
         <ImageView
@@ -54,7 +48,6 @@
     </LinearLayout>
 
     <ScrollView
-        android:id="@+id/scroll_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -64,16 +57,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Customer Info Card -->
-
-            <!-- Option 1: Change Money Card -->
+            <!-- Persönliche Informationen -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:layout_marginTop="40dp"
                 app:cardElevation="2dp"
                 app:strokeColor="#EEEEEE"
                 app:strokeWidth="1dp">
@@ -87,35 +78,65 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Überweisung für"
-                        android:textColor="#757575"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tvCustomerName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Max Mustermann"
+                        android:text="Persönliche Informationen"
                         android:textColor="#212121"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp"/>
 
-                    <TextView
-                        android:id="@+id/tvCustomerBalance"
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Guthaben: 20,00 €"
-                        android:textColor="#4CAF50"
-                        android:textSize="14sp" />
+                        android:layout_marginBottom="16dp"
+                        app:boxStrokeColor="#BDBDBD"
+                        android:textColorHint="#BDBDBD">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Name"
+                            android:inputType="textPersonName"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxStrokeColor="#BDBDBD"
+                        android:textColorHint="#BDBDBD">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etEmail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="E-Mail"
+                            android:inputType="textEmailAddress"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxStrokeColor="#BDBDBD"
+                        android:textColorHint="#BDBDBD">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPhone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Telefonnummer"
+                            android:inputType="phone"/>
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Adressinformationen -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardElevation="1dp"
+                app:cardElevation="2dp"
                 app:strokeColor="#EEEEEE"
                 app:strokeWidth="1dp">
 
@@ -128,73 +149,86 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Option 1: Wechselgeld senden"
+                        android:text="Adressinformationen"
                         android:textColor="#212121"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        app:endIconMode="clear_text"
                         app:boxStrokeColor="#BDBDBD"
                         android:textColorHint="#BDBDBD">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etProductPrice"
+                            android:id="@+id/etStreet"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Produktpreis (€)"
-                            android:inputType="numberDecimal" />
+                            android:hint="Straße und Hausnummer"
+                            android:inputType="textPostalAddress"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        app:endIconMode="clear_text"
                         app:boxStrokeColor="#BDBDBD"
                         android:textColorHint="#BDBDBD">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etAmountReceived"
+                            android:id="@+id/etCity"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Erhaltener Betrag (€)"
-                            android:inputType="numberDecimal" />
+                            android:hint="Stadt"
+                            android:inputType="text"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <TextView
-                        android:id="@+id/tvChangeAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="16dp"
-                        android:text="Wechselgeld: 0,00 €"
-                        android:textColor="#212121"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSendChange"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:text="Senden"
-                        app:backgroundTint="#4CAF50"
-                        android:textColor="#FFFFFF"
-                        app:cornerRadius="8dp"
-                        android:textAllCaps="false"
-                        android:textSize="16sp" />
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            app:boxStrokeColor="#BDBDBD"
+                            android:textColorHint="#BDBDBD">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etZip"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="PLZ"
+                                android:inputType="number"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            app:boxStrokeColor="#BDBDBD"
+                            android:textColorHint="#BDBDBD">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCountry"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Land"
+                                android:inputType="text"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Option 2: Balance Payment Card -->
+            <!-- Passwort ändern -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardElevation="1dp"
+                app:cardElevation="2dp"
                 app:strokeColor="#EEEEEE"
                 app:strokeWidth="1dp">
 
@@ -207,44 +241,76 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Option 2: Guthaben belasten"
+                        android:text="Passwort ändern"
                         android:textColor="#212121"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        app:endIconMode="clear_text"
                         app:boxStrokeColor="#BDBDBD"
-                        android:textColorHint="#BDBDBD">
+                        android:textColorHint="#BDBDBD"
+                        app:passwordToggleEnabled="true">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etPaymentAmount"
+                            android:id="@+id/etCurrentPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Zu belastender Betrag (€)"
-                            android:inputType="numberDecimal" />
+                            android:hint="Aktuelles Passwort"
+                            android:inputType="textPassword"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxStrokeColor="#BDBDBD"
+                        android:textColorHint="#BDBDBD"
+                        app:passwordToggleEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etNewPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Neues Passwort"
+                            android:inputType="textPassword"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:boxStrokeColor="#BDBDBD"
+                        android:textColorHint="#BDBDBD"
+                        app:passwordToggleEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etConfirmPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Passwort bestätigen"
+                            android:inputType="textPassword"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnChargePayment"
+                        android:id="@+id/btnSaveChanges"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:text="Zahlung durchführen"
+                        android:text="Änderungen speichern"
                         app:backgroundTint="#4CAF50"
                         android:textColor="#FFFFFF"
                         app:cornerRadius="8dp"
                         android:textAllCaps="false"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Icon Bar with added IDs -->
+    <!-- Bottom Icon Bar -->
     <LinearLayout
         android:id="@+id/bottom_icon_bar"
         android:layout_width="match_parent"
@@ -253,7 +319,6 @@
         android:elevation="8dp"
         android:orientation="horizontal"
         android:paddingVertical="12dp"
-        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -324,7 +389,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_transactions"
-                app:tint="#000000"/>
+                app:tint="#808080"/>
 
             <TextView
                 android:id="@+id/transactions_text"
@@ -332,7 +397,7 @@
                 android:layout_height="wrap_content"
                 android:text="Transaktionen"
                 android:textSize="12sp"
-                android:textColor="#000000"
+                android:textColor="#808080"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
@@ -350,7 +415,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_settings"
-                app:tint="#808080"/>
+                app:tint="#000000"/>
 
             <TextView
                 android:id="@+id/settings_text"
@@ -358,7 +423,7 @@
                 android:layout_height="wrap_content"
                 android:text="Einstellungen"
                 android:textSize="12sp"
-                android:textColor="#808080"
+                android:textColor="#000000"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
     </LinearLayout>

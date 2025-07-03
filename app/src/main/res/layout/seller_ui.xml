@@ -174,7 +174,7 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Bottom Icon Bar (Original Icons) -->
+    <!-- Bottom Icon Bar mit IDs -->
     <LinearLayout
         android:id="@+id/bottom_icon_bar"
         android:layout_width="match_parent"
@@ -187,20 +187,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Original Icons from your layout -->
+        <!-- Home Tab -->
         <LinearLayout
+            android:id="@+id/home_tab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
 
             <ImageView
+                android:id="@+id/home_icon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_home"/>
+                android:src="@drawable/ic_home"
+                app:tint="#000000"/>
 
             <TextView
+                android:id="@+id/home_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Start"
@@ -209,19 +215,26 @@
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
+        <!-- Connect Tab -->
         <LinearLayout
+            android:id="@+id/connect_tab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
 
             <ImageView
+                android:id="@+id/connect_icon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_connect"/>
+                android:src="@drawable/ic_connect"
+                app:tint="#808080"/>
 
             <TextView
+                android:id="@+id/connect_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Koppeln"
@@ -230,19 +243,26 @@
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
+        <!-- Transactions Tab -->
         <LinearLayout
+            android:id="@+id/transactions_tab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
 
             <ImageView
+                android:id="@+id/transactions_icon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_transactions"/>
+                android:src="@drawable/ic_transactions"
+                app:tint="#808080"/>
 
             <TextView
+                android:id="@+id/transactions_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Transaktionen"
@@ -251,19 +271,26 @@
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
+        <!-- Settings Tab -->
         <LinearLayout
+            android:id="@+id/settings_tab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
 
             <ImageView
+                android:id="@+id/settings_icon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_settings"/>
+                android:src="@drawable/ic_settings"
+                app:tint="#808080"/>
 
             <TextView
+                android:id="@+id/settings_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Einstellungen"
