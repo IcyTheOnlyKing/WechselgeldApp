@@ -56,7 +56,8 @@
                     android:layout_height="wrap_content"
                     android:text="€6,50"
                     android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:id="@+id/username"
@@ -64,7 +65,8 @@
                     android:layout_height="wrap_content"
                     android:text="Gasthaus der Hirten"
                     android:textColor="#888888"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:ignore="HardcodedText" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
