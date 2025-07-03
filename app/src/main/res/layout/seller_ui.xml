@@ -298,4 +298,50 @@
                 android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
+
+    <!-- Seller UI Controller -->
+    <LinearLayout
+        android:id="@+id/seller_ui_controller"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@android:color/white"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Verkäufer-Interface"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/scan_devices_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nach Geräten scannen"
+            android:enabled="false"
+            android:layout_marginBottom="16dp"
+            tools:ignore="DuplicateIds" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/device_list_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Initialisierung..."
+                android:textSize="14sp"
+                android:background="#f5f5f5"
+                android:padding="12dp"
+                android:fontFamily="monospace" />
+
+        </ScrollView>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
