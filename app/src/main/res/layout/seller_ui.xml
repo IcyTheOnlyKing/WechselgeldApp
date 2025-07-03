@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Header with Editable Restaurant Name -->
+
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="0dp"
