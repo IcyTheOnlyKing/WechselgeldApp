@@ -31,15 +31,15 @@ public class AuthController extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = AppDatabaseInstance.getInstance(getApplicationContext()); // get database
+        db = AppDatabaseInstance.getInstance(getApplicationContext()); // get database instance
 
-        role = getIntent().getStringExtra("user_role"); // get role from previous screen
+        role = getIntent().getStringExtra("user_role"); // get role from the previous screen
         showRegistrationView(); // show registration screen first
     }
 
     private void showRegistrationView() {
         currentLayoutResId = R.layout.registration_view;
-        setContentView(currentLayoutResId); // show registration layout
+        setContentView(currentLayoutResId); // show registration view
 
         // find UI elements
         TextView roleLabel = findViewById(R.id.roleLabel);
