@@ -115,22 +115,57 @@ package htl.steyr.wechselgeldapp.UI;
 
 
         @Override
-        public void onDeviceFound(BluetoothDevice device) {
+        public void onScanStarted() {
+            deviceListText.append("Suche gestartet...\n");
+        }
 
+        @Override
+        public void onDeviceFound(BluetoothDevice device) {
+            deviceCount++;
+            String name = "Unbekannt";
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                if (device.getName() != null) name = device.getName();
+            }
+
+            deviceListText.append(String.format("(%d) %s (%s)\n", deviceCount, name, device.getAddress()));
+            String finalName = name;
+            deviceListText.setOnClickListener(v -> {
+                if (hasPermissions()) {
+                    try {
+                        device.createBond();
+                        Toast.makeText(this, "Kopplungsanfrage gesendet an " + finalName, Toast.LENGTH_SHORT).show();
+                    } catch (SecurityException e) {
+                        Toast.makeText(this, "Berechtigung für Geräteverbindung fehlt", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
 
         @Override
         public void onScanFinished() {
-
-        }
-
-        @Override
-        public void onScanStarted() {
-
+            deviceListText.append(String.format("\n=== %d Geräte gefunden ===\n", deviceCount));
+            scanDevicesButton.setEnabled(true);
         }
 
         @Override
         public void onError(String error) {
+            deviceListText.append("FEHLER: " + error + "\n");
+            scanDevicesButton.setEnabled(true);
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+        }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+        @Override
+        protected void onDestroy() {
+            super.onDestroy();
+            if (bluetooth != null) bluetooth.cleanup();
+        }
+
+        @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+        @Override
+        protected void onPause() {
+            super.onPause();
+            if (bluetooth != null) bluetooth.stopScan();
         }
     }
