@@ -11,13 +11,12 @@ public class StartController extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Prüfen ob der User schon eingeloggt ist
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
         String role = prefs.getString("user_role", "");
 
-        if (isLoggedIn && role != null) {
+        if (isLoggedIn) {
             // User ist schon eingeloggt, direkt weiterleiten
             if (role.equals("seller")) {
                 startActivity(new Intent(this, htl.steyr.wechselgeldapp.UI.SellerUIController.class));
