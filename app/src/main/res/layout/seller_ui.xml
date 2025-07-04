@@ -19,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Hamburger Menu Icon -->
+
         <ImageView
             android:id="@+id/menu_icon"
             android:layout_width="30dp"
@@ -28,7 +28,7 @@
             android:contentDescription="Menü"
             android:src="@drawable/ic_menu" />
 
-        <!-- Editable Restaurant Name -->
+
         <EditText
             android:id="@+id/restaurant_name"
             android:layout_width="0dp"
@@ -43,7 +43,7 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <!-- Profile Picture -->
+
         <ImageView
             android:id="@+id/profile_image"
             android:layout_width="30dp"

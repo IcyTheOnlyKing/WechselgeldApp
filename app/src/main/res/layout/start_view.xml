@@ -8,7 +8,7 @@
     android:padding="24dp"
     tools:context=".StartController">
 
-    <!-- Begrüßung -->
+
     <TextView
         android:id="@+id/tv_welcome"
         android:layout_width="wrap_content"
@@ -22,7 +22,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Verkäufer Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sellerBTN"
         android:layout_width="0dp"
@@ -41,7 +40,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Kunde Button -->
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/customerBTN"
         android:layout_width="0dp"
