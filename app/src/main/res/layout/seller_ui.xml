@@ -35,14 +35,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Bäckerei Müller"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"
             android:background="@null"
-            android:inputType="text"
+            android:gravity="center"
             android:imeOptions="actionDone"
-            android:maxLines="1"/>
+            android:inputType="text"
+            android:maxLines="1"
+            android:text="Spar"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
 
         <ImageView

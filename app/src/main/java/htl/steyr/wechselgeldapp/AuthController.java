@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 public class AuthController extends Activity {
 
     private int currentLayoutResId;
-    private String role; // "seller" or "customer"
+    private String role; // "seller" or "customer" role
     private AppDatabase db;
 
     @Override
@@ -52,7 +52,7 @@ public class AuthController extends Activity {
         if ("seller".equals(role)) {
             roleLabel.setText("Registrierung für Verkäufer");
             usernameInput.setHint("Geschäftsname");
-        } else {
+        } else if ("customer".equals(role)) {
             roleLabel.setText("Registrierung für Kunden");
             usernameInput.setHint("Benutzername");
         }
