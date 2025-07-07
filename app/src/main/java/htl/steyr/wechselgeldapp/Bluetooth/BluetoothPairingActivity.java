@@ -184,6 +184,7 @@ public class BluetoothPairingActivity extends Activity implements Bluetooth.Blue
         ActivityCompat.requestPermissions(this, getPermissions(), PERMISSION_REQUEST_CODE);
     }
 
+    @SuppressLint("SetTextI18n")
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

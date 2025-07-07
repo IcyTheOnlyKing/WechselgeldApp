@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 public class AuthController extends Activity {
 
     private int currentLayoutResId;
-    private String role; // "seller" oder "customer"
+    private String role;
     private AppDatabase db;
 
     @Override
