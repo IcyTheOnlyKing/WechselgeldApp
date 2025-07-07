@@ -35,6 +35,8 @@
         <activity android:name=".AuthController"/>
         <activity android:name=".UI.SellerUIController"/>
         <activity android:name=".UI.CustomerUIController"/>
+        <activity android:name=".UI.SettingsController"/>
+        <activity android:name=".UI.SearchController"/>
     </application>
 
 </manifest>
