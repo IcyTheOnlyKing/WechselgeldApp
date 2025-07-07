@@ -1,32 +1,31 @@
 package htl.steyr.wechselgeldapp.UI;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.room.Room;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.Calendar;
 import java.util.Locale;
 
-import htl.steyr.wechselgeldapp.Database.DataAccessObject.BalanceDao;
-import htl.steyr.wechselgeldapp.Database.DataAccessObject.SellerDao;
-import htl.steyr.wechselgeldapp.Database.DataAccessObject.TransactionDao;
-import htl.steyr.wechselgeldapp.Database.Models.Balance;
-import htl.steyr.wechselgeldapp.Database.Models.Seller;
+import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
 
-public class CustomerUIController extends AppCompatActivity {
+public class CustomerUIController extends Activity {
 
-    private AppDatabase db;
-    private SellerDao sellerDao;
-    private BalanceDao balanceDao;
+    private DatabaseHelper dbHelper;
 
     private MaterialToolbar topAppBar;
     private TextView textViewLastBalance;
     private TextView textViewTodayTransactionCount;
+    private LinearLayout searchLayout;
+    private LinearLayout settingsLayout;
+
+    private String currentOtherUuid = "demo-uuid";  // → Muss aus deinem Login oder Intent kommen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,38 +36,50 @@ public class CustomerUIController extends AppCompatActivity {
         topAppBar = findViewById(R.id.topAppBar);
         textViewLastBalance = findViewById(R.id.textViewLastBalance);
         textViewTodayTransactionCount = findViewById(R.id.textViewTodayTransactionCount);
+        searchLayout = findViewById(R.id.searchBTN);
+        settingsLayout = findViewById(R.id.settingsLayout);
 
-        // Room-DB starten
-        db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "wechselgeld-db")
-                .allowMainThreadQueries()
-                .fallbackToDestructiveMigration()
-                .build();
 
-        sellerDao = db.sellerDao();
-        balanceDao = db.balanceDao();
+        // DatabaseHelper initialisieren
+        dbHelper = new DatabaseHelper(this);
 
         loadData();
     }
 
     private void loadData() {
-        // Shopname setzen
-        Seller seller = sellerDao.getById(1);
-        String shopName;
-        if (seller != null) shopName = seller.shopName;
-        else shopName = "Willkommen";
+        // Shopname anzeigen (nimmt ersten Seller aus DB)
+        Cursor sellerCursor = dbHelper.getReadableDatabase().rawQuery("SELECT shopName FROM Seller LIMIT 1", null);
+        String shopName = "Willkommen";
+        if (sellerCursor.moveToFirst()) {
+            shopName = sellerCursor.getString(0);
+        }
+        sellerCursor.close();
         topAppBar.setTitle(shopName);
 
         // Balance anzeigen
-        Balance balance = balanceDao.getById(1);
-        String balanceText;
-        if (balance != null)
-            balanceText = String.format(Locale.getDefault(), "%.2f €", balance.balance);
-        else balanceText = "0,00 €";
+        Cursor balanceCursor = dbHelper.getBalanceForUuid(currentOtherUuid);
+        String balanceText = "0,00 €";
+        if (balanceCursor.moveToFirst()) {
+            double balance = balanceCursor.getDouble(balanceCursor.getColumnIndexOrThrow("balance"));
+            balanceText = String.format(Locale.getDefault(), "%.2f €", balance);
+        }
+        balanceCursor.close();
         textViewLastBalance.setText(balanceText);
 
-        // Heutige Transaktionen (später aus DB)
+        // Heutige Transaktionen zählen
         int transactionCount = getTransactionCountForToday();
         textViewTodayTransactionCount.setText(String.valueOf(transactionCount));
+
+        searchLayout.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SearchController.class);
+            startActivity(intent);
+        });
+
+        settingsLayout.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingsController.class);
+            startActivity(intent);
+        });
+
     }
 
     private int getTransactionCountForToday() {
@@ -79,12 +90,19 @@ public class CustomerUIController extends AppCompatActivity {
         calendar.set(Calendar.MILLISECOND, 0);
         long startOfDay = calendar.getTimeInMillis();
 
-        // Ende des Tages (23:59:59)
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         long endOfDay = calendar.getTimeInMillis();
 
-        // Datenbankabfrage
-        TransactionDao transactionDao = db.transactionDao();
-        return transactionDao.getTransactionCountForDay(startOfDay, endOfDay);
+        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(
+                "SELECT COUNT(*) FROM Transactions WHERE timestamp >= ? AND timestamp < ?",
+                new String[]{String.valueOf(startOfDay), String.valueOf(endOfDay)}
+        );
+
+        int count = 0;
+        if (cursor.moveToFirst()) {
+            count = cursor.getInt(0);
+        }
+        cursor.close();
+        return count;
     }
 }
