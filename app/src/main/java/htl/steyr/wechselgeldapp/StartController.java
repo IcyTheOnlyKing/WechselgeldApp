@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 
+import htl.steyr.wechselgeldapp.UI.CustomerUIController;
+
 public class StartController extends Activity {
 
     @Override
@@ -17,12 +19,12 @@ public class StartController extends Activity {
         boolean isLoggedIn = prefs.getBoolean("is_logged_in", false); // true = logged in
         String role = prefs.getString("user_role", ""); // get saved role (seller or customer)
 
-        if (isLoggedIn && role != null) {
+        if (isLoggedIn) {
             // User is already logged in, send him to the correct screen
             if (role.equals("seller")) {
                 startActivity(new Intent(this, htl.steyr.wechselgeldapp.UI.SellerUIController.class));
             } else if (role.equals("customer")) {
-                startActivity(new Intent(this, htl.steyr.wechselgeldapp.UI.CustomerUIController.class));
+                startActivity(new Intent(this, CustomerUIController.class));
             }
             finish(); // close this screen so user can't go back here
             return;
