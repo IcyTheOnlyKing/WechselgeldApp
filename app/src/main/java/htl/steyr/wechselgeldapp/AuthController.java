@@ -10,10 +10,8 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import htl.steyr.wechselgeldapp.Database.AppDatabase;
-import htl.steyr.wechselgeldapp.Database.AppDatabaseInstance;
-import htl.steyr.wechselgeldapp.Database.Entity.Customer;
-import htl.steyr.wechselgeldapp.Database.Entity.Seller;
+import htl.steyr.wechselgeldapp.Database.Models.Customer;
+import htl.steyr.wechselgeldapp.Database.Models.Seller;
 import htl.steyr.wechselgeldapp.UI.CustomerUIController;
 import htl.steyr.wechselgeldapp.UI.SellerUIController;
 

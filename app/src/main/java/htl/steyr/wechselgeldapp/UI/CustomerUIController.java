@@ -11,12 +11,11 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.util.Calendar;
 import java.util.Locale;
 
-import htl.steyr.wechselgeldapp.Database.AppDatabase;
 import htl.steyr.wechselgeldapp.Database.DataAccessObject.BalanceDao;
 import htl.steyr.wechselgeldapp.Database.DataAccessObject.SellerDao;
 import htl.steyr.wechselgeldapp.Database.DataAccessObject.TransactionDao;
-import htl.steyr.wechselgeldapp.Database.Entity.Balance;
-import htl.steyr.wechselgeldapp.Database.Entity.Seller;
+import htl.steyr.wechselgeldapp.Database.Models.Balance;
+import htl.steyr.wechselgeldapp.Database.Models.Seller;
 import htl.steyr.wechselgeldapp.R;
 
 public class CustomerUIController extends AppCompatActivity {
