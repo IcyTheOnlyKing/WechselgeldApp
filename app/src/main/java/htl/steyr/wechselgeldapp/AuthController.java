@@ -3,6 +3,7 @@ package htl.steyr.wechselgeldapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -10,10 +11,7 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import htl.steyr.wechselgeldapp.Database.AppDatabase;
-import htl.steyr.wechselgeldapp.Database.AppDatabaseInstance;
-import htl.steyr.wechselgeldapp.Database.Entity.Customer;
-import htl.steyr.wechselgeldapp.Database.Entity.Seller;
+import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.UI.CustomerUIController;
 import htl.steyr.wechselgeldapp.UI.SellerUIController;
 
@@ -25,13 +23,12 @@ import java.security.NoSuchAlgorithmException;
 public class AuthController extends Activity {
 
     private int currentLayoutResId;
-    private String role;
-    private AppDatabase db;
-
+    private String role; // "seller" oder "customer"
+    private DatabaseHelper db; 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = AppDatabaseInstance.getInstance(getApplicationContext());
+        db = new DatabaseHelper(getApplicationContext());
 
         role = getIntent().getStringExtra("user_role");
         showRegistrationView();
@@ -48,14 +45,8 @@ public class AuthController extends Activity {
         Button registerBTN = findViewById(R.id.registerBTN);
         TextView loginLink = findViewById(R.id.loginLink);
 
-        // Dynamische UI je nach Rolle
-        if ("seller".equals(role)) {
-            roleLabel.setText("Registrierung für Verkäufer");
-            usernameInput.setHint("Geschäftsname");
-        } else {
-            roleLabel.setText("Registrierung für Kunden");
-            usernameInput.setHint("Benutzername");
-        }
+        roleLabel.setText("seller".equals(role) ? "Registrierung für Verkäufer" : "Registrierung für Kunden");
+        usernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
 
         registerBTN.setOnClickListener(view -> {
             String username = usernameInput.getText().toString().trim();
@@ -71,36 +62,17 @@ public class AuthController extends Activity {
             String hashedEmail = hashDataViaSHA(email);
 
             if ("seller".equals(role)) {
-                if (db.sellerDao().findByShopName(hashedUsername) != null) {
-                    Toast.makeText(this, "Geschäftsname bereits vergeben!", Toast.LENGTH_SHORT).show();
+                if (sellerExists(hashedUsername, hashedEmail)) {
+                    Toast.makeText(this, "Geschäftsname oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (db.sellerDao().findByEmail(hashedEmail) != null) {
-                    Toast.makeText(this, "Email bereits vergeben!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Seller seller = new Seller();
-                seller.shopName = hashedUsername;
-                seller.email = hashedEmail;
-                seller.passwordHash = hashPasswordViaBCrypt(password);
-                db.sellerDao().insert(seller);
-
+                db.insertSeller(hashedUsername, hashedEmail, hashPasswordViaBCrypt(password));
             } else {
-                if (db.customerDao().findByDisplayName(hashedUsername) != null) {
-                    Toast.makeText(this, "Benutzername bereits vergeben!", Toast.LENGTH_SHORT).show();
+                if (customerExists(hashedUsername, hashedEmail)) {
+                    Toast.makeText(this, "Benutzername oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (db.customerDao().findByEmail(hashedEmail) != null) {
-                    Toast.makeText(this, "Email bereits vergeben!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Customer customer = new Customer();
-                customer.displayName = hashedUsername;
-                customer.email = hashedEmail;
-                customer.passwordHash = hashPasswordViaBCrypt(password);
-                db.customerDao().insert(customer);
+                db.insertCustomer(hashedUsername, hashedEmail, hashPasswordViaBCrypt(password));
             }
 
             Toast.makeText(this, "Registrierung erfolgreich!", Toast.LENGTH_SHORT).show();
@@ -120,13 +92,8 @@ public class AuthController extends Activity {
         Button loginBTN = findViewById(R.id.loginBTN);
         TextView registerLink = findViewById(R.id.registerLink);
 
-        if ("seller".equals(role)) {
-            loginTitle.setText("Login für Verkäufer");
-            usernameInput.setHint("Geschäftsname");
-        } else {
-            loginTitle.setText("Login für Kunden");
-            usernameInput.setHint("Benutzername");
-        }
+        loginTitle.setText("seller".equals(role) ? "Login für Verkäufer" : "Login für Kunden");
+        usernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
 
         loginBTN.setOnClickListener(view -> {
             String username = usernameInput.getText().toString().trim();
@@ -140,32 +107,63 @@ public class AuthController extends Activity {
             String hashedUsername = hashDataViaSHA(username);
 
             if ("seller".equals(role)) {
-                Seller seller = db.sellerDao().findByShopName(hashedUsername);
-                if (seller != null && BCrypt.checkpw(password, seller.passwordHash)) {
-                    Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
-                    saveLoginStatus("seller");
-                    startActivity(new Intent(this, SellerUIController.class));
-                    finish();
+                Cursor cursor = db.getReadableDatabase().rawQuery(
+                        "SELECT passwordHash FROM Seller WHERE shopName = ?", new String[]{hashedUsername});
+                if (cursor.moveToFirst()) {
+                    String passwordHash = cursor.getString(0);
+                    if (BCrypt.checkpw(password, passwordHash)) {
+                        loginSuccess("seller");
+                    } else {
+                        Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
                 }
+                cursor.close();
             } else {
-                Customer customer = db.customerDao().findByDisplayName(hashedUsername);
-                if (customer != null && BCrypt.checkpw(password, customer.passwordHash)) {
-                    Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
-                    saveLoginStatus("customer");
-                    startActivity(new Intent(this, CustomerUIController.class));
-                    finish();
+                Cursor cursor = db.getReadableDatabase().rawQuery(
+                        "SELECT passwordHash FROM Customer WHERE displayName = ?", new String[]{hashedUsername});
+                if (cursor.moveToFirst()) {
+                    String passwordHash = cursor.getString(0);
+                    if (BCrypt.checkpw(password, passwordHash)) {
+                        loginSuccess("customer");
+                    } else {
+                        Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
                 }
+                cursor.close();
             }
         });
 
         registerLink.setOnClickListener(view -> showRegistrationView());
     }
 
-    // Speichert den Login-Zustand in SharedPreferences
+    private boolean sellerExists(String shopName, String email) {
+        Cursor cursor = db.getReadableDatabase().rawQuery(
+                "SELECT id FROM Seller WHERE shopName = ? OR email = ?", new String[]{shopName, email});
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
+
+    private boolean customerExists(String displayName, String email) {
+        Cursor cursor = db.getReadableDatabase().rawQuery(
+                "SELECT id FROM Customer WHERE displayName = ? OR email = ?", new String[]{displayName, email});
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
+
+    private void loginSuccess(String role) {
+        Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
+        saveLoginStatus(role);
+        Intent intent = new Intent(this, "seller".equals(role) ? SellerUIController.class : CustomerUIController.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void saveLoginStatus(String role) {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         prefs.edit()

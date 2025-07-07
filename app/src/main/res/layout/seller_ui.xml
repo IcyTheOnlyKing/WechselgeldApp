@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Header with Editable Restaurant Name -->
+
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="0dp"
@@ -19,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Hamburger Menu Icon -->
+
         <ImageView
             android:id="@+id/menu_icon"
             android:layout_width="30dp"
@@ -28,7 +28,7 @@
             android:contentDescription="Menü"
             android:src="@drawable/ic_menu" />
 
-        <!-- Editable Restaurant Name -->
+
         <EditText
             android:id="@+id/restaurant_name"
             android:layout_width="0dp"
@@ -43,7 +43,7 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <!-- Profile Picture -->
+
         <ImageView
             android:id="@+id/profile_image"
             android:layout_width="30dp"
@@ -88,15 +88,17 @@
                     android:layout_height="wrap_content"
                     android:text="€6,50"
                     android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:id="@+id/username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Bäckerei Müller"
+                    android:text="Gasthaus der Hirten"
                     android:textColor="#888888"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:ignore="HardcodedText" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

@@ -11,4 +11,7 @@
     <color name="button_text_gray">#333333</color>
     <color name="gray">#888888</color>
     <color name="light_gray">#DDDDDD</color> <!-- Dunkles Grau für Text -->
+    <color name="connected">#4CAF50</color>  <!-- Green -->
+    <color name="connecting">#FF9800</color> <!-- Orange -->
+    <color name="disconnected">#F44336</color> <!-- Red -->
 </resources>
