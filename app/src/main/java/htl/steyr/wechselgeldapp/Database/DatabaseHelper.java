@@ -74,6 +74,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // ---------------- Seller CRUD ---------------- //
 
+    public String getShopName() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT shopName FROM Seller LIMIT 1", null);
+
+        String shopName = null;
+        if (cursor.moveToFirst()) {
+            shopName = cursor.getString(0);
+        }
+        cursor.close();
+        return shopName;
+    }
+
     /**
      * Inserts a new seller into the database.
      */
