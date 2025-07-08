@@ -9,25 +9,29 @@
     android:background="?android:attr/windowBackground"
     tools:context=".AuthController">
 
-    <!-- Titel / Rollen-Label -->
+
     <TextView
         android:id="@+id/roleLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Registrierung"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:textStyle="bold"
+        android:textColor="?attr/colorPrimary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        android:layout_marginTop="48dp" />
 
     <!-- Benutzername oder Geschäftsname -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/usernameLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
+        app:startIconDrawable="@drawable/ic_person_24"
+        app:boxBackgroundMode="outline"
         app:layout_constraintTop_toBottomOf="@id/roleLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -36,15 +40,21 @@
             android:id="@+id/usernameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="" />
+            android:inputType="textPersonName"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorHint" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- E-Mail Feld -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/emailLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:hint="E-Mail"
+        app:startIconDrawable="@drawable/ic_email_24"
+        app:boxBackgroundMode="outline"
         app:layout_constraintTop_toBottomOf="@id/usernameLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -53,16 +63,22 @@
             android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="E-Mail"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorHint" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Passwort Feld -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:hint="Passwort"
+        app:startIconDrawable="@drawable/ic_lock_24"
+        app:endIconMode="password_toggle"
+        app:boxBackgroundMode="outline"
         app:layout_constraintTop_toBottomOf="@id/emailLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -71,8 +87,9 @@
             android:id="@+id/passwordInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Passwort"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorHint" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Registrieren Button -->
@@ -82,9 +99,9 @@
         android:layout_height="wrap_content"
         android:text="Registrieren"
         android:textAllCaps="false"
-        app:cornerRadius="12dp"
-        android:layout_marginTop="24dp"
-        android:elevation="4dp"
+        app:cornerRadius="16dp"
+        android:layout_marginTop="32dp"
+        android:elevation="6dp"
         app:backgroundTint="?attr/colorPrimary"
         android:textColor="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/passwordLayout"
@@ -98,18 +115,18 @@
         android:layout_height="wrap_content"
         android:text="Sie haben schon ein Konto?"
         android:textSize="14sp"
+        android:textColor="?attr/colorOnBackground"
+        android:layout_marginTop="24dp"
+        android:gravity="center_vertical"
         app:layout_constraintTop_toBottomOf="@id/registerBTN"
         app:layout_constraintEnd_toStartOf="@id/loginLink"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
-        android:gravity="center_vertical"
-        android:textColor="?attr/colorOnBackground" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/loginLink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="8dp"
         android:clickable="true"
         android:focusable="true"
         android:minHeight="48dp"
@@ -118,7 +135,6 @@
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/loginHint"
-        app:layout_constraintStart_toEndOf="@id/loginHint"
-        app:layout_constraintTop_toBottomOf="@id/registerBTN" />
+        app:layout_constraintStart_toEndOf="@id/loginHint" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

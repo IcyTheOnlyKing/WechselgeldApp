@@ -143,6 +143,7 @@ package htl.steyr.wechselgeldapp.Bluetooth;
                 stopScan();
                 context.unregisterReceiver(receiver);
             } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }

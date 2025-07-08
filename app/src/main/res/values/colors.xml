@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="button_gray">#DDDDDD</color>     <!-- Heller Grau-Ton für Button-Hintergrund -->
+    <color name="button_text_gray">#333333</color>
+    <color name="gray">#888888</color>
+    <color name="light_gray">#DDDDDD</color> <!-- Dunkles Grau für Text -->
+    <color name="connected">#4CAF50</color>  <!-- Green -->
+    <color name="connecting">#FF9800</color> <!-- Orange -->
+    <color name="disconnected">#F44336</color> <!-- Red -->
 </resources>

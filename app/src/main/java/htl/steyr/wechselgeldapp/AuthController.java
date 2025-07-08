@@ -1,6 +1,7 @@
 package htl.steyr.wechselgeldapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -8,164 +9,187 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import htl.steyr.wechselgeldapp.Database.AppDatabase;
-import htl.steyr.wechselgeldapp.Database.AppDatabaseInstance;
-import htl.steyr.wechselgeldapp.Database.Entity.Customer;
-import htl.steyr.wechselgeldapp.Database.Entity.Seller;
+import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
+import htl.steyr.wechselgeldapp.UI.CustomerUIController;
+import htl.steyr.wechselgeldapp.UI.SellerUIController;
+import htl.steyr.wechselgeldapp.Utilities.Security.SecureData;
+import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
 
 import org.mindrot.jbcrypt.BCrypt;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class AuthController extends Activity {
 
-    private int currentLayoutResId;
-    private String role;
-    private AppDatabase db;
+    private int currentLayoutResId; // Stores the current layout resource ID to track which view is active
+    private String role; // Can be "seller" or "customer" depending on the user role
+    private DatabaseHelper db; // Database helper for all database operations
+
+    // Views for Registration
+    private TextView roleLabel;
+    private TextInputEditText usernameInput;
+    private TextInputEditText passwordInput;
+    private TextInputEditText emailInput;
+    private Button registerBTN;
+    private TextView loginLink;
+
+    // Views for Login
+    private TextView loginTitle;
+    private TextInputEditText loginUsernameInput;
+    private TextInputEditText loginPasswordInput;
+    private Button loginBTN;
+    private TextView registerLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = AppDatabaseInstance.getInstance(getApplicationContext());
+        db = new DatabaseHelper(getApplicationContext());
 
+        // Retrieve role passed via Intent
         role = getIntent().getStringExtra("user_role");
         showRegistrationView();
     }
 
+    /**
+     * Displays the registration view and initializes the inputs and buttons.
+     */
     private void showRegistrationView() {
         currentLayoutResId = R.layout.registration_view;
         setContentView(currentLayoutResId);
 
-        TextView roleLabel = findViewById(R.id.roleLabel);
-        TextInputEditText usernameInput = findViewById(R.id.usernameInput);
-        TextInputEditText passwordInput = findViewById(R.id.passwordInput);
-        TextInputEditText emailInput = findViewById(R.id.emailInput);
-        Button registerBTN = findViewById(R.id.registerBTN);
-        TextView loginLink = findViewById(R.id.loginLink);
+        initRegistrationView();
 
-        if ("seller".equals(role)) {
-            roleLabel.setText("Registrierung für Verkäufer");
-            usernameInput.setHint("Geschäftsname");
-        } else {
-            roleLabel.setText("Registrierung für Kunden");
-            usernameInput.setHint("Benutzername");
-        }
+        // Update label and hints depending on role
+        roleLabel.setText("seller".equals(role) ? "Registrierung für Verkäufer" : "Registrierung für Kunden");
+        usernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
 
+        // Handle registration button click
         registerBTN.setOnClickListener(view -> {
             String username = usernameInput.getText().toString().trim();
             String password = passwordInput.getText().toString();
             String email = emailInput.getText().toString();
 
-            if (username.isEmpty()) {
-                Toast.makeText(this, "Bitte einen Benutzernamen eingeben!", Toast.LENGTH_SHORT).show();
-                return;
-            } else if (password.isEmpty()) {
-                Toast.makeText(this, "Bitte ein Passwort eingeben!", Toast.LENGTH_SHORT).show();
-                return;
-            } else if (email.isEmpty()) {
-                Toast.makeText(this, "Bitte eine Email eingeben!", Toast.LENGTH_SHORT).show();
+            if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+                Toast.makeText(this, "Bitte alle Felder ausfüllen!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            String hashedUsername = SecureData.hashDataViaSHA(username);
+            String hashedEmail = SecureData.hashDataViaSHA(email);
+
             if ("seller".equals(role)) {
-                Seller seller = new Seller();
-                seller.shopName = hashDataViaSHA(username);
-                seller.email = hashDataViaSHA(email);
-                seller.passwordHash = hashPasswordViaBCrypt(password);
-                db.sellerDao().insert(seller);
+                if (db.sellerExists(hashedUsername, hashedEmail)) {
+                    Toast.makeText(this, "Geschäftsname oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                db.insertSeller(hashedUsername, hashedEmail, SecureData.hashPasswordViaBCrypt(password));
             } else {
-                Customer customer = new Customer();
-                customer.displayName = hashDataViaSHA(username);
-                customer.email = hashDataViaSHA(email);
-                customer.passwordHash = hashPasswordViaBCrypt(password);
-                db.customerDao().insert(customer);
+                if (db.customerExists(hashedUsername, hashedEmail)) {
+                    Toast.makeText(this, "Benutzername oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                db.insertCustomer(hashedUsername, hashedEmail, SecureData.hashPasswordViaBCrypt(password));
             }
 
             Toast.makeText(this, "Registrierung erfolgreich!", Toast.LENGTH_SHORT).show();
             showLoginView();
         });
 
+        // Switch to login view
         loginLink.setOnClickListener(view -> showLoginView());
     }
 
+    /**
+     * Displays the login view and initializes the inputs and buttons.
+     */
     private void showLoginView() {
         currentLayoutResId = R.layout.login_view;
         setContentView(currentLayoutResId);
 
-        TextView loginTitle = findViewById(R.id.loginTitle);
-        TextInputEditText usernameInput = findViewById(R.id.usernameInput);
-        TextInputEditText passwordInput = findViewById(R.id.passwordInput);
-        Button loginBTN = findViewById(R.id.loginBTN);
-        TextView registerLink = findViewById(R.id.registerLink);
+        initLoginView();
 
-        if ("seller".equals(role)) {
-            loginTitle.setText("Login für Verkäufer");
-            usernameInput.setHint("Geschäftsname");
-        } else {
-            loginTitle.setText("Login für Kunden");
-            usernameInput.setHint("Benutzername");
-        }
+        // Update title and hints based on role
+        loginTitle.setText("seller".equals(role) ? "Login für Verkäufer" : "Login für Kunden");
+        loginUsernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
 
+        // Handle login button click
         loginBTN.setOnClickListener(view -> {
-            String username = usernameInput.getText().toString().trim();
-            String password = passwordInput.getText().toString();
+            String username = loginUsernameInput.getText().toString().trim();
+            String password = loginPasswordInput.getText().toString();
 
             if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Bitte alle Felder ausfüllen", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Bitte alle Felder ausfüllen!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            boolean success = false;
+            String hashedUsername = SecureData.hashDataViaSHA(username);
+            String passwordHash;
 
+            // Get stored password hash from database based on role
             if ("seller".equals(role)) {
-                Seller seller = db.sellerDao().findByShopName(hashDataViaSHA(username));
-                if (seller != null && BCrypt.checkpw(password, seller.passwordHash)) {
-                    success = true;
-                    setContentView(R.layout.seller_ui);
-                }
+                passwordHash = db.getSellerPasswordHash(hashedUsername);
             } else {
-                Customer customer = db.customerDao().findByDisplayName(hashDataViaSHA(username));
-                if (customer != null && BCrypt.checkpw(password, customer.passwordHash)) {
-                    success = true;
-                    setContentView(R.layout.customer_ui);
-                }
+                passwordHash = db.getCustomerPasswordHash(hashedUsername);
             }
 
-            if (success) {
-                Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
-
+            // Check password with BCrypt
+            if (passwordHash != null && BCrypt.checkpw(password, passwordHash)) {
+                loginSuccess(role);
             } else {
                 Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
             }
         });
 
+        // Switch to registration view
         registerLink.setOnClickListener(view -> showRegistrationView());
     }
 
+    /**
+     * Called on successful login, opens the correct UI and saves session.
+     * @param role Either "seller" or "customer"
+     */
+    private void loginSuccess(String role) {
+        Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
+        SessionManager.saveLogin(this, role);
+
+        // Open appropriate main UI
+        Intent intent = new Intent(this, "seller".equals(role) ? SellerUIController.class : CustomerUIController.class);
+        startActivity(intent);
+        finish(); // Prevent going back to login screen
+    }
+
+    /**
+     * Initializes all views for the registration screen.
+     */
+    private void initRegistrationView() {
+        roleLabel = findViewById(R.id.roleLabel);
+        usernameInput = findViewById(R.id.usernameInput);
+        passwordInput = findViewById(R.id.passwordInput);
+        emailInput = findViewById(R.id.emailInput);
+        registerBTN = findViewById(R.id.registerBTN);
+        loginLink = findViewById(R.id.loginLink);
+    }
+
+    /**
+     * Initializes all views for the login screen.
+     */
+    private void initLoginView() {
+        loginTitle = findViewById(R.id.loginTitle);
+        loginUsernameInput = findViewById(R.id.usernameInput);
+        loginPasswordInput = findViewById(R.id.passwordInput);
+        loginBTN = findViewById(R.id.loginBTN);
+        registerLink = findViewById(R.id.registerLink);
+    }
+
+    /**
+     * @return True if the registration layout is currently visible
+     */
     public boolean isRegistrationLayoutVisible() {
         return currentLayoutResId == R.layout.registration_view;
     }
 
+    /**
+     * @return True if the login layout is currently visible
+     */
     public boolean isLoginLayoutVisible() {
         return currentLayoutResId == R.layout.login_view;
     }
-
-    public String hashPasswordViaBCrypt(String password){
-        return BCrypt.hashpw(password, BCrypt.gensalt(12));
-    }
-
-    public String hashDataViaSHA(String data){
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(data.getBytes());
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if(hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }}
+}
