@@ -19,33 +19,49 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class AuthController extends Activity {
 
-    private int currentLayoutResId;
-    private String role; // "seller" oder "customer"
-    private DatabaseHelper db;
+    private int currentLayoutResId; // Stores the current layout resource ID to track which view is active
+    private String role; // Can be "seller" or "customer" depending on the user role
+    private DatabaseHelper db; // Database helper for all database operations
+
+    // Views for Registration
+    private TextView roleLabel;
+    private TextInputEditText usernameInput;
+    private TextInputEditText passwordInput;
+    private TextInputEditText emailInput;
+    private Button registerBTN;
+    private TextView loginLink;
+
+    // Views for Login
+    private TextView loginTitle;
+    private TextInputEditText loginUsernameInput;
+    private TextInputEditText loginPasswordInput;
+    private Button loginBTN;
+    private TextView registerLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = new DatabaseHelper(getApplicationContext());
 
+        // Retrieve role passed via Intent
         role = getIntent().getStringExtra("user_role");
         showRegistrationView();
     }
 
+    /**
+     * Displays the registration view and initializes the inputs and buttons.
+     */
     private void showRegistrationView() {
         currentLayoutResId = R.layout.registration_view;
         setContentView(currentLayoutResId);
 
-        TextView roleLabel = findViewById(R.id.roleLabel);
-        TextInputEditText usernameInput = findViewById(R.id.usernameInput);
-        TextInputEditText passwordInput = findViewById(R.id.passwordInput);
-        TextInputEditText emailInput = findViewById(R.id.emailInput);
-        Button registerBTN = findViewById(R.id.registerBTN);
-        TextView loginLink = findViewById(R.id.loginLink);
+        initRegistrationView();
 
+        // Update label and hints depending on role
         roleLabel.setText("seller".equals(role) ? "Registrierung für Verkäufer" : "Registrierung für Kunden");
         usernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
 
+        // Handle registration button click
         registerBTN.setOnClickListener(view -> {
             String username = usernameInput.getText().toString().trim();
             String password = passwordInput.getText().toString();
@@ -77,25 +93,27 @@ public class AuthController extends Activity {
             showLoginView();
         });
 
+        // Switch to login view
         loginLink.setOnClickListener(view -> showLoginView());
     }
 
+    /**
+     * Displays the login view and initializes the inputs and buttons.
+     */
     private void showLoginView() {
         currentLayoutResId = R.layout.login_view;
         setContentView(currentLayoutResId);
 
-        TextView loginTitle = findViewById(R.id.loginTitle);
-        TextInputEditText usernameInput = findViewById(R.id.usernameInput);
-        TextInputEditText passwordInput = findViewById(R.id.passwordInput);
-        Button loginBTN = findViewById(R.id.loginBTN);
-        TextView registerLink = findViewById(R.id.registerLink);
+        initLoginView();
 
+        // Update title and hints based on role
         loginTitle.setText("seller".equals(role) ? "Login für Verkäufer" : "Login für Kunden");
-        usernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
+        loginUsernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
 
+        // Handle login button click
         loginBTN.setOnClickListener(view -> {
-            String username = usernameInput.getText().toString().trim();
-            String password = passwordInput.getText().toString();
+            String username = loginUsernameInput.getText().toString().trim();
+            String password = loginPasswordInput.getText().toString();
 
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Bitte alle Felder ausfüllen!", Toast.LENGTH_SHORT).show();
@@ -105,12 +123,14 @@ public class AuthController extends Activity {
             String hashedUsername = SecureData.hashDataViaSHA(username);
             String passwordHash;
 
+            // Get stored password hash from database based on role
             if ("seller".equals(role)) {
                 passwordHash = db.getSellerPasswordHash(hashedUsername);
             } else {
                 passwordHash = db.getCustomerPasswordHash(hashedUsername);
             }
 
+            // Check password with BCrypt
             if (passwordHash != null && BCrypt.checkpw(password, passwordHash)) {
                 loginSuccess(role);
             } else {
@@ -118,21 +138,57 @@ public class AuthController extends Activity {
             }
         });
 
+        // Switch to registration view
         registerLink.setOnClickListener(view -> showRegistrationView());
     }
 
+    /**
+     * Called on successful login, opens the correct UI and saves session.
+     * @param role Either "seller" or "customer"
+     */
     private void loginSuccess(String role) {
         Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
         SessionManager.saveLogin(this, role);
+
+        // Open appropriate main UI
         Intent intent = new Intent(this, "seller".equals(role) ? SellerUIController.class : CustomerUIController.class);
         startActivity(intent);
-        finish();
+        finish(); // Prevent going back to login screen
     }
 
+    /**
+     * Initializes all views for the registration screen.
+     */
+    private void initRegistrationView() {
+        roleLabel = findViewById(R.id.roleLabel);
+        usernameInput = findViewById(R.id.usernameInput);
+        passwordInput = findViewById(R.id.passwordInput);
+        emailInput = findViewById(R.id.emailInput);
+        registerBTN = findViewById(R.id.registerBTN);
+        loginLink = findViewById(R.id.loginLink);
+    }
+
+    /**
+     * Initializes all views for the login screen.
+     */
+    private void initLoginView() {
+        loginTitle = findViewById(R.id.loginTitle);
+        loginUsernameInput = findViewById(R.id.usernameInput);
+        loginPasswordInput = findViewById(R.id.passwordInput);
+        loginBTN = findViewById(R.id.loginBTN);
+        registerLink = findViewById(R.id.registerLink);
+    }
+
+    /**
+     * @return True if the registration layout is currently visible
+     */
     public boolean isRegistrationLayoutVisible() {
         return currentLayoutResId == R.layout.registration_view;
     }
 
+    /**
+     * @return True if the login layout is currently visible
+     */
     public boolean isLoginLayoutVisible() {
         return currentLayoutResId == R.layout.login_view;
     }
