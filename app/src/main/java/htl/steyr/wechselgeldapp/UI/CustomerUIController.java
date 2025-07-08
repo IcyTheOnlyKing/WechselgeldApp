@@ -1,7 +1,6 @@
 package htl.steyr.wechselgeldapp.UI;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.LinearLayout;
@@ -14,6 +13,7 @@ import java.util.Locale;
 
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.Utilities.ScreenChanger;
 
 public class CustomerUIController extends Activity {
 
@@ -71,16 +71,18 @@ public class CustomerUIController extends Activity {
         textViewTodayTransactionCount.setText(String.valueOf(transactionCount));
 
         searchLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SearchController.class);
-            startActivity(intent);
+            // Change to the SearchController screen
+            ScreenChanger.changeScreen(this, SearchController.class);
         });
 
         settingsLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsController.class);
-            startActivity(intent);
+            // Change to the SettingsController screen
+            ScreenChanger.changeScreen(this, SettingsController.class);
         });
 
     }
+
+
 
     private int getTransactionCountForToday() {
         Calendar calendar = Calendar.getInstance();
