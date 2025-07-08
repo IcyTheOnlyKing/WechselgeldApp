@@ -19,32 +19,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:paddingHorizontal="16dp">
 
-        <!-- Hamburger Menu Icon -->
+        <!-- Back arrow Icon -->
         <ImageView
-            android:id="@+id/menu_icon"
+            android:id="@+id/arrow_icon"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/ic_menu"
             android:layout_marginEnd="16dp"
             android:contentDescription="Menü"/>
-
-        <!-- Restaurant Name -->
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Einstellungen"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"/>
-
-        <!-- Profile Picture -->
-        <ImageView
-            android:id="@+id/profile_image"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_profile"
-            android:layout_marginStart="16dp"/>
     </LinearLayout>
 
     <ScrollView
@@ -414,7 +396,7 @@
                 android:id="@+id/settings_icon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_settings"
+                android:src="@drawable/ic_profile"
                 app:tint="#000000"/>
 
             <TextView
