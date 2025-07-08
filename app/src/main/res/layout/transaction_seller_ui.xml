@@ -6,51 +6,16 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Header mit Kundennamen -->
-    <LinearLayout
+    <!-- Included Header Bar -->
+    <include
         android:id="@+id/header"
+        layout="@layout/header_bar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingHorizontal="16dp">
-
-        <ImageView
-            android:id="@+id/menu_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_menu"
-            android:layout_marginEnd="16dp"
-            android:contentDescription="Menü"/>
-
-        <EditText
-            android:id="@+id/restaurant_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text=""
-            android:hint="Bäckerei Müller"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:background="@null"
-            android:inputType="text"
-            android:imeOptions="actionDone"
-            android:maxLines="1"
-            android:textColorHint="#000000" />
-
-        <ImageView
-            android:id="@+id/profile_image"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_profile"
-            android:layout_marginStart="16dp"/>
-    </LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ScrollView
         android:id="@+id/scroll_content"
@@ -65,7 +30,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Kundeninformationen -->
+            <!-- Customerinformation -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -208,121 +173,14 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation Bar (unverändert) -->
-    <LinearLayout
+    <!-- Bottom Navigation Bar -->
+    <include
         android:id="@+id/bottom_icon_bar"
+        layout="@layout/bottom_icon_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:elevation="8dp"
-        android:orientation="horizontal"
-        android:paddingVertical="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Home Tab -->
-        <LinearLayout
-            android:id="@+id/home_tab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/home_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_home"
-                app:tint="#808080"/>
-
-            <TextView
-                android:id="@+id/home_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Start"
-                android:textSize="12sp"
-                android:textColor="#808080"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-
-        <!-- Connect Tab -->
-        <LinearLayout
-            android:id="@+id/connect_tab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/connect_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_connect"
-                app:tint="#808080"/>
-
-            <TextView
-                android:id="@+id/connect_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Koppeln"
-                android:textSize="12sp"
-                android:textColor="#808080"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-
-        <!-- Transactions Tab -->
-        <LinearLayout
-            android:id="@+id/transactions_tab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/transactions_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_transactions"
-                app:tint="#000000"/>
-
-            <TextView
-                android:id="@+id/transactions_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Transaktionen"
-                android:textSize="12sp"
-                android:textColor="#000000"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-
-        <!-- Settings Tab -->
-        <LinearLayout
-            android:id="@+id/wallet_tab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/wallet_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_wallet"
-                app:tint="#808080"/>
-
-            <TextView
-                android:id="@+id/settings_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Verlauf"
-                android:textSize="12sp"
-                android:textColor="#808080"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,52 +7,18 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Header with Editable Restaurant Name -->
-    <LinearLayout
+    <!-- Included Header Bar -->
+    <include
         android:id="@+id/header"
+        layout="@layout/header_bar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingHorizontal="16dp">
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Hamburger Menu Icon -->
-        <ImageView
-            android:id="@+id/menu_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_menu"
-            android:layout_marginEnd="16dp"
-            android:contentDescription="Menü"/>
-
-        <!-- Editable Restaurant Name -->
-        <EditText
-            android:id="@+id/restaurant_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Bäckerei Müller"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:background="@null"
-            android:inputType="text"
-            android:imeOptions="actionDone"
-            android:maxLines="1"/>
-
-        <!-- Profile Picture -->
-        <ImageView
-            android:id="@+id/profile_image"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_profile"
-            android:layout_marginStart="16dp"/>
-    </LinearLayout>
-
+    <!-- Info Cards -->
     <LinearLayout
         android:id="@+id/info_cards"
         android:layout_width="0dp"
@@ -76,18 +42,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Letzte Transaktion" />
+                    android:text="Letzte Transaktion"
+                    android:textColor="#888888"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/lastTransactionAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="€6,50"
+                    android:textColor="@android:color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -95,6 +65,7 @@
                     android:id="@+id/username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="Bäckerei Müller"
                     android:textColor="#888888"
                     android:textSize="12sp" />
@@ -112,27 +83,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Heutige Transaktionen" />
+                    android:text="Heutige Transaktionen"
+                    android:textColor="#888888"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/transactionAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="12"
+                    android:textColor="@android:color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="+33% month over month"
-                    android:textSize="12sp"
-                    android:textColor="#888888"/>
+                    android:textColor="#888888"
+                    android:textSize="12sp"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
@@ -144,8 +120,8 @@
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="150dp"
-        android:layout_marginBottom= "50dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="50dp"
         app:cardElevation="2dp"
         app:layout_constraintTop_toBottomOf="@id/info_cards"
         app:layout_constraintBottom_toTopOf="@id/bottom_icon_bar"
@@ -163,6 +139,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:text="Geräte in der Nähe"
+                android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -174,129 +151,37 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Bottom Icon Bar mit IDs -->
-    <LinearLayout
+    <!-- Bottom Navigation with Home active -->
+    <include
         android:id="@+id/bottom_icon_bar"
+        layout="@layout/bottom_icon_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:elevation="8dp"
-        android:orientation="horizontal"
-        android:paddingVertical="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Home Tab -->
-        <LinearLayout
-            android:id="@+id/home_tab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true">
+    <!-- Override Home icon color -->
+    <ImageView
+        android:id="@+id/home_icon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:tint="#000000"
+        app:layout_constraintBottom_toBottomOf="@id/bottom_icon_bar"
+        app:layout_constraintStart_toStartOf="@id/home_tab"/>
 
-            <ImageView
-                android:id="@+id/home_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_home"
-                app:tint="#000000"/>
+    <!-- Override Home text color -->
+    <TextView
+        android:id="@+id/home_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/home_icon"
+        app:layout_constraintStart_toStartOf="@id/home_tab"
+        tools:ignore="NotSibling" />
 
-            <TextView
-                android:id="@+id/home_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Start"
-                android:textSize="12sp"
-                android:textColor="#000000"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
 
-        <!-- Connect Tab -->
-        <LinearLayout
-            android:id="@+id/connect_tab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true">
 
-            <ImageView
-                android:id="@+id/connect_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_connect"
-                app:tint="#808080"/>
 
-            <TextView
-                android:id="@+id/connect_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Koppeln"
-                android:textSize="12sp"
-                android:textColor="#808080"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
 
-        <!-- Transactions Tab -->
-        <LinearLayout
-            android:id="@+id/transactions_tab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/transactions_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_transactions"
-                app:tint="#808080"/>
-
-            <TextView
-                android:id="@+id/transactions_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Transaktionen"
-                android:textSize="12sp"
-                android:textColor="#808080"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-
-        <!-- Settings Tab -->
-        <LinearLayout
-            android:id="@+id/settings_tab"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/settings_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_wallet"
-                app:tint="#808080"/>
-
-            <TextView
-                android:id="@+id/settings_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Verlauf"
-                android:textSize="12sp"
-                android:textColor="#808080"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
