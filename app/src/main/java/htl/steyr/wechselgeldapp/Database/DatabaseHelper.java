@@ -147,6 +147,49 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM Device", null);
     }
 
+    public boolean sellerExists(String shopName, String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT id FROM Seller WHERE shopName = ? OR email = ?", new String[]{shopName, email});
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
+
+    public boolean customerExists(String displayName, String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT id FROM Customer WHERE displayName = ? OR email = ?", new String[]{displayName, email});
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
+
+    public String getSellerPasswordHash(String shopName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT passwordHash FROM Seller WHERE shopName = ?", new String[]{shopName});
+        String hash = null;
+        if (cursor.moveToFirst()) {
+            hash = cursor.getString(0);
+        }
+        cursor.close();
+        return hash;
+    }
+
+    public String getCustomerPasswordHash(String displayName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT passwordHash FROM Customer WHERE displayName = ?", new String[]{displayName});
+        String hash = null;
+        if (cursor.moveToFirst()) {
+            hash = cursor.getString(0);
+        }
+        cursor.close();
+        return hash;
+    }
+
+
     // ---------------- Ende CRUD ---------------- //
 
 }
