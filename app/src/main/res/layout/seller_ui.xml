@@ -286,14 +286,14 @@
                 android:id="@+id/settings_icon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_profile"
+                android:src="@drawable/ic_wallet"
                 app:tint="#808080"/>
 
             <TextView
                 android:id="@+id/settings_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Einstellungen"
+                android:text="Verlauf"
                 android:textSize="12sp"
                 android:textColor="#808080"
                 android:layout_marginTop="4dp"/>
