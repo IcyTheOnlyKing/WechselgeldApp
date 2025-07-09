@@ -33,29 +33,28 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
     private Button scanButton;
     private static final int PERMISSION_REQUEST_CODE = 1003;
 
+    /**
+     * Called when the fragment's view is being created.
+     * Initializes UI components, Bluetooth instance, and checks permissions.
+     */
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
 
-        // UI-Elemente initialisieren
         statusText = view.findViewById(R.id.status_text);
         progressBar = view.findViewById(R.id.progress_bar);
         scanButton = view.findViewById(R.id.scan_button);
         deviceRecyclerView = view.findViewById(R.id.device_list);
 
-        // RecyclerView Setup
         deviceAdapter = new BluetoothDeviceAdapter(this::onDeviceClick);
         deviceRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         deviceRecyclerView.setAdapter(deviceAdapter);
 
-        // Bluetooth initialisieren
         bluetooth = new Bluetooth(requireContext(), this);
 
-        // Scan-Button Listener
         scanButton.setOnClickListener(v -> startDeviceScan());
 
-        // Berechtigungen prüfen
         if (hasPermissions()) {
             initializeBluetooth();
         } else {
@@ -65,38 +64,48 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         return view;
     }
 
+    /**
+     * Called when a Bluetooth device item is clicked.
+     * Attempts to initiate pairing with the device.
+     */
     private void onDeviceClick(BluetoothDevice device) {
         if (hasPermissions()) {
             try {
                 if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                    String deviceName = (device.getName() != null) ? device.getName() : "Unbekanntes Gerät";
+                    String deviceName = (device.getName() != null) ? device.getName() : "Unknown device";
                     device.createBond();
-                    Toast.makeText(requireContext(), "Kopplungsanfrage gesendet an " + deviceName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Pairing request sent to " + deviceName, Toast.LENGTH_SHORT).show();
                 }
             } catch (SecurityException e) {
-                Toast.makeText(requireContext(), "Berechtigung fehlt", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Missing permission", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    /**
+     * Initializes the Bluetooth adapter and updates the UI accordingly.
+     */
     private void initializeBluetooth() {
         if (bluetooth.init()) {
             statusText.setText("Bereit zum Scannen");
             scanButton.setEnabled(true);
         } else {
-            statusText.setText("Bluetooth-Fehler");
+            statusText.setText("Bluetooth Fehler");
             scanButton.setEnabled(false);
         }
     }
 
+    /**
+     * Starts scanning for Bluetooth devices and updates UI.
+     */
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
     private void startDeviceScan() {
         if (!bluetooth.isEnabled()) {
-            Toast.makeText(requireContext(), "Bluetooth aktivieren", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Bitte aktivieren Sie Bluetooth", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        statusText.setText("Scanne...");
+        statusText.setText("Scannen...");
         progressBar.setVisibility(View.VISIBLE);
         scanButton.setEnabled(false);
         deviceAdapter.clearDevices();
@@ -104,19 +113,26 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         if (!bluetooth.startScan()) {
             scanButton.setEnabled(true);
             progressBar.setVisibility(View.GONE);
-            statusText.setText("Scan fehlgeschlagen");
+            statusText.setText("Scan fehlgeschlagen!");
         }
     }
 
-    // Bluetooth Callbacks
+    /**
+     * Called when scanning is started.
+     * Updates UI to show scan is in progress.
+     */
     @Override
     public void onScanStarted() {
         requireActivity().runOnUiThread(() -> {
-            statusText.setText("Scan läuft...");
+            statusText.setText("Scannen...");
             progressBar.setVisibility(View.VISIBLE);
         });
     }
 
+    /**
+     * Called when a Bluetooth device is found.
+     * Adds the device to the list and updates UI.
+     */
     @Override
     public void onDeviceFound(BluetoothDevice device) {
         requireActivity().runOnUiThread(() -> {
@@ -125,6 +141,10 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         });
     }
 
+    /**
+     * Called when scanning is finished.
+     * Updates UI and enables the scan button.
+     */
     @Override
     public void onScanFinished() {
         requireActivity().runOnUiThread(() -> {
@@ -134,6 +154,10 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         });
     }
 
+    /**
+     * Called when a Bluetooth error occurs.
+     * Displays the error message.
+     */
     @Override
     public void onError(String error) {
         requireActivity().runOnUiThread(() -> {
@@ -144,7 +168,9 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         });
     }
 
-    // Berechtigungs-Handling
+    /**
+     * Returns the necessary permissions depending on the Android version.
+     */
     private String[] getPermissions() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             return new String[]{
@@ -160,6 +186,9 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         };
     }
 
+    /**
+     * Checks whether all required permissions are granted.
+     */
     private boolean hasPermissions() {
         for (String permission : getPermissions()) {
             if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
@@ -169,10 +198,16 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         return true;
     }
 
+    /**
+     * Requests the required permissions.
+     */
     private void requestPermissions() {
         requestPermissions(getPermissions(), PERMISSION_REQUEST_CODE);
     }
 
+    /**
+     * Handles the result of the permission request dialog.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE) {
@@ -187,11 +222,15 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
                 initializeBluetooth();
             } else {
                 statusText.setText("Berechtigungen benötigt!");
-                Toast.makeText(requireContext(), "Berechtigungen verweigert", Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), "Zugriff verweigert", Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    /**
+     * Called when the fragment is paused.
+     * Stops any ongoing Bluetooth scan.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @Override
     public void onPause() {
@@ -201,6 +240,10 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         }
     }
 
+    /**
+     * Called when the fragment is destroyed.
+     * Cleans up Bluetooth resources.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @Override
     public void onDestroy() {
