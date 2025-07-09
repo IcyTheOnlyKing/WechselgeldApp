@@ -1,108 +1,84 @@
 package htl.steyr.wechselgeldapp.UI;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.util.Calendar;
-import java.util.Locale;
-
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.UI.Fragments.HomeFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.SearchFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.SettingsFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.TransactionFragment;
 
-public class CustomerUIController extends Activity {
+public class CustomerUIController extends AppCompatActivity {
 
     private DatabaseHelper dbHelper;
-
     private MaterialToolbar topAppBar;
-    private TextView textViewLastBalance;
-    private TextView textViewTodayTransactionCount;
-    private LinearLayout searchLayout;
-    private LinearLayout settingsLayout;
-
-    private String currentOtherUuid = "demo-uuid";  // → Muss aus deinem Login oder Intent kommen
+    private String currentOtherUuid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.customer_ui);
 
-        // View-Verknüpfung
+        currentOtherUuid = getIntent().getStringExtra("UUID");
+        if (currentOtherUuid == null) {
+            currentOtherUuid = "demo-uuid"; // Temporärer Fallback
+        }
+
+        // View-Verknüpfungen
         topAppBar = findViewById(R.id.topAppBar);
-        textViewLastBalance = findViewById(R.id.textViewLastBalance);
-        textViewTodayTransactionCount = findViewById(R.id.textViewTodayTransactionCount);
-        searchLayout = findViewById(R.id.searchBTN);
-        settingsLayout = findViewById(R.id.settingsLayout);
+        LinearLayout homeLayout = findViewById(R.id.homeLayout);
+        LinearLayout searchLayout = findViewById(R.id.searchBTN);
+        LinearLayout transactionLayout = findViewById(R.id.transactionLayout);
+        LinearLayout settingsLayout = findViewById(R.id.settingsLayout);
 
-
-        // DatabaseHelper initialisieren
+        // DB-Initialisierung
         dbHelper = new DatabaseHelper(this);
 
-        loadData();
+        // Shopname laden
+        loadShopName();
+
+        // Default Fragment mit UUID übergeben
+        loadFragment(createHomeFragment());
+
+        homeLayout.setOnClickListener(v -> loadFragment(createHomeFragment()));
+        searchLayout.setOnClickListener(v -> loadFragment(new SearchFragment()));
+        transactionLayout.setOnClickListener(v -> loadFragment(new TransactionFragment()));
+        settingsLayout.setOnClickListener(v -> loadFragment(new SettingsFragment()));
     }
 
-    private void loadData() {
-        // Shopname anzeigen (nimmt ersten Seller aus DB)
-        Cursor sellerCursor = dbHelper.getReadableDatabase().rawQuery("SELECT shopName FROM Seller LIMIT 1", null);
-        String shopName = "Willkommen";
-        if (sellerCursor.moveToFirst()) {
-            shopName = sellerCursor.getString(0);
-        }
-        sellerCursor.close();
-        topAppBar.setTitle(shopName);
-
-        // Balance anzeigen
-        Cursor balanceCursor = dbHelper.getBalanceForUuid(currentOtherUuid);
-        String balanceText = "0,00 €";
-        if (balanceCursor.moveToFirst()) {
-            double balance = balanceCursor.getDouble(balanceCursor.getColumnIndexOrThrow("balance"));
-            balanceText = String.format(Locale.getDefault(), "%.2f €", balance);
-        }
-        balanceCursor.close();
-        textViewLastBalance.setText(balanceText);
-
-        // Heutige Transaktionen zählen
-        int transactionCount = getTransactionCountForToday();
-        textViewTodayTransactionCount.setText(String.valueOf(transactionCount));
-
-        searchLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SearchController.class);
-            startActivity(intent);
-        });
-
-        settingsLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsController.class);
-            startActivity(intent);
-        });
-
+    private HomeFragment createHomeFragment() {
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putString("UUID", currentOtherUuid);
+        fragment.setArguments(args);
+        return fragment;
     }
 
-    private int getTransactionCountForToday() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        long startOfDay = calendar.getTimeInMillis();
-
-        calendar.add(Calendar.DAY_OF_MONTH, 1);
-        long endOfDay = calendar.getTimeInMillis();
-
-        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(
-                "SELECT COUNT(*) FROM Transactions WHERE timestamp >= ? AND timestamp < ?",
-                new String[]{String.valueOf(startOfDay), String.valueOf(endOfDay)}
-        );
-
-        int count = 0;
-        if (cursor.moveToFirst()) {
-            count = cursor.getInt(0);
+    private void loadShopName() {
+        String shopName = dbHelper.getShopName();
+        if (shopName != null) {
+            topAppBar.setTitle(shopName);
+        } else {
+            topAppBar.setTitle("Lebensmittelgeschäft");
         }
-        cursor.close();
-        return count;
+    }
+
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
+    }
+
+    @Override
+    protected void onDestroy() {
+        dbHelper.close();
+        super.onDestroy();
     }
 }
