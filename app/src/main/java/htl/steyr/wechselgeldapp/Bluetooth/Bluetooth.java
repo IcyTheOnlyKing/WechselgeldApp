@@ -105,7 +105,7 @@ package htl.steyr.wechselgeldapp.Bluetooth;
             devices.clear();
             addPairedDevices();
 
-            return gadapter.startDiscovery();
+            return adapter.startDiscovery();
         }
 
         @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
