@@ -33,9 +33,12 @@ android {
 
 dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
-    implementation ("org.mindrot:jbcrypt:0.4")
+    implementation("org.mindrot:jbcrypt:0.4")
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation(libs.room.common.jvm)
     implementation(libs.firebase.database)
+    implementation(libs.scenecore)
+    implementation(libs.firebase.crashlytics.buildtools)
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation(libs.appcompat)
     implementation(libs.material)
