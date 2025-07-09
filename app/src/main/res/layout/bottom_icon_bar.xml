@@ -5,7 +5,8 @@
     android:background="#FFFFFF"
     android:elevation="8dp"
     android:orientation="horizontal"
-    android:paddingVertical="12dp">
+    android:paddingVertical="12dp"
+    android:fitsSystemWindows="true">
 
     <!-- Icon 1: Home -->
     <LinearLayout

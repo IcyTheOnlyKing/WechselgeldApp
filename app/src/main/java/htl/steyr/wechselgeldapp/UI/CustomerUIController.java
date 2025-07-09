@@ -26,7 +26,6 @@ public class CustomerUIController extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.customer_ui);
 
-        // UUID von Intent holen (mit Fallback)
         currentOtherUuid = getIntent().getStringExtra("UUID");
         if (currentOtherUuid == null) {
             currentOtherUuid = "demo-uuid"; // Temporärer Fallback
@@ -48,7 +47,6 @@ public class CustomerUIController extends AppCompatActivity {
         // Default Fragment mit UUID übergeben
         loadFragment(createHomeFragment());
 
-        // Navigation-ClickListener
         homeLayout.setOnClickListener(v -> loadFragment(createHomeFragment()));
         searchLayout.setOnClickListener(v -> loadFragment(new SearchFragment()));
         transactionLayout.setOnClickListener(v -> loadFragment(new TransactionFragment()));
@@ -68,7 +66,7 @@ public class CustomerUIController extends AppCompatActivity {
         if (shopName != null) {
             topAppBar.setTitle(shopName);
         } else {
-            topAppBar.setTitle("Willkommen");
+            topAppBar.setTitle("Lebensmittelgeschäft");
         }
     }
 
