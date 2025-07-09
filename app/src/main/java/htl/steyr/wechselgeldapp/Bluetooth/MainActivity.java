@@ -40,7 +40,7 @@ public class MainActivity extends Activity implements Bluetooth.BluetoothCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.seller_ui);
+        setContentView(R.layout.seller_home_ui);
 
         initViews();
         setupClickListeners();

@@ -31,7 +31,7 @@ package htl.steyr.wechselgeldapp.UI;
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.seller_ui);
+            setContentView(R.layout.seller_home_ui);
 
             scanDevicesButton = findViewById(R.id.scan_devices_button);
             deviceListText = findViewById(R.id.device_list_text);

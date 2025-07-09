@@ -20,7 +20,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.R;
 
 public class BluetoothPairingActivity extends Activity implements Bluetooth.BluetoothCallback {
@@ -39,7 +38,7 @@ public class BluetoothPairingActivity extends Activity implements Bluetooth.Blue
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pairing);
+        setContentView(R.layout.customer_connect_ui);
 
         initViews();
         setupClickListeners();

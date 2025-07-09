@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="280dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:elevation="16dp">
+
+    <!-- Header with close button (top right) -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            app:tint="#212121"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:background="#E0E0E0"/>
+    </RelativeLayout>
+
+    <!-- Menu Items -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <!-- Backup -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_backup"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+            android:text="Backup"
+            android:textAllCaps="false"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            app:iconTint="#4CAF50"
+            app:iconPadding="16dp"/>
+
+        <!-- Unpair -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_unpair"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+            android:text="Kopplung trennen"
+            android:textAllCaps="false"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            app:iconTint="#4CAF50"
+            app:iconPadding="16dp"/>
+
+        <!-- Logout -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_logout"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+            android:text="Abmelden"
+            android:textAllCaps="false"
+            android:textColor="#F44336"
+            android:textSize="16sp"
+            app:icon="@drawable/ic_logout"
+            app:iconTint="#F44336"
+            app:iconPadding="16dp"/>
+    </LinearLayout>
+</LinearLayout>
