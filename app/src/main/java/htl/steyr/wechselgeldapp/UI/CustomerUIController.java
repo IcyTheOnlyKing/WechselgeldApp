@@ -1,5 +1,6 @@
 package htl.steyr.wechselgeldapp.UI;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 
@@ -42,7 +43,7 @@ public class CustomerUIController extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
 
         // Shopname laden
-        loadShopName();
+        loadDisplayName();
 
         // Default Fragment mit UUID übergeben
         loadFragment(createHomeFragment());
@@ -61,12 +62,14 @@ public class CustomerUIController extends AppCompatActivity {
         return fragment;
     }
 
-    private void loadShopName() {
-        String shopName = dbHelper.getShopName();
-        if (shopName != null) {
-            topAppBar.setTitle(shopName);
+    private void loadDisplayName() {
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        String displayName = prefs.getString("user_display_name", null);
+
+        if (displayName != null && !displayName.isEmpty()) {
+            topAppBar.setTitle("Willkommen " + displayName + "!");
         } else {
-            topAppBar.setTitle("Lebensmittelgeschäft");
+            topAppBar.setTitle("Willkommen!");
         }
     }
 
