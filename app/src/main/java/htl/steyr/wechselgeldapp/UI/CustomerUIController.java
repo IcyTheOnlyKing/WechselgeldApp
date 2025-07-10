@@ -30,7 +30,7 @@ public class CustomerUIController extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.customer_ui);
+        setContentView(R.layout.customer_home_ui);
 
         // View-Verknüpfung
         topAppBar = findViewById(R.id.topAppBar);
