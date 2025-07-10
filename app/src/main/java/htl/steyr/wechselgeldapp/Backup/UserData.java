@@ -3,7 +3,7 @@ package htl.steyr.wechselgeldapp.Backup;
 public class UserData {
     private String email;
     private String username;
-    private double totalAmount;  // Korrigiert: war totalTransactions
+    private double totalAmount;
     private int transactionCount;
 
     public UserData() {
@@ -35,13 +35,11 @@ public class UserData {
 
     public double getTotalAmount() {
         return totalAmount;
-    }  // Korrigiert: war getTotalTransactions
+    }
 
     public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
     }
-
-    // Entfernt: getTotalAmmunt() mit Tippfehler
 
     public int getTransactionCount() {
         return transactionCount;
