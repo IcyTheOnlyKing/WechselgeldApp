@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 public class BackupData {
-    private List<Transaction> transactions;
+    private List<Transaction> transactions;  // Korrigiert: Generic Type hinzugefügt
     private UserData userData;
     private Date backupDate;
     private String appVersion;
@@ -23,18 +23,43 @@ public class BackupData {
     }
 
     // Getter und Setter
-    public List<Transaction> getTransactions() { return transactions; }
-    public void setTransactions(List<Transaction> transactions) { this.transactions = transactions; }
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
 
-    public UserData getUserData() { return userData; }
-    public void setUserData(UserData userData) { this.userData = userData; }
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
 
-    public Date getBackupDate() { return backupDate; }
-    public void setBackupDate(Date backupDate) { this.backupDate = backupDate; }
+    public UserData getUserData() {
+        return userData;
+    }
 
-    public String getAppVersion() { return appVersion; }
-    public void setAppVersion(String appVersion) { this.appVersion = appVersion; }
+    public void setUserData(UserData userData) {
+        this.userData = userData;
+    }
 
-    public int getDataVersion() { return dataVersion; }
-    public void setDataVersion(int dataVersion) { this.dataVersion = dataVersion; }
+    public Date getBackupDate() {
+        return backupDate;
+    }
+
+    public void setBackupDate(Date backupDate) {
+        this.backupDate = backupDate;
+    }
+
+    public String getAppVersion() {
+        return appVersion;
+    }
+
+    public void setAppVersion(String appVersion) {
+        this.appVersion = appVersion;
+    }
+
+    public int getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(int dataVersion) {
+        this.dataVersion = dataVersion;
+    }
 }

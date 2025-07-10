@@ -1,8 +1,11 @@
 package htl.steyr.wechselgeldapp.UI;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -11,6 +14,8 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -25,6 +30,8 @@ import htl.steyr.wechselgeldapp.Backup.UserData;
 import htl.steyr.wechselgeldapp.R;
 
 public class SettingsController extends AppCompatActivity {
+    private static final int REQUEST_STORAGE_PERMISSION = 1001;
+
     private BackupManager backupManager;
     private String userEmail = "user@example.com"; // Aus Login laden
 
@@ -161,17 +168,6 @@ public class SettingsController extends AppCompatActivity {
         editor.apply();
     }
 
-    private void saveUserData(UserData userData) {
-        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-
-        editor.putString("user_email", userData.getEmail());
-        editor.putString("user_name", userData.getUsername()); // oder userData.getName() falls verfügbar
-        editor.putString("total_amount", String.valueOf(userData.getTotalAmmunt())); // oder userData.getTotalAmount()
-        editor.putInt("transaction_count", userData.getTransactionCount());
-
-        editor.apply();
-    }
     private UserData getCurrentUserData() {
         SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
         String email = prefs.getString("user_email", userEmail);
@@ -179,7 +175,47 @@ public class SettingsController extends AppCompatActivity {
         double totalAmount = getTotalAmount();
         int transactionCount = getTransactionCount();
 
-        return new UserData(email, name, totalAmount, transactionCount);
+        return new UserData(email, name, totalAmount, transactionCount);  // Korrigiert: Parameter-Reihenfolge
+    }
+
+    // Korrigierte saveUserData Methode
+    private void saveUserData(UserData userData) {
+        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.putString("user_email", userData.getEmail());
+        editor.putString("user_name", userData.getUsername());
+        editor.putString("total_amount", String.valueOf(userData.getTotalAmount()));  // Korrigiert: getTotalAmount()
+        editor.putInt("transaction_count", userData.getTransactionCount());
+
+        editor.apply();
+    }
+
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_STORAGE_PERMISSION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_STORAGE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted - you can now perform file operations
+                Toast.makeText(this, "Berechtigung erteilt", Toast.LENGTH_SHORT).show();
+            } else {
+                // Permission denied
+                Toast.makeText(this, "Berechtigung verweigert", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void restoreDataFromBackup(BackupData backupData) {

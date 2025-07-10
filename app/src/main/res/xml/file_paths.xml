@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths>
-    <files-path
-        name="backup_files"
-        path="backups/" />
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Interne App-Dateien -->
+    <files-path name="internal_files" path="." />
+
+    <!-- Backup-Ordner -->
+    <files-path name="backup_files" path="backups/" />
+
+    <!-- Cache-Ordner für temporäre Dateien -->
+    <cache-path name="cache_files" path="." />
+
+    <!-- Externe Dateien (falls benötigt) -->
+    <external-files-path name="external_files" path="." />
 </paths>

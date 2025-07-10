@@ -1,58 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                package="htl.steyr.wechselgeldapp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="htl.steyr.wechselgeldapp">
 
-                <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-                <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-                <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-                <uses-permission android:name="android.permission.BLUETOOTH" />
-                <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-                <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-                <uses-permission android:name="android.permission.INTERNET" />
-                <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Bluetooth Permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-                <application
-                    android:allowBackup="true"
-                    android:dataExtractionRules="@xml/data_extraction_rules"
-                    android:fullBackupContent="@xml/backup_rules"
-                    android:icon="@mipmap/ic_launcher"
-                    android:label="@string/app_name"
-                    android:roundIcon="@mipmap/ic_launcher_round"
-                    android:supportsRtl="true"
-                    android:theme="@style/Theme.WechselgeldApp"
-                    tools:targetApi="31">
+    <!-- Network Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-                    <!-- Start-Activity -->
-                    <activity android:name=".StartController"
-                        android:exported="true">
-                        <intent-filter>
-                            <action android:name="android.intent.action.MAIN" />
-                            <category android:name="android.intent.category.LAUNCHER" />
-                        </intent-filter>
-                    </activity>
+    <!-- Storage Permissions für Backup-Funktionalität -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
-                    <activity android:name=".AuthController"/>
-                    <activity android:name=".UI.SellerUIController"/>
-                    <activity
-                        android:name=".UI.CustomerUIController"
-                        android:theme="@style/Theme.WechselgeldApp.NoActionBar"
-                        android:windowSoftInputMode="adjustResize" />
+    <!-- Für neuere Android-Versionen (API 30+) -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
-                    <activity android:name=".UI.SettingsController"/>
-                    <activity android:name=".UI.SearchController"/>
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.WechselgeldApp"
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="31">
 
-                    <!-- FileProvider für Backup-Anhänge -->
-                    <provider
-                        android:name="androidx.core.content.FileProvider"
-                        android:authorities="htl.steyr.wechselgeldapp.fileprovider"
-                        android:exported="false"
-                        android:grantUriPermissions="true">
-                        <meta-data
-                            android:name="android.support.FILE_PROVIDER_PATHS"
-                            android:resource="@xml/file_paths" />
-                    </provider>
+        <!-- Start-Activity -->
+        <activity android:name=".StartController"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-                </application>
+        <activity android:name=".AuthController"/>
+        <activity android:name=".UI.SellerUIController"/>
+        <activity
+            android:name=".UI.CustomerUIController"
+            android:theme="@style/Theme.WechselgeldApp.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
 
-            </manifest>
+        <activity android:name=".UI.SettingsController"/>
+        <activity android:name=".UI.SearchController"/>
+
+        <!-- FileProvider für Backup-Anhänge -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="htl.steyr.wechselgeldapp.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+
+</manifest>
