@@ -7,6 +7,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 
@@ -33,7 +35,7 @@ public class EncryptionUtil {
         // Verschlüsseln
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));
-        byte[] encrypted = cipher.doFinal(input.getBytes("UTF-8"));
+        byte[] encrypted = cipher.doFinal(input.getBytes(StandardCharsets.UTF_8));
 
         // Salt + IV + verschlüsselte Daten kombinieren
         byte[] combined = new byte[salt.length + iv.length + encrypted.length];
@@ -67,6 +69,6 @@ public class EncryptionUtil {
         cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
         byte[] decrypted = cipher.doFinal(encrypted);
 
-        return new String(decrypted, "UTF-8");
+        return new String(decrypted, StandardCharsets.UTF_8);
     }
 }
