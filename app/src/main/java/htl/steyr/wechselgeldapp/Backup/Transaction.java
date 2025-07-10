@@ -1,23 +1,19 @@
 package htl.steyr.wechselgeldapp.Backup;
 
-import java.util.Date;
-
 public class Transaction {
     private String id;
     private double amount;
     private double changeGiven;
     private long timestamp;  // Korrigiert: Date → long für Konsistenz
-    private String description;
 
     public Transaction() {
     }
 
-    public Transaction(String id, double amount, double changeGiven, long timestamp, String description) {
+    public Transaction(String id, double amount, double changeGiven, long timestamp) {
         this.id = id;
         this.amount = amount;
         this.changeGiven = changeGiven;
         this.timestamp = timestamp;
-        this.description = description;
     }
 
     // Getter und Setter
@@ -53,11 +49,5 @@ public class Transaction {
         this.timestamp = timestamp;
     }
 
-    public String getDescription() {
-        return description;
-    }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

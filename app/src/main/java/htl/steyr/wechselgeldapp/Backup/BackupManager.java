@@ -136,6 +136,37 @@ public class BackupManager {
             throw new Exception("Backup-Datei konnte nicht gelesen werden", e);
         }
     }
+    public void createAndSendBackup(String userEmail,
+                                    List<Transaction> transactions,
+                                    UserData userData,
+                                    String password) {  // Passwort als Parameter
+
+        BackupData backupData = new BackupData(transactions, userData, new Date());
+        String json = gson.toJson(backupData);
+
+        try {
+            // Daten verschlüsseln
+            String encryptedJson = EncryptionUtil.encrypt(json, password);
+            File backupFile = saveBackupToFile(encryptedJson);  // Speichern der verschlüsselten Daten
+            sendBackupEmail(userEmail, backupFile);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Verschlüsselung fehlgeschlagen", e);
+            throw new RuntimeException("Backup konnte nicht verschlüsselt werden", e);
+        }
+    }
+
+    public BackupData importBackup(String jsonString, String password) throws Exception {
+        try {
+            // Daten entschlüsseln
+            String decryptedJson = EncryptionUtil.decrypt(jsonString, password);
+            return gson.fromJson(decryptedJson, BackupData.class);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Entschlüsselung fehlgeschlagen", e);
+            throw new Exception("Falsches Passwort oder beschädigte Datei", e);
+        }
+    }
 
     // Hilfsmethode zum Löschen alter Backups
     public void cleanupOldBackups(int maxBackups) {
