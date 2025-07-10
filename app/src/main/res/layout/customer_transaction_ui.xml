@@ -22,8 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_icon_bar">
+        app:layout_constraintTop_toBottomOf="@id/header">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -102,7 +101,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Zahlungsbereich -->
+            <!-- Payment area -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -170,7 +169,7 @@
                             android:textColor="#4CAF50"/>
                     </LinearLayout>
 
-                    <!-- Manuelle Betragseingabe -->
+                    <!-- Manual amount entry -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -188,7 +187,7 @@
                             android:inputType="numberDecimal"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Ausgewählter Betrag -->
+                    <!-- Selected amount -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -206,7 +205,7 @@
                         android:textSize="18sp"
                         android:textStyle="bold"/>
 
-                    <!-- Senden Button -->
+                    <!-- Send button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSendPayment"
                         android:layout_width="match_parent"
@@ -222,14 +221,4 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
-
-    <!-- Bottom Navigation Bar -->
-    <include
-        android:id="@+id/bottom_icon_bar"
-        layout="@layout/bottom_icon_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
