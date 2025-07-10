@@ -1,4 +1,4 @@
-package htl.steyr.wechselgeldapp.UI.Fragments;
+package htl.steyr.wechselgeldapp.UI.Fragments.Customer;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -25,7 +25,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return inflater.inflate(R.layout.customer_fragment_home, container, false);
     }
 
     @Override
@@ -42,11 +42,7 @@ public class HomeFragment extends Fragment {
 
         dbHelper = new DatabaseHelper(requireContext());
 
-        TextView balanceTextView = view.findViewById(R.id.balanceTextView);
-        TextView transactionCountTextView = view.findViewById(R.id.transactionCountTextView);
 
-        loadBalanceData(balanceTextView);
-        loadTransactionData(transactionCountTextView);
     }
 
     private void loadBalanceData(TextView textView) {

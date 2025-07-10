@@ -1,4 +1,4 @@
-package htl.steyr.wechselgeldapp.UI.Fragments;
+package htl.steyr.wechselgeldapp.UI.Fragments.Customer;
 
 import android.Manifest;
 import android.bluetooth.BluetoothDevice;
@@ -18,12 +18,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.Objects;
+
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDeviceAdapter;
 import htl.steyr.wechselgeldapp.R;
 
-public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallback {
+public class ConnectFragment extends Fragment implements Bluetooth.BluetoothCallback {
 
     private Bluetooth bluetooth;
     private BluetoothDeviceAdapter deviceAdapter;
@@ -40,12 +40,8 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_search, container, false);
+        View view = inflater.inflate(R.layout.customer_fragment_search, container, false);
 
-        statusText = view.findViewById(R.id.status_text);
-        progressBar = view.findViewById(R.id.progress_bar);
-        scanButton = view.findViewById(R.id.scan_button);
-        deviceRecyclerView = view.findViewById(R.id.device_list);
 
         deviceAdapter = new BluetoothDeviceAdapter(this::onDeviceClick);
         deviceRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -106,13 +102,12 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
         }
 
         statusText.setText("Scannen...");
-        progressBar.setVisibility(View.VISIBLE);
+
         scanButton.setEnabled(false);
         deviceAdapter.clearDevices();
 
         if (!bluetooth.startScan()) {
             scanButton.setEnabled(true);
-            progressBar.setVisibility(View.GONE);
             statusText.setText("Scan fehlgeschlagen!");
         }
     }
@@ -125,7 +120,7 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
     public void onScanStarted() {
         requireActivity().runOnUiThread(() -> {
             statusText.setText("Scannen...");
-            progressBar.setVisibility(View.VISIBLE);
+
         });
     }
 
@@ -148,7 +143,6 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
     @Override
     public void onScanFinished() {
         requireActivity().runOnUiThread(() -> {
-            progressBar.setVisibility(View.GONE);
             scanButton.setEnabled(true);
             statusText.setText(deviceAdapter.getItemCount() + " Geräte gefunden");
         });
@@ -161,7 +155,6 @@ public class SearchFragment extends Fragment implements Bluetooth.BluetoothCallb
     @Override
     public void onError(String error) {
         requireActivity().runOnUiThread(() -> {
-            progressBar.setVisibility(View.GONE);
             scanButton.setEnabled(true);
             statusText.setText("Fehler: " + error);
             Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();

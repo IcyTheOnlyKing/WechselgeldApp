@@ -8,9 +8,8 @@
     android:paddingVertical="12dp"
     android:fitsSystemWindows="true">
 
-    <!-- Icon 1: Home -->
     <LinearLayout
-        android:id="@+id/homeLayout"
+        android:id="@+id/homeIcon"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -20,7 +19,7 @@
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ic_home" />
+            android:src="@drawable/ic_home"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -28,12 +27,11 @@
             android:text="Start"
             android:textSize="12sp"
             android:textColor="#000000"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
 
-    <!-- Icon 2: Search -->
     <LinearLayout
-        android:id="@+id/searchBTN"
+        android:id="@+id/connectIcon"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -43,20 +41,19 @@
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ic_search" />
+            android:src="@drawable/ic_connect"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Suche"
+            android:text="Koppeln"
             android:textSize="12sp"
             android:textColor="#000000"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
 
-    <!-- Icon 3: Transaction -->
     <LinearLayout
-        android:id="@+id/transactionLayout"
+        android:id="@+id/transactionIcon"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -66,7 +63,7 @@
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ic_transactions" />
+            android:src="@drawable/ic_transactions"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -74,12 +71,11 @@
             android:text="Transaktionen"
             android:textSize="12sp"
             android:textColor="#000000"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
 
-    <!-- Icon 4: Settings -->
     <LinearLayout
-        android:id="@+id/settingsLayout"
+        android:id="@+id/historyIcon"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -89,14 +85,14 @@
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ic_settings" />
+            android:src="@drawable/ic_wallet"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Einstellungen"
+            android:text="Verlauf"
             android:textSize="12sp"
             android:textColor="#000000"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
 </LinearLayout>

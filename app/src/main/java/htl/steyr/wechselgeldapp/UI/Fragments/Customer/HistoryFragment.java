@@ -1,4 +1,4 @@
-package htl.steyr.wechselgeldapp.UI.Fragments;
+package htl.steyr.wechselgeldapp.UI.Fragments.Customer;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,9 +17,9 @@ import htl.steyr.wechselgeldapp.R;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class SettingsFragment extends Fragment {
+public class HistoryFragment extends Fragment {
 
-    public SettingsFragment() {
+    public HistoryFragment() {
         // Required empty public constructor
     }
 
@@ -29,7 +29,7 @@ public class SettingsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         // Inflate the fragment_settings layout (now with a logout button)
-        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        View view = inflater.inflate(R.layout.customer_fragment_settings, container, false);
 
         // Find the logout button from the layout
         Button logoutButton = view.findViewById(R.id.logoutButton);
