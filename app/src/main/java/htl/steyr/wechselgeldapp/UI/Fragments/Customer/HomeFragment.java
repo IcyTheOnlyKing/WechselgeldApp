@@ -16,8 +16,9 @@ import java.util.Locale;
 
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
 
     private DatabaseHelper dbHelper;
     private String currentOtherUuid;
@@ -86,5 +87,10 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         dbHelper.close();
         super.onDestroyView();
+    }
+
+    @Override
+    public String getTitle() {
+        return "Wechselgeld App";
     }
 }

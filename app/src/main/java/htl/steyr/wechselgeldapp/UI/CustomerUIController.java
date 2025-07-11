@@ -2,159 +2,67 @@ package htl.steyr.wechselgeldapp.UI;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
-import htl.steyr.wechselgeldapp.UI.Fragments.Customer.ConnectFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.Customer.HistoryFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.Customer.HomeFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.Customer.TransactionFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ConnectFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HistoryFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.TransactionFragment;
 
 public class CustomerUIController extends AppCompatActivity {
-
-    private DatabaseHelper dbHelper;
-    private DrawerLayout drawerLayout;
-
-    private String currentOtherUuid;
-
-    // Header views
-    private LinearLayout headerLayout;
-    private ImageView menuIcon;
-    private EditText restaurantNameEditText;
-    private ImageView profileImage;
-
-    // Bottom bar icons
-    private LinearLayout homeLayout;
-    private LinearLayout connectLayout;
-    private LinearLayout transactionLayout;
-    private LinearLayout historyLayout;
-
-    // Sidebar buttons
-    private ImageButton btnClose;
-    private com.google.android.material.button.MaterialButton btnBackup;
-    private com.google.android.material.button.MaterialButton btnUnpair;
-    private com.google.android.material.button.MaterialButton btnLogout;
+    private TextView headerName; // Geändert von EditText zu TextView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.customer_ui);
+        setContentView(R.layout.seller_ui);
 
-        currentOtherUuid = getIntent().getStringExtra("UUID");
-        if (currentOtherUuid == null) {
-            currentOtherUuid = "demo-uuid"; // Temporärer Fallback
-        }
+        // Korrekte Initialisierung des Headers
+        View topAppBar = findViewById(R.id.topAppBar);
+        headerName = topAppBar.findViewById(R.id.restaurant_name); // Wichtig: findViewById auf topAppBar aufrufen
 
-        // DrawerLayout
-        drawerLayout = findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        ImageButton menuButton = findViewById(R.id.menu_icon);
+        ImageButton closeButton = findViewById(R.id.btn_close);
 
-        // Header Bar Views (top_app_bar.xml)
-        headerLayout = findViewById(R.id.header);
-        menuIcon = findViewById(R.id.menu_icon);
-        restaurantNameEditText = findViewById(R.id.restaurant_name);
-        profileImage = findViewById(R.id.profile_image);
+        menuButton.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        closeButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
 
-        // Bottom bar icons
-        homeLayout = findViewById(R.id.homeIcon);
-        connectLayout = findViewById(R.id.connectIcon);
-        transactionLayout = findViewById(R.id.transactionIcon);
-        historyLayout = findViewById(R.id.historyIcon);
+        LinearLayout homeIcon = findViewById(R.id.homeIcon);
+        LinearLayout connectIcon = findViewById(R.id.connectIcon);
+        LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
+        LinearLayout historyIcon = findViewById(R.id.historyIcon);
 
-        // Sidebar buttons (sidebar.xml)
-        btnClose = findViewById(R.id.btn_close);
-        btnBackup = findViewById(R.id.btn_backup);
-        btnUnpair = findViewById(R.id.btn_unpair);
-        btnLogout = findViewById(R.id.btn_logout);
+        homeIcon.setOnClickListener(v -> loadFragment(new htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment()));
+        connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
+        transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
+        historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
 
-        // DB Initialisierung
-        dbHelper = new DatabaseHelper(this);
-
-        // Menü-Icon öffnet das Drawer
-        menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-
-        // Close-Button schließt das Drawer
-        btnClose.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
-
-        // Sidebar Button Click Listener
-        btnBackup.setOnClickListener(v -> {
-            Toast.makeText(this, "Backup gestartet...", Toast.LENGTH_SHORT).show();
-            drawerLayout.closeDrawer(GravityCompat.START);
-            // TODO: Backup-Logik implementieren
-        });
-
-        btnUnpair.setOnClickListener(v -> {
-            Toast.makeText(this, "Kopplung wird getrennt...", Toast.LENGTH_SHORT).show();
-            drawerLayout.closeDrawer(GravityCompat.START);
-            // TODO: Unpair-Logik implementieren
-        });
-
-        btnLogout.setOnClickListener(v -> {
-            Toast.makeText(this, "Abmelden...", Toast.LENGTH_SHORT).show();
-            drawerLayout.closeDrawer(GravityCompat.START);
-            // TODO: Logout-Logik implementieren (z.B. Session löschen, LoginActivity starten)
-        });
-
-        // Shopname laden
-        loadDisplayName();
-
-        // Default Fragment mit UUID übergeben
-        loadFragment(createHomeFragment());
-
-        // Bottom bar Navigation
-        homeLayout.setOnClickListener(v -> loadFragment(createHomeFragment()));
-        connectLayout.setOnClickListener(v -> loadFragment(new ConnectFragment()));
-        transactionLayout.setOnClickListener(v -> loadFragment(new TransactionFragment()));
-        historyLayout.setOnClickListener(v -> loadFragment(new HistoryFragment()));
-    }
-
-    private HomeFragment createHomeFragment() {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString("UUID", currentOtherUuid);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    private void loadDisplayName() {
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        String displayName = prefs.getString("user_display_name", null);
-
-        if (displayName != null && !displayName.isEmpty()) {
-            restaurantNameEditText.setText("Willkommen " + displayName + "!");
-        } else {
-            restaurantNameEditText.setText("Willkommen!");
-        }
+        loadFragment(new HomeFragment());
     }
 
     private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
-    }
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
 
-    @Override
-    protected void onDestroy() {
-        dbHelper.close();
-        super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Falls Drawer offen, dann schließen, sonst normal zurück
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        if (fragment instanceof BaseFragment) {
+            headerName.setText(((BaseFragment) fragment).getTitle());
         }
     }
 }

@@ -14,49 +14,21 @@ import androidx.fragment.app.Fragment;
 
 import htl.steyr.wechselgeldapp.AuthController;
 import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends BaseFragment {
 
-    public HistoryFragment() {
-        // Required empty public constructor
-    }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-
-        // Inflate the fragment_settings layout (now with a logout button)
-        View view = inflater.inflate(R.layout.customer_fragment_settings, container, false);
-
-        // Find the logout button from the layout
-        Button logoutButton = view.findViewById(R.id.logoutButton);
-
-        // Set up click listener to trigger logout
-        logoutButton.setOnClickListener(v -> logout());
-
-        return view;
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.customer_fragment_history, container, false);
     }
 
-    /**
-     * Logs the user out by clearing login info and returning to AuthController (login screen).
-     */
-    private void logout() {
-        // Get stored login data from SharedPreferences
-        SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", MODE_PRIVATE);
-
-        // Set "is_logged_in" to false (logs out the user)
-        prefs.edit().putBoolean("is_logged_in", false).apply();
-
-        // Create intent to go back to login screen
-        Intent intent = new Intent(requireContext(), AuthController.class);
-
-        // Clear backstack so user can't press back to return
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        // Start login screen
-        startActivity(intent);
+    @Override
+    public String getTitle() {
+        return "Verlauf";
     }
 }

@@ -26,6 +26,6 @@ public class HomeFragment extends BaseFragment {
 
     @Override
     public String getTitle() {
-        return "Startseite";
+        return "Wechselgeld App";
     }
 }

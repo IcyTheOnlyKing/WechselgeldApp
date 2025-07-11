@@ -22,8 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDeviceAdapter;
 import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-public class ConnectFragment extends Fragment implements Bluetooth.BluetoothCallback {
+public class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
 
     private Bluetooth bluetooth;
     private BluetoothDeviceAdapter deviceAdapter;
@@ -40,7 +41,7 @@ public class ConnectFragment extends Fragment implements Bluetooth.BluetoothCall
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.customer_fragment_search, container, false);
+        View view = inflater.inflate(R.layout.customer_fragment_connect, container, false);
 
 
         deviceAdapter = new BluetoothDeviceAdapter(this::onDeviceClick);
@@ -244,5 +245,10 @@ public class ConnectFragment extends Fragment implements Bluetooth.BluetoothCall
         if (bluetooth != null) {
             bluetooth.cleanup();
         }
+    }
+
+    @Override
+    public String getTitle() {
+        return "Koppeln";
     }
 }

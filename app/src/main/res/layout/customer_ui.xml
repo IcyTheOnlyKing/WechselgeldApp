@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Replaced MaterialToolbar with custom header bar -->
         <include
             layout="@layout/top_app_bar"
             android:layout_width="match_parent"

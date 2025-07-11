@@ -47,7 +47,7 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
     @Override
     public DeviceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.customer_fragment_search, parent, false);
+                .inflate(R.layout.customer_fragment_connect, parent, false);
         return new DeviceViewHolder(view);
     }
 
