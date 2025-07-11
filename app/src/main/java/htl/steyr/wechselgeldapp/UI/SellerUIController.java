@@ -3,6 +3,7 @@ package htl.steyr.wechselgeldapp.UI;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ConnectFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HistoryFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ProfileFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Seller.TransactionFragment;
 
 public class SellerUIController extends AppCompatActivity {
@@ -43,11 +45,13 @@ public class SellerUIController extends AppCompatActivity {
         LinearLayout connectIcon = findViewById(R.id.connectIcon);
         LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
         LinearLayout historyIcon = findViewById(R.id.historyIcon);
+        ImageView profileIcon = findViewById(R.id.profile_image);
 
         homeIcon.setOnClickListener(v -> loadFragment(new HomeFragment()));
         connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
         transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
         historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
+        profileIcon.setOnClickListener(v -> loadFragment(new ProfileFragment()));
 
         loadFragment(new HomeFragment());
     }

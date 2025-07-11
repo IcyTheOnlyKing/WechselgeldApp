@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentTransaction;
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Customer.ProfileFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ConnectFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HistoryFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment;
@@ -30,7 +31,7 @@ public class CustomerUIController extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.seller_ui);
+        setContentView(R.layout.customer_ui);
 
         // Korrekte Initialisierung des Headers
         View topAppBar = findViewById(R.id.topAppBar);
@@ -47,11 +48,14 @@ public class CustomerUIController extends AppCompatActivity {
         LinearLayout connectIcon = findViewById(R.id.connectIcon);
         LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
         LinearLayout historyIcon = findViewById(R.id.historyIcon);
+        ImageView profileIcon = findViewById(R.id.profile_image);
 
-        homeIcon.setOnClickListener(v -> loadFragment(new htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment()));
+
+        homeIcon.setOnClickListener(v -> loadFragment(new HomeFragment()));
         connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
         transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
         historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
+        profileIcon.setOnClickListener(v-> loadFragment(new ProfileFragment()));
 
         loadFragment(new HomeFragment());
     }
