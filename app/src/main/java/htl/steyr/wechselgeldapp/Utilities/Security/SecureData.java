@@ -14,7 +14,7 @@ public final class SecureData {
      * Hashes input data using SHA-256 algorithm and returns the hex representation.
      * This method is typically used for hashing usernames, emails, or other non-password data.
      *
-     * @param data The input string to be hashed
+     * @param data The input string what will be hashed
      * @return The SHA-256 hashed hex string of the input data
      */
     public static String hashDataViaSHA(String data) {
