@@ -62,13 +62,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE PersonalInformation (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "customer_id INTEGER NOT NULL," +
+                "seller_id INTEGER NOT NULL," +
                 "name TEXT," +
                 "street TEXT," +
                 "houseNumber TEXT," +
                 "zipCode TEXT," +
                 "city TEXT," +
-                "FOREIGN KEY (customer_id) REFERENCES Customer(id) ON DELETE CASCADE" +
+                "FOREIGN KEY (seller_id) REFERENCES Seller(id) ON DELETE CASCADE" +
                 ");");
 
 
@@ -260,13 +260,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // ---------------- PersonalInformation CRUD ---------------- //
 
-    /**
-     * Inserts a new personal information record for a customer.
-     */
-    public long insertPersonalInfo(int customerId, String name, String street, String houseNumber, String zipCode, String city) {
+    public long insertPersonalInfo(int sellerId, String name, String street, String houseNumber, String zipCode, String city) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("customer_id", customerId);
+        values.put("seller_id", sellerId);
         values.put("name", name);
         values.put("street", street);
         values.put("houseNumber", houseNumber);
@@ -275,18 +272,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert("PersonalInformation", null, values);
     }
 
-    /**
-     * Retrieves the personal information for a specific customer.
-     */
-    public Cursor getPersonalInfoByCustomerId(int customerId) {
+    public Cursor getPersonalInfoBySellerId(int sellerId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM PersonalInformation WHERE customer_id = ?", new String[]{String.valueOf(customerId)});
+        return db.rawQuery("SELECT * FROM PersonalInformation WHERE seller_id = ?", new String[]{String.valueOf(sellerId)});
     }
 
-    /**
-     * Updates the personal information for a specific customer.
-     */
-    public int updatePersonalInfo(int customerId, String name, String street, String houseNumber, String zipCode, String city) {
+    public int updatePersonalInfo(int sellerId, String name, String street, String houseNumber, String zipCode, String city) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
@@ -294,15 +285,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("houseNumber", houseNumber);
         values.put("zipCode", zipCode);
         values.put("city", city);
-        return db.update("PersonalInformation", values, "customer_id = ?", new String[]{String.valueOf(customerId)});
-    }
-
-    /**
-     * Deletes the personal information record for a specific customer.
-     */
-    public int deletePersonalInfo(int customerId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete("PersonalInformation", "customer_id = ?", new String[]{String.valueOf(customerId)});
+        return db.update("PersonalInformation", values, "seller_id = ?", new String[]{String.valueOf(sellerId)});
     }
 
     // ---------------- Device CRUD ---------------- //
