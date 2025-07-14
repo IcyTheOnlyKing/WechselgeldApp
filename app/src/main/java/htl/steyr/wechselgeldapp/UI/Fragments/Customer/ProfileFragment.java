@@ -5,8 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.fragment.app.Fragment;
-
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
