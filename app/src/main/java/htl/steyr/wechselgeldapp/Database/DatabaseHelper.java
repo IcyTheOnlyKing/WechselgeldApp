@@ -60,6 +60,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "timestamp INTEGER" +
                 ");");
 
+        db.execSQL("CREATE TABLE PersonalInformation (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "customer_id INTEGER NOT NULL," +
+                "name TEXT," +
+                "street TEXT," +
+                "houseNumber TEXT," +
+                "zipCode TEXT," +
+                "city TEXT," +
+                "FOREIGN KEY (customer_id) REFERENCES Customer(id) ON DELETE CASCADE" +
+                ");");
+
+
         insertTestData();
     }
 
@@ -146,7 +158,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS Device");
         db.execSQL("DROP TABLE IF EXISTS Customer");
         db.execSQL("DROP TABLE IF EXISTS Seller");
+        db.execSQL("DROP TABLE IF EXISTS PersonalInformation");
         onCreate(db);
+
     }
 
     // ---------------- Seller CRUD ---------------- //
@@ -216,6 +230,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert("Customer", null, values);
     }
 
+
     /**
      * Checks if a customer with the given displayName or email already exists.
      */
@@ -242,6 +257,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return hash;
     }
+
+    // ---------------- Customer Personal Infos ----------------//
+
+    public long insertPersonalInfo(int customerId, String name, String street, String houseNumber, String zipCode, String city) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("customer_id", customerId);
+        values.put("name", name);
+        values.put("street", street);
+        values.put("houseNumber", houseNumber);
+        values.put("zipCode", zipCode);
+        values.put("city", city);
+        return db.insert("PersonalInformation", null, values);
+    }
+
+    public Cursor getPersonalInfoByCustomerId(int customerId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM PersonalInformation WHERE customer_id = ?", new String[]{String.valueOf(customerId)});
+    }
+
 
     // ---------------- Device CRUD ---------------- //
 
