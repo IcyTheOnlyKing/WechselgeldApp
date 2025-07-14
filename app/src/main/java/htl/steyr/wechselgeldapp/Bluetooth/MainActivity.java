@@ -20,9 +20,12 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import htl.steyr.wechselgeldapp.Backup.BackupManager;
 import htl.steyr.wechselgeldapp.R;
 
 public class MainActivity extends Activity implements Bluetooth.BluetoothCallback {
+    private BackupManager backupManager;
+    private String userEmail = "user@example.com";
     private static final int PERMISSION_REQUEST_CODE = 1001;
 
     // UI Elemente
