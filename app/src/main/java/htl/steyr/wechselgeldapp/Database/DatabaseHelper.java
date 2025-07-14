@@ -59,7 +59,96 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "amount REAL," +
                 "timestamp INTEGER" +
                 ");");
+
+        db.execSQL("CREATE TABLE PersonalInformation (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "customer_id INTEGER NOT NULL," +
+                "name TEXT," +
+                "street TEXT," +
+                "houseNumber TEXT," +
+                "zipCode TEXT," +
+                "city TEXT," +
+                "FOREIGN KEY (customer_id) REFERENCES Customer(id) ON DELETE CASCADE" +
+                ");");
+
+
+        insertTestData();
     }
+
+    /**
+     * Fügt umfangreiche realistische Testdaten in alle Tabellen ein, inklusive Admin-Zugängen.
+     */
+    public void insertTestData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Seller (inkl. Admin)
+        db.execSQL("INSERT INTO Seller (shopName, email, passwordHash) VALUES " +
+                "('admin', 'admin@seller.com', 'admin')," +
+                "('Bäckerei Maier', 'maier@shop.com', 'b@eckMa2023')," +
+                "('Kiosk Müller', 'mueller@kiosk.com', 'muellerSecure!')," +
+                "('Trafik Schmid', 'schmid@trafik.com', 'schmid#456')," +
+                "('Blumen Huber', 'huber@flowers.com', 'huberBloom22')," +
+                "('Feinkost Hahn', 'hahn@finefood.com', 'fein#hahn2024');");
+
+        // Customer (inkl. Admin)
+        db.execSQL("INSERT INTO Customer (displayName, email, passwordHash) VALUES " +
+                "('admin', 'admin@customer.com', 'admin')," +
+                "('Max Mustermann', 'max@web.de', 'maxSecure12')," +
+                "('Erika Musterfrau', 'erika@web.de', 'erikaPass99')," +
+                "('Lukas Lehner', 'lukas@web.at', 'lukas!strong')," +
+                "('Anna Berger', 'anna@outlook.com', 'ann4Berger!')," +
+                "('Thomas Meier', 'thomas@mail.com', 'th0mMe!')," +
+                "('Julia König', 'julia@gmx.at', 'juKo2024!')," +
+                "('Sebastian Kurz', 'sebastian@kurz.at', 'kurz1234')," +
+                "('Nina Graf', 'nina@graf.net', 'ninaSafePass');");
+
+        // Devices
+        db.execSQL("INSERT INTO Device (uuid, customerId, sellerId, deviceName) VALUES " +
+                "('uuid-admin-c', 1, NULL, 'Admin Kunden-Gerät')," +
+                "('uuid-admin-s', NULL, 1, 'Admin Verkaufsgerät')," +
+                "('uuid-max', 2, NULL, 'Max Handy')," +
+                "('uuid-erika', 3, NULL, 'Erika Tablet')," +
+                "('uuid-lukas', 4, NULL, 'Lukas Phone')," +
+                "('uuid-anna', 5, NULL, 'Annas iPhone')," +
+                "('uuid-seller1', NULL, 2, 'Maier Kasse 1')," +
+                "('uuid-seller2', NULL, 3, 'Müller Kasse')," +
+                "('uuid-seller3', NULL, 4, 'Trafik-Terminal')," +
+                "('uuid-seller4', NULL, 5, 'Blumen Scanner')," +
+                "('uuid-seller5', NULL, 6, 'Feinkost Terminal');");
+
+        // Balances
+        db.execSQL("INSERT INTO Balance (otherUuid, displayName, balance, timestamp) VALUES " +
+                "('uuid-max', 'Max Mustermann', 25.50, 1720700000)," +
+                "('uuid-erika', 'Erika Musterfrau', 15.75, 1720700050)," +
+                "('uuid-lukas', 'Lukas Lehner', 48.20, 1720700100)," +
+                "('uuid-anna', 'Anna Berger', 33.10, 1720700150)," +
+                "('uuid-admin-c', 'Admin Kunde', 999.99, 1720700200)," +
+                "('uuid-seller1', 'Bäckerei Maier', 120.00, 1720700250)," +
+                "('uuid-seller2', 'Kiosk Müller', 180.40, 1720700300)," +
+                "('uuid-seller3', 'Trafik Schmid', 95.10, 1720700350)," +
+                "('uuid-seller4', 'Blumen Huber', 210.00, 1720700400)," +
+                "('uuid-seller5', 'Feinkost Hahn', 310.50, 1720700450)," +
+                "('uuid-admin-s', 'Admin Verkäufer', 999.99, 1720700500);");
+
+        // Transactions (abwechslungsreich)
+        db.execSQL("INSERT INTO Transactions (amount, timestamp) VALUES " +
+                "(5.00, 1720701000)," +
+                "(10.00, 1720701100)," +
+                "(3.50, 1720701200)," +
+                "(20.00, 1720701300)," +
+                "(7.25, 1720701400)," +
+                "(12.00, 1720701500)," +
+                "(2.75, 1720701600)," +
+                "(50.00, 1720701700)," +
+                "(8.80, 1720701800)," +
+                "(15.60, 1720701900)," +
+                "(22.90, 1720702000)," +
+                "(1.10, 1720702100)," +
+                "(33.33, 1720702200)," +
+                "(44.44, 1720702300)," +
+                "(99.99, 1720702400);");
+    }
+
 
     // Handles database upgrades (drops and recreates tables)
     @Override
@@ -69,7 +158,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS Device");
         db.execSQL("DROP TABLE IF EXISTS Customer");
         db.execSQL("DROP TABLE IF EXISTS Seller");
+        db.execSQL("DROP TABLE IF EXISTS PersonalInformation");
         onCreate(db);
+
     }
 
     // ---------------- Seller CRUD ---------------- //
@@ -139,6 +230,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert("Customer", null, values);
     }
 
+
     /**
      * Checks if a customer with the given displayName or email already exists.
      */
@@ -164,6 +256,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return hash;
+    }
+
+    // ---------------- PersonalInformation CRUD ---------------- //
+
+    /**
+     * Inserts a new personal information record for a customer.
+     */
+    public long insertPersonalInfo(int customerId, String name, String street, String houseNumber, String zipCode, String city) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("customer_id", customerId);
+        values.put("name", name);
+        values.put("street", street);
+        values.put("houseNumber", houseNumber);
+        values.put("zipCode", zipCode);
+        values.put("city", city);
+        return db.insert("PersonalInformation", null, values);
+    }
+
+    /**
+     * Retrieves the personal information for a specific customer.
+     */
+    public Cursor getPersonalInfoByCustomerId(int customerId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM PersonalInformation WHERE customer_id = ?", new String[]{String.valueOf(customerId)});
+    }
+
+    /**
+     * Updates the personal information for a specific customer.
+     */
+    public int updatePersonalInfo(int customerId, String name, String street, String houseNumber, String zipCode, String city) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("street", street);
+        values.put("houseNumber", houseNumber);
+        values.put("zipCode", zipCode);
+        values.put("city", city);
+        return db.update("PersonalInformation", values, "customer_id = ?", new String[]{String.valueOf(customerId)});
+    }
+
+    /**
+     * Deletes the personal information record for a specific customer.
+     */
+    public int deletePersonalInfo(int customerId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete("PersonalInformation", "customer_id = ?", new String[]{String.valueOf(customerId)});
     }
 
     // ---------------- Device CRUD ---------------- //

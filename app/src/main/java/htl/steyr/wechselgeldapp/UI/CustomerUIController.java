@@ -1,84 +1,72 @@
 package htl.steyr.wechselgeldapp.UI;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-
-import com.google.android.material.appbar.MaterialToolbar;
+import androidx.fragment.app.FragmentTransaction;
 
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
-import htl.steyr.wechselgeldapp.UI.Fragments.HomeFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.SearchFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.SettingsFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.TransactionFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Customer.ProfileFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ConnectFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HistoryFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.TransactionFragment;
 
 public class CustomerUIController extends AppCompatActivity {
-
-    private DatabaseHelper dbHelper;
-    private MaterialToolbar topAppBar;
-    private String currentOtherUuid;
+    private TextView headerName; // Geändert von EditText zu TextView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.customer_ui);
 
-        currentOtherUuid = getIntent().getStringExtra("UUID");
-        if (currentOtherUuid == null) {
-            currentOtherUuid = "demo-uuid"; // Temporärer Fallback
-        }
+        // Korrekte Initialisierung des Headers
+        View topAppBar = findViewById(R.id.topAppBar);
+        headerName = topAppBar.findViewById(R.id.restaurant_name); // Wichtig: findViewById auf topAppBar aufrufen
 
-        // View-Verknüpfungen
-        topAppBar = findViewById(R.id.topAppBar);
-        LinearLayout homeLayout = findViewById(R.id.homeLayout);
-        LinearLayout searchLayout = findViewById(R.id.searchBTN);
-        LinearLayout transactionLayout = findViewById(R.id.transactionLayout);
-        LinearLayout settingsLayout = findViewById(R.id.settingsLayout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        ImageButton menuButton = findViewById(R.id.menu_icon);
+        ImageButton closeButton = findViewById(R.id.btn_close);
 
-        // DB-Initialisierung
-        dbHelper = new DatabaseHelper(this);
+        menuButton.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        closeButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
 
-        // Shopname laden
-        loadShopName();
+        LinearLayout homeIcon = findViewById(R.id.homeIcon);
+        LinearLayout connectIcon = findViewById(R.id.connectIcon);
+        LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
+        LinearLayout historyIcon = findViewById(R.id.historyIcon);
+        ImageView profileIcon = findViewById(R.id.profile_image);
 
-        // Default Fragment mit UUID übergeben
-        loadFragment(createHomeFragment());
 
-        homeLayout.setOnClickListener(v -> loadFragment(createHomeFragment()));
-        searchLayout.setOnClickListener(v -> loadFragment(new SearchFragment()));
-        transactionLayout.setOnClickListener(v -> loadFragment(new TransactionFragment()));
-        settingsLayout.setOnClickListener(v -> loadFragment(new SettingsFragment()));
-    }
+        homeIcon.setOnClickListener(v -> loadFragment(new HomeFragment()));
+        connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
+        transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
+        historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
+        profileIcon.setOnClickListener(v-> loadFragment(new ProfileFragment()));
 
-    private HomeFragment createHomeFragment() {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString("UUID", currentOtherUuid);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    private void loadShopName() {
-        String shopName = dbHelper.getShopName();
-        if (shopName != null) {
-            topAppBar.setTitle(shopName);
-        } else {
-            topAppBar.setTitle("Lebensmittelgeschäft");
-        }
+        loadFragment(new HomeFragment());
     }
 
     private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
-    }
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
 
-    @Override
-    protected void onDestroy() {
-        dbHelper.close();
-        super.onDestroy();
+        if (fragment instanceof BaseFragment) {
+            headerName.setText(((BaseFragment) fragment).getTitle());
+        }
     }
 }

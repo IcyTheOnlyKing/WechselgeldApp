@@ -1,171 +1,68 @@
 package htl.steyr.wechselgeldapp.UI;
 
-    import android.Manifest;
-    import android.annotation.SuppressLint;
-    import android.app.Activity;
-    import android.bluetooth.BluetoothDevice;
-    import android.content.pm.PackageManager;
-    import android.os.Build;
-    import android.os.Bundle;
-    import android.widget.Button;
-    import android.widget.TextView;
-    import android.widget.Toast;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-    import androidx.annotation.NonNull;
-    import androidx.annotation.RequiresPermission;
-    import androidx.core.app.ActivityCompat;
-    import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
-    import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
-    import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ConnectFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HistoryFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ProfileFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.TransactionFragment;
 
-    public class SellerUIController extends Activity implements Bluetooth.BluetoothCallback {
-        private static final int PERMISSION_REQUEST_CODE = 1001;
-        private Button scanDevicesButton;
-        private TextView deviceListText;
-        private Bluetooth bluetooth;
-        private int deviceCount = 0;
+public class SellerUIController extends AppCompatActivity {
 
-        @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
-        @SuppressLint("MissingInflatedId")
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.seller_ui);
+    private TextView headerName; // Geändert von EditText zu TextView
 
-            scanDevicesButton = findViewById(R.id.scan_devices_button);
-            deviceListText = findViewById(R.id.device_list_text);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.seller_ui);
 
-            scanDevicesButton.setOnClickListener(v -> startDeviceScan());
+        // Korrekte Initialisierung des Headers
+        View topAppBar = findViewById(R.id.topAppBar);
+        headerName = topAppBar.findViewById(R.id.restaurant_name); // Wichtig: findViewById auf topAppBar aufrufen
 
-            bluetooth = new Bluetooth(this, this);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        ImageButton menuButton = findViewById(R.id.menu_icon);
+        ImageButton closeButton = findViewById(R.id.btn_close);
 
-            if (hasPermissions()) {
-                initBluetooth();
-            } else {
-                requestPermissions();
-            }
-        }
+        menuButton.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        closeButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
 
-        private String[] getPermissions() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                return new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_FINE_LOCATION};
-            return new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION};
-        }
+        LinearLayout homeIcon = findViewById(R.id.homeIcon);
+        LinearLayout connectIcon = findViewById(R.id.connectIcon);
+        LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
+        LinearLayout historyIcon = findViewById(R.id.historyIcon);
+        ImageView profileIcon = findViewById(R.id.profile_image);
 
-        private boolean hasPermissions() {
-            for (String permission : getPermissions()) {
-                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED)
-                    return false;
-            }
-            return true;
-        }
+        homeIcon.setOnClickListener(v -> loadFragment(new HomeFragment()));
+        connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
+        transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
+        historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
+        profileIcon.setOnClickListener(v -> loadFragment(new ProfileFragment()));
 
-        private void requestPermissions() {
-            ActivityCompat.requestPermissions(this, getPermissions(), PERMISSION_REQUEST_CODE);
-        }
+        loadFragment(new HomeFragment());
+    }
 
-        @Override
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    private void loadFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
 
-            if (requestCode == PERMISSION_REQUEST_CODE) {
-                boolean allGranted = true;
-                for (int result : grantResults) {
-                    if (result != PackageManager.PERMISSION_GRANTED) {
-                        allGranted = false;
-                        break;
-                    }
-                }
-
-                if (allGranted) {
-                    initBluetooth();
-                } else {
-                    deviceListText.setText("Bluetooth-Berechtigungen werden benötigt!");
-                    Toast.makeText(this, "Berechtigungen erforderlich", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-
-        private void initBluetooth() {
-            if (bluetooth.init()) {
-                deviceListText.setText("Bereit zum Scannen nach Geräten");
-                scanDevicesButton.setEnabled(true);
-            } else {
-                deviceListText.setText("Bluetooth-Fehler");
-            }
-        }
-
-        @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
-        private void startDeviceScan() {
-            if (!bluetooth.isEnabled()) {
-                Toast.makeText(this, "Bitte Bluetooth aktivieren", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            deviceCount = 0;
-            deviceListText.setText("Scanne nach Geräten...\n");
-            scanDevicesButton.setEnabled(false);
-
-            if (!bluetooth.startScan()) {
-                scanDevicesButton.setEnabled(true);
-                deviceListText.setText("Scan konnte nicht gestartet werden");
-            }
-        }
-
-
-        @Override
-        public void onScanStarted() {
-            deviceListText.append("Suche gestartet...\n");
-        }
-
-        @Override
-        public void onDeviceFound(BluetoothDevice device) {
-            deviceCount++;
-            String name = "Unbekannt";
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                if (device.getName() != null) name = device.getName();
-            }
-
-            deviceListText.append(String.format("(%d) %s (%s)\n", deviceCount, name, device.getAddress()));
-            String finalName = name;
-            deviceListText.setOnClickListener(v -> {
-                if (hasPermissions()) {
-                    try {
-                        device.createBond();
-                        Toast.makeText(this, "Kopplungsanfrage gesendet an " + finalName, Toast.LENGTH_SHORT).show();
-                    } catch (SecurityException e) {
-                        Toast.makeText(this, "Berechtigung für Geräteverbindung fehlt", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onScanFinished() {
-            deviceListText.append(String.format("\n=== %d Geräte gefunden ===\n", deviceCount));
-            scanDevicesButton.setEnabled(true);
-        }
-
-        @Override
-        public void onError(String error) {
-            deviceListText.append("FEHLER: " + error + "\n");
-            scanDevicesButton.setEnabled(true);
-            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-        }
-
-        @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-        @Override
-        protected void onDestroy() {
-            super.onDestroy();
-            if (bluetooth != null) bluetooth.cleanup();
-        }
-
-        @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-        @Override
-        protected void onPause() {
-            super.onPause();
-            if (bluetooth != null) bluetooth.stopScan();
+        if (fragment instanceof BaseFragment) {
+            headerName.setText(((BaseFragment) fragment).getTitle());
         }
     }
+}
