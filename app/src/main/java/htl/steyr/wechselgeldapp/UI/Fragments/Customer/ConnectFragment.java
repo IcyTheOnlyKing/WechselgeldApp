@@ -162,6 +162,21 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
         });
     }
 
+    @Override
+    public void onConnectionSuccess(BluetoothDevice device) {
+
+    }
+
+    @Override
+    public void onDataSent(boolean success) {
+
+    }
+
+    @Override
+    public void onDisconnected() {
+
+    }
+
     /**
      * Returns the necessary permissions depending on the Android version.
      */

@@ -23,6 +23,11 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
     private List<BluetoothDevice> devices = new ArrayList<>();
     private OnDeviceClickListener listener;
 
+    public BluetoothDeviceAdapter(List<BluetoothDevice> deviceList, Context context) {
+        this.devices = deviceList;
+        this.listener = (OnDeviceClickListener) context; // Context muss OnDeviceClickListener implementieren
+    }
+
     public interface OnDeviceClickListener {
         void onDeviceClick(BluetoothDevice device);
     }

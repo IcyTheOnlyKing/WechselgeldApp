@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 public class BackupData {
-    private List<Transaction> transactions;  // Korrigiert: Generic Type hinzugefügt
+    private List<Transaction> transactions;
     private UserData userData;
     private Date backupDate;
     private String appVersion;
