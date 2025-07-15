@@ -1,11 +1,11 @@
 package htl.steyr.wechselgeldapp;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Intent;
 
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -14,16 +14,17 @@ import htl.steyr.wechselgeldapp.UI.CustomerUIController;
 import htl.steyr.wechselgeldapp.UI.SellerUIController;
 import htl.steyr.wechselgeldapp.Utilities.Security.SecureData;
 import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
+import htl.steyr.wechselgeldapp.Utilities.ScreenChanger;
 
 import org.mindrot.jbcrypt.BCrypt;
 
 public class AuthController extends Activity {
 
-    private int currentLayoutResId; // Stores the current layout resource ID to track which view is active
-    private String role; // Can be "seller" or "customer" depending on the user role
-    private DatabaseHelper db; // Database helper for all database operations
+    private int currentLayoutResId;
+    private String role;
+    private DatabaseHelper db;
 
-    // Views for Registration
+    // Registration Views
     private TextView roleLabel;
     private TextInputEditText usernameInput;
     private TextInputEditText passwordInput;
@@ -31,7 +32,7 @@ public class AuthController extends Activity {
     private Button registerBTN;
     private TextView loginLink;
 
-    // Views for Login
+    // Login Views
     private TextView loginTitle;
     private TextInputEditText loginUsernameInput;
     private TextInputEditText loginPasswordInput;
@@ -42,26 +43,18 @@ public class AuthController extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = new DatabaseHelper(getApplicationContext());
-
-        // Retrieve role passed via Intent
         role = getIntent().getStringExtra("user_role");
         showRegistrationView();
     }
 
-    /**
-     * Displays the registration view and initializes the inputs and buttons.
-     */
     private void showRegistrationView() {
         currentLayoutResId = R.layout.registration_view;
         setContentView(currentLayoutResId);
-
         initRegistrationView();
 
-        // Update label and hints depending on role
         roleLabel.setText("seller".equals(role) ? "Registrierung für Verkäufer" : "Registrierung für Kunden");
         usernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
 
-        // Handle registration button click
         registerBTN.setOnClickListener(view -> {
             String username = usernameInput.getText().toString().trim();
             String password = passwordInput.getText().toString();
@@ -72,45 +65,39 @@ public class AuthController extends Activity {
                 return;
             }
 
-            String hashedUsername = SecureData.hashDataViaSHA(username);
+            String displayName = username; // wird jetzt im Klartext gespeichert
             String hashedEmail = SecureData.hashDataViaSHA(email);
+            String hashedPassword = SecureData.hashPasswordViaBCrypt(password);
 
             if ("seller".equals(role)) {
-                if (db.sellerExists(hashedUsername, hashedEmail)) {
+                if (db.sellerExists(displayName, hashedEmail)) {
                     Toast.makeText(this, "Geschäftsname oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                db.insertSeller(hashedUsername, hashedEmail, SecureData.hashPasswordViaBCrypt(password));
+                db.insertSeller(displayName, hashedEmail, hashedPassword);
             } else {
-                if (db.customerExists(hashedUsername, hashedEmail)) {
+                if (db.customerExists(displayName, hashedEmail)) {
                     Toast.makeText(this, "Benutzername oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                db.insertCustomer(hashedUsername, hashedEmail, SecureData.hashPasswordViaBCrypt(password));
+                db.insertCustomer(displayName, hashedEmail, hashedPassword);
             }
 
             Toast.makeText(this, "Registrierung erfolgreich!", Toast.LENGTH_SHORT).show();
             showLoginView();
         });
 
-        // Switch to login view
         loginLink.setOnClickListener(view -> showLoginView());
     }
 
-    /**
-     * Displays the login view and initializes the inputs and buttons.
-     */
     private void showLoginView() {
         currentLayoutResId = R.layout.login_view;
         setContentView(currentLayoutResId);
-
         initLoginView();
 
-        // Update title and hints based on role
         loginTitle.setText("seller".equals(role) ? "Login für Verkäufer" : "Login für Kunden");
         loginUsernameInput.setHint("seller".equals(role) ? "Geschäftsname" : "Benutzername");
 
-        // Handle login button click
         loginBTN.setOnClickListener(view -> {
             String username = loginUsernameInput.getText().toString().trim();
             String password = loginPasswordInput.getText().toString();
@@ -120,45 +107,46 @@ public class AuthController extends Activity {
                 return;
             }
 
-            String hashedUsername = SecureData.hashDataViaSHA(username);
             String passwordHash;
 
-            // Get stored password hash from database based on role
             if ("seller".equals(role)) {
-                passwordHash = db.getSellerPasswordHash(hashedUsername);
+                passwordHash = db.getSellerPasswordHash(username);
             } else {
-                passwordHash = db.getCustomerPasswordHash(hashedUsername);
+                passwordHash = db.getCustomerPasswordHash(username);
             }
 
-            // Check password with BCrypt
             if (passwordHash != null && BCrypt.checkpw(password, passwordHash)) {
-                loginSuccess(role);
+                loginSuccess(role, username); // Weiter mit displayName
             } else {
                 Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Switch to registration view
         registerLink.setOnClickListener(view -> showRegistrationView());
     }
 
     /**
-     * Called on successful login, opens the correct UI and saves session.
-     * @param role Either "seller" or "customer"
+     * Called when login is successful.
      */
-    private void loginSuccess(String role) {
+    private void loginSuccess(String role, String displayName) {
         Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
-        SessionManager.saveLogin(this, role);
 
-        // Open appropriate main UI
-        Intent intent = new Intent(this, "seller".equals(role) ? SellerUIController.class : CustomerUIController.class);
-        startActivity(intent);
-        finish(); // Prevent going back to login screen
+        // Save session with role and displayName
+        SessionManager.saveLogin(this, role);
+        getSharedPreferences("user_prefs", MODE_PRIVATE)
+                .edit()
+                .putString("user_display_name", displayName)
+                .apply();
+
+        if ("seller".equals(role)) {
+            ScreenChanger.changeScreen(this, SellerUIController.class);
+        } else {
+            ScreenChanger.changeScreen(this, CustomerUIController.class);
+        }
+
+        finish();
     }
 
-    /**
-     * Initializes all views for the registration screen.
-     */
     private void initRegistrationView() {
         roleLabel = findViewById(R.id.roleLabel);
         usernameInput = findViewById(R.id.usernameInput);
@@ -168,9 +156,6 @@ public class AuthController extends Activity {
         loginLink = findViewById(R.id.loginLink);
     }
 
-    /**
-     * Initializes all views for the login screen.
-     */
     private void initLoginView() {
         loginTitle = findViewById(R.id.loginTitle);
         loginUsernameInput = findViewById(R.id.usernameInput);
@@ -179,16 +164,10 @@ public class AuthController extends Activity {
         registerLink = findViewById(R.id.registerLink);
     }
 
-    /**
-     * @return True if the registration layout is currently visible
-     */
     public boolean isRegistrationLayoutVisible() {
         return currentLayoutResId == R.layout.registration_view;
     }
 
-    /**
-     * @return True if the login layout is currently visible
-     */
     public boolean isLoginLayoutVisible() {
         return currentLayoutResId == R.layout.login_view;
     }

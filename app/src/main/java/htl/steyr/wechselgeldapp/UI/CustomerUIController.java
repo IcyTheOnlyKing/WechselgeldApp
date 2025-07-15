@@ -1,108 +1,72 @@
 package htl.steyr.wechselgeldapp.UI;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.database.Cursor;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.material.appbar.MaterialToolbar;
-
-import java.util.Calendar;
-import java.util.Locale;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Customer.ProfileFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ConnectFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HistoryFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Seller.TransactionFragment;
 
-public class CustomerUIController extends Activity {
-
-    private DatabaseHelper dbHelper;
-
-    private MaterialToolbar topAppBar;
-    private TextView textViewLastBalance;
-    private TextView textViewTodayTransactionCount;
-    private LinearLayout searchLayout;
-    private LinearLayout settingsLayout;
-
-    private String currentOtherUuid = "demo-uuid";  // → Muss aus deinem Login oder Intent kommen
+public class CustomerUIController extends AppCompatActivity {
+    private TextView headerName; // Geändert von EditText zu TextView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.customer_home_ui);
 
-        // View-Verknüpfung
-        topAppBar = findViewById(R.id.topAppBar);
-        textViewLastBalance = findViewById(R.id.textViewLastBalance);
-        textViewTodayTransactionCount = findViewById(R.id.textViewTodayTransactionCount);
-        searchLayout = findViewById(R.id.searchBTN);
-        settingsLayout = findViewById(R.id.settingsLayout);
+        // Korrekte Initialisierung des Headers
+        View topAppBar = findViewById(R.id.topAppBar);
+        headerName = topAppBar.findViewById(R.id.restaurant_name); // Wichtig: findViewById auf topAppBar aufrufen
+
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        ImageButton menuButton = findViewById(R.id.menu_icon);
+        ImageButton closeButton = findViewById(R.id.btn_close);
+
+        menuButton.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        closeButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+
+        LinearLayout homeIcon = findViewById(R.id.homeIcon);
+        LinearLayout connectIcon = findViewById(R.id.connectIcon);
+        LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
+        LinearLayout historyIcon = findViewById(R.id.historyIcon);
+        ImageView profileIcon = findViewById(R.id.profile_image);
 
 
-        // DatabaseHelper initialisieren
-        dbHelper = new DatabaseHelper(this);
+        homeIcon.setOnClickListener(v -> loadFragment(new HomeFragment()));
+        connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
+        transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
+        historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
+        profileIcon.setOnClickListener(v-> loadFragment(new ProfileFragment()));
 
-        loadData();
+        loadFragment(new HomeFragment());
     }
 
-    private void loadData() {
-        // Shopname anzeigen (nimmt ersten Seller aus DB)
-        Cursor sellerCursor = dbHelper.getReadableDatabase().rawQuery("SELECT shopName FROM Seller LIMIT 1", null);
-        String shopName = "Willkommen";
-        if (sellerCursor.moveToFirst()) {
-            shopName = sellerCursor.getString(0);
+    private void loadFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
+
+        if (fragment instanceof BaseFragment) {
+            headerName.setText(((BaseFragment) fragment).getTitle());
         }
-        sellerCursor.close();
-        topAppBar.setTitle(shopName);
-
-        // Balance anzeigen
-        Cursor balanceCursor = dbHelper.getBalanceForUuid(currentOtherUuid);
-        String balanceText = "0,00 €";
-        if (balanceCursor.moveToFirst()) {
-            double balance = balanceCursor.getDouble(balanceCursor.getColumnIndexOrThrow("balance"));
-            balanceText = String.format(Locale.getDefault(), "%.2f €", balance);
-        }
-        balanceCursor.close();
-        textViewLastBalance.setText(balanceText);
-
-        // Heutige Transaktionen zählen
-        int transactionCount = getTransactionCountForToday();
-        textViewTodayTransactionCount.setText(String.valueOf(transactionCount));
-
-        searchLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SearchController.class);
-            startActivity(intent);
-        });
-
-        settingsLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsController.class);
-            startActivity(intent);
-        });
-
-    }
-
-    private int getTransactionCountForToday() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        long startOfDay = calendar.getTimeInMillis();
-
-        calendar.add(Calendar.DAY_OF_MONTH, 1);
-        long endOfDay = calendar.getTimeInMillis();
-
-        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(
-                "SELECT COUNT(*) FROM Transactions WHERE timestamp >= ? AND timestamp < ?",
-                new String[]{String.valueOf(startOfDay), String.valueOf(endOfDay)}
-        );
-
-        int count = 0;
-        if (cursor.moveToFirst()) {
-            count = cursor.getInt(0);
-        }
-        cursor.close();
-        return count;
     }
 }
