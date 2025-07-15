@@ -56,24 +56,17 @@ public class CustomerUIController extends AppCompatActivity {
 
     private void initializeViews() {
         try {
-            // Initialize top app bar
-            View topAppBar = findViewById(R.id.topAppBar);
-            if (topAppBar != null) {
-                headerName = topAppBar.findViewById(R.id.restaurant_name);
-                if (headerName != null) {
-                    // Set user display name from shared preferences
-                    SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-                    String displayName = prefs.getString("user_display_name", "Kunde");
-                    headerName.setText(displayName);
-                    Log.d(TAG, "Header name set to: " + displayName);
-                } else {
-                    Log.e(TAG, "restaurant_name TextView not found");
-                }
+            // Direkt auf restaurant_name zugreifen
+            headerName = findViewById(R.id.restaurant_name);
+            if (headerName != null) {
+                SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                String displayName = prefs.getString("user_display_name", "Kunde");
+                headerName.setText(displayName);
+                Log.d(TAG, "Header name set to: " + displayName);
             } else {
-                Log.e(TAG, "topAppBar not found");
+                Log.e(TAG, "restaurant_name TextView not found");
             }
 
-            // Initialize drawer layout
             drawerLayout = findViewById(R.id.drawer_layout);
             if (drawerLayout == null) {
                 Log.e(TAG, "drawer_layout not found");
