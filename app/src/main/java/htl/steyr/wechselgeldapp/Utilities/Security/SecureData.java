@@ -8,7 +8,8 @@ import java.security.NoSuchAlgorithmException;
 public final class SecureData {
 
     // Private constructor to prevent instantiation of this utility class
-    private SecureData() {}
+    private SecureData() {
+    }
 
     /**
      * Hashes input data using SHA-256 algorithm and returns the hex representation.
@@ -47,7 +48,7 @@ public final class SecureData {
     /**
      * Verifies a plaintext password against a previously hashed password using BCrypt.
      *
-     * @param plainPassword The plaintext password entered by the user
+     * @param plainPassword  The plaintext password entered by the user
      * @param hashedPassword The hashed password stored in the database
      * @return True if the password matches the hash, false otherwise
      */

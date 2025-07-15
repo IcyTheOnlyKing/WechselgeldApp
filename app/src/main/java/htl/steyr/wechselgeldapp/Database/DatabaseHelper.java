@@ -400,5 +400,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.delete("Transactions", null, null);
     }
 
+
     // ---------------- End of CRUD ---------------- //
 }
