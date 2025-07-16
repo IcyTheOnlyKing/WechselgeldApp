@@ -23,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
+import htl.steyr.wechselgeldapp.Bluetooth.BluetoothManager;
+import htl.steyr.wechselgeldapp.Backup.UserData;
 import htl.steyr.wechselgeldapp.R;
 
 import java.util.ArrayList;
@@ -71,6 +73,7 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
 
     private void setupBluetooth() {
         bluetooth = new Bluetooth(getContext(), this);
+        BluetoothManager.setInstance(bluetooth);
         if (!bluetooth.init()) {
             Toast.makeText(getContext(), "Bluetooth-Initialisierung fehlgeschlagen", Toast.LENGTH_SHORT).show();
         }
@@ -154,6 +157,7 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
             if (device.getName() != null) deviceName = device.getName();
             else deviceName = "Unbekannter Kunde";
         }
+        BluetoothManager.setInstance(bluetooth);
         Toast.makeText(getContext(), "Verbunden mit Kunde: " + deviceName, Toast.LENGTH_SHORT).show();
     }
 
@@ -161,6 +165,11 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
     public void onDataSent(boolean success) {
         String message = success ? "Daten erfolgreich an Kunde gesendet" : "Datenübertragung an Kunde fehlgeschlagen";
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDataReceived(UserData data) {
+        // not used here
     }
 
     @Override

@@ -84,6 +84,7 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
      */
     private void initializeBluetooth() {
         if (bluetooth.init()) {
+            bluetooth.startServer();
             statusText.setText("Bereit zum Scannen");
             scanButton.setEnabled(true);
         } else {
@@ -164,17 +165,40 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
 
     @Override
     public void onConnectionSuccess(BluetoothDevice device) {
-
+        requireActivity().runOnUiThread(() ->
+                Toast.makeText(requireContext(), "Verbunden mit " + device.getName(), Toast.LENGTH_SHORT).show());
     }
 
     @Override
     public void onDataSent(boolean success) {
+        requireActivity().runOnUiThread(() ->
+                Toast.makeText(requireContext(), success ? "Gesendet" : "Sendefehler", Toast.LENGTH_SHORT).show());
+    }
 
+    @Override
+    public void onDataReceived(UserData data) {
+        requireActivity().runOnUiThread(() -> {
+            StringBuilder msg = new StringBuilder();
+            msg.append("Name: ").append(data.getUsername());
+            msg.append("\nGuthaben: ").append(data.getTotalAmount());
+            if (data.getSellerName() != null) {
+                msg.append("\nVerkäufer: ").append(data.getSellerName());
+            }
+            if (data.getTransactionAmount() != 0) {
+                msg.append("\nBetrag: ").append(data.getTransactionAmount());
+            }
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Daten empfangen")
+                    .setMessage(msg.toString())
+                    .setPositiveButton("OK", null)
+                    .show();
+        });
     }
 
     @Override
     public void onDisconnected() {
-
+        requireActivity().runOnUiThread(() ->
+                Toast.makeText(requireContext(), "Verbindung getrennt", Toast.LENGTH_SHORT).show());
     }
 
     /**
