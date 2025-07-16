@@ -31,7 +31,7 @@ public class CustomerUIController extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.customer_ui);
+        setContentView(R.layout.customer_home_ui);
 
         // Korrekte Initialisierung des Headers
         View topAppBar = findViewById(R.id.topAppBar);
