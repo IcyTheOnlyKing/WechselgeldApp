@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.bluetooth.BluetoothServerSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import htl.steyr.wechselgeldapp.Backup.UserData;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -37,6 +39,9 @@ public class Bluetooth {
     private final Gson gson = new Gson();
 
     private BluetoothSocket socket;
+    private BluetoothServerSocket serverSocket;
+    private Thread acceptThread;
+    private Thread readThread;
     private boolean scanning = false;
     private boolean connected = false;
 
@@ -52,6 +57,8 @@ public class Bluetooth {
         void onConnectionSuccess(BluetoothDevice device);
 
         void onDataSent(boolean success);
+
+        void onDataReceived(UserData data);
 
         void onDisconnected();
     }
@@ -170,6 +177,7 @@ public class Bluetooth {
                 connected = true;
 
                 handler.post(() -> callback.onConnectionSuccess(device));
+                startReadThread();
             } catch (IOException e) {
                 connected = false;
                 handler.post(() -> callback.onError("Verbindung fehlgeschlagen: " + e.getMessage()));
@@ -214,6 +222,13 @@ public class Bluetooth {
                 callback.onError("Trennung fehlgeschlagen: " + e.getMessage());
             }
         }
+        if (serverSocket != null) {
+            try {
+                serverSocket.close();
+            } catch (IOException ignored) { }
+        }
+        if (readThread != null) readThread.interrupt();
+        if (acceptThread != null) acceptThread.interrupt();
     }
 
     public boolean isConnected() {
@@ -237,5 +252,43 @@ public class Bluetooth {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_ACCEPT)
+    public void startServer() {
+        if (adapter == null) return;
+
+        acceptThread = new Thread(() -> {
+            try {
+                serverSocket = adapter.listenUsingRfcommWithServiceRecord("WechselgeldApp", MY_UUID);
+                socket = serverSocket.accept();
+                connected = true;
+                handler.post(() -> callback.onConnectionSuccess(socket.getRemoteDevice()));
+                startReadThread();
+            } catch (IOException e) {
+                handler.post(() -> callback.onError("Serverfehler: " + e.getMessage()));
+            }
+        });
+        acceptThread.start();
+    }
+
+    private void startReadThread() {
+        if (socket == null) return;
+
+        readThread = new Thread(() -> {
+            try {
+                InputStream is = socket.getInputStream();
+                byte[] buffer = new byte[1024];
+                int bytes;
+                while ((bytes = is.read(buffer)) != -1) {
+                    String json = new String(buffer, 0, bytes);
+                    UserData data = gson.fromJson(json, UserData.class);
+                    handler.post(() -> callback.onDataReceived(data));
+                }
+            } catch (IOException e) {
+                handler.post(() -> callback.onError("Lesefehler: " + e.getMessage()));
+            }
+        });
+        readThread.start();
     }
 }
