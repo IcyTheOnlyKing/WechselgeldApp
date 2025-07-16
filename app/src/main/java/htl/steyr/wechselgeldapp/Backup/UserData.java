@@ -20,7 +20,7 @@ public class UserData {
         this.transactionAmount = transactionAmount;
     }
 
-    // Bestehende Getter und Setter...
+    // Getter und Setter...
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getUsername() { return username; }

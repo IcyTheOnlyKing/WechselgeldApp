@@ -1,8 +1,10 @@
 package htl.steyr.wechselgeldapp.UI.Fragments.Seller;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -32,6 +35,7 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
     private SwipeRefreshLayout swipeRefreshLayout;
     private final List<BluetoothDevice> nearbyDevices = new ArrayList<>();
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -50,6 +54,7 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
         return view;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void setupSwipeRefresh(View view) {
         // SwipeRefreshLayout wird das CardView umschließen
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
@@ -71,6 +76,8 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void startBluetoothScan() {
         if (checkPermissions()) {
             nearbyDevices.clear();
@@ -82,6 +89,7 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private boolean checkPermissions() {
         String[] permissions = {
                 Manifest.permission.BLUETOOTH_SCAN,
@@ -115,7 +123,12 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
 
     @Override
     public void onScanStarted() {
-        // Optional: Loading-Indikator anzeigen
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(true);
+        }
+        nearbyDevices.clear();
+        customerAdapter.notifyDataSetChanged();
+        Toast.makeText(getContext(), "Suche nach Kunden gestartet...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -138,7 +151,8 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
     public void onConnectionSuccess(BluetoothDevice device) {
         String deviceName = "Unbekannter Kunde";
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-            deviceName = device.getName() != null ? device.getName() : "Unbekannter Kunde";
+            if (device.getName() != null) deviceName = device.getName();
+            else deviceName = "Unbekannter Kunde";
         }
         Toast.makeText(getContext(), "Verbunden mit Kunde: " + deviceName, Toast.LENGTH_SHORT).show();
     }
@@ -154,6 +168,7 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
         Toast.makeText(getContext(), "Verbindung zu Kunde getrennt", Toast.LENGTH_SHORT).show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     public void onResume() {
         super.onResume();
@@ -173,8 +188,8 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
 
     // RecyclerView Adapter für Bluetooth-Kunden
     private static class BluetoothCustomerAdapter extends RecyclerView.Adapter<BluetoothCustomerAdapter.CustomerViewHolder> {
-        private List<BluetoothDevice> customers;
-        private OnCustomerClickListener clickListener;
+        private final List<BluetoothDevice> customers;
+        private final OnCustomerClickListener clickListener;
 
         public interface OnCustomerClickListener {
             void onCustomerClick(BluetoothDevice device);
@@ -200,7 +215,9 @@ public class BluetoothDevicesFragment extends Fragment implements Bluetooth.Blue
             if (ActivityCompat.checkSelfPermission(holder.itemView.getContext(),
                     Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
 
-                String customerName = device.getName() != null ? device.getName() : "Unbekannter Kunde";
+                String customerName;
+                if (device.getName() != null) customerName = device.getName();
+                else customerName = "Unbekannter Kunde";
                 String deviceAddress = device.getAddress();
 
                 holder.customerNameTextView.setText(customerName);
