@@ -258,6 +258,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return hash;
     }
 
+    /**
+     * Returns the id of a customer by their display name.
+     */
+    public String getCustomerIdByName(String displayName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT id FROM Customer WHERE displayName = ?",
+                new String[]{displayName});
+        String id = null;
+        if (cursor.moveToFirst()) {
+            id = cursor.getString(0);
+        }
+        cursor.close();
+        return id;
+    }
+
+
+    /**
+     * Returns the display name of a customer by id.
+     */
+    public String getCustomerNameById(int customerId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT displayName FROM Customer WHERE id = ?",
+                new String[]{String.valueOf(customerId)});
+        String name = null;
+        if (cursor.moveToFirst()) {
+            name = cursor.getString(0);
+        }
+        cursor.close();
+        return name;
+    }
+
+    /**
+     * Returns the balance value for a specific customer id.
+     */
+    public Double getBalanceForCustomer(int customerId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT b.balance FROM Balance b JOIN Device d ON b.otherUuid = d.uuid WHERE d.customerId = ?",
+                new String[]{String.valueOf(customerId)});
+        Double balance = null;
+        if (cursor.moveToFirst()) {
+            balance = cursor.getDouble(0);
+        }
+        cursor.close();
+        return balance;
+    }
+
     // ---------------- PersonalInformation CRUD ---------------- //
 
     public long insertPersonalInfo(int sellerId, String name, String street, String houseNumber, String zipCode, String city) {
