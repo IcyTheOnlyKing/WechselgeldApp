@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import htl.steyr.wechselgeldapp.Database.Models.Balance;
+
 /**
  * DatabaseHelper manages creation, versioning and CRUD operations for the local SQLite database.
  */
@@ -398,6 +400,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int deleteAllTransactions() {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete("Transactions", null, null);
+    }
+
+    // Add to DatabaseHelper.java
+
+    /**
+     * Gets the latest balance for the current customer
+     */
+    public Balance getLatestBalance() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM Balance ORDER BY timestamp DESC LIMIT 1", null);
+
+        Balance balance = null;
+        if (cursor.moveToFirst()) {
+            balance = new Balance(
+                    cursor.getString(cursor.getColumnIndexOrThrow("otherUuid")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("displayName")),
+                    cursor.getDouble(cursor.getColumnIndexOrThrow("balance")),
+                    cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"))
+            );
+        }
+        cursor.close();
+
+        if (balance == null) {
+            // Return default balance if none exists
+            balance = new Balance("default-uuid", "Customer", 0.0, System.currentTimeMillis() / 1000);
+        }
+        return balance;
+    }
+
+    /**
+     * Inserts a new balance record
+     */
+    public long insertBalance(Balance balance) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("otherUuid", balance.getOtherUuidT());
+        values.put("displayName", balance.getDisplayName());
+        values.put("balance", balance.getBalance());
+        values.put("timestamp", balance.getTimestamp());
+        return db.insert("Balance", null, values);
     }
 
     // ---------------- End of CRUD ---------------- //
