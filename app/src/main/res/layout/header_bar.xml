@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="50dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="16dp">
+
+    <!-- Hamburger Menu Icon -->
+    <ImageView
+        android:id="@+id/menu_icon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_menu"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="Menü"/>
+
+    <!-- Editable Restaurant Name -->
+    <EditText
+        android:id="@+id/restaurant_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Bäckerei Müller"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="@null"
+        android:inputType="text"
+        android:imeOptions="actionDone"
+        android:maxLines="1"/>
+
+    <!-- Profile Picture -->
+    <ImageView
+        android:id="@+id/profile_image"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_profile"
+        android:layout_marginStart="16dp"/>
+</LinearLayout>

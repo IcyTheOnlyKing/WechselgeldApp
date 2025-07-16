@@ -15,7 +15,7 @@ public class Balance {
         this.id = id;
     }
 
-    public String getOtherUuid() {
+    public String getOtherUuidT() {
         return otherUuid;
     }
 

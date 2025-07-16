@@ -15,30 +15,25 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothManager;
 import htl.steyr.wechselgeldapp.Backup.UserData;
 import htl.steyr.wechselgeldapp.R;
-import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-/**
- * Fragment used by the seller device to search for and connect to a customer
- * phone. It mirrors the basic behaviour of {@link htl.steyr.wechselgeldapp.UI.Fragments.Customer.ConnectFragment}.
- */
-public class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
+import java.util.ArrayList;
+import java.util.List;
 
+public class BluetoothDevicesFragment extends Fragment implements Bluetooth.BluetoothCallback {
     private Bluetooth bluetooth;
-    private RecyclerView deviceList;
-    private BluetoothCustomerAdapter adapter;
+    private RecyclerView customerList;
+    private BluetoothCustomerAdapter customerAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private final List<BluetoothDevice> nearbyDevices = new ArrayList<>();
 
@@ -46,35 +41,50 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.seller_fragment_bluetootj_devices, container, false);
+        View view = inflater.inflate(R.layout.seller_fragment_history, container, false);
 
-        deviceList = view.findViewById(R.id.customer_list);
-        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        customerList = view.findViewById(R.id.customer_list);
 
-        adapter = new BluetoothCustomerAdapter(nearbyDevices, this::onDeviceSelected);
-        deviceList.setLayoutManager(new LinearLayoutManager(getContext()));
-        deviceList.setAdapter(adapter);
+        // SwipeRefreshLayout hinzufügen für manuellen Scan
+        setupSwipeRefresh(view);
+        setupRecyclerView();
+        setupBluetooth();
 
-        if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setOnRefreshListener(this::startBluetoothScan);
-        }
-
-        bluetooth = new Bluetooth(getContext(), this);
-        BluetoothManager.setInstance(bluetooth);
-        if (bluetooth.init()) {
-            startBluetoothScan();
-        } else {
-            Toast.makeText(getContext(), "Bluetooth nicht verfügbar", Toast.LENGTH_SHORT).show();
-        }
+        // Automatischen Scan beim Laden starten
+        startBluetoothScan();
 
         return view;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
+    private void setupSwipeRefresh(View view) {
+        // SwipeRefreshLayout wird das CardView umschließen
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setOnRefreshListener(this::startBluetoothScan);
+        }
+    }
+
+    private void setupRecyclerView() {
+        customerAdapter = new BluetoothCustomerAdapter(nearbyDevices, this::onCustomerSelected);
+        customerList.setLayoutManager(new LinearLayoutManager(getContext()));
+        customerList.setAdapter(customerAdapter);
+    }
+
+    private void setupBluetooth() {
+        bluetooth = new Bluetooth(getContext(), this);
+        BluetoothManager.setInstance(bluetooth);
+        if (!bluetooth.init()) {
+            Toast.makeText(getContext(), "Bluetooth-Initialisierung fehlgeschlagen", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void startBluetoothScan() {
         if (checkPermissions()) {
             nearbyDevices.clear();
-            adapter.notifyDataSetChanged();
+            customerAdapter.notifyDataSetChanged();
 
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
                 bluetooth.startScan();
@@ -99,96 +109,103 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
         return true;
     }
 
-    private void onDeviceSelected(BluetoothDevice device) {
+    private void onCustomerSelected(BluetoothDevice device) {
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
             bluetooth.connectToDevice(device);
         }
     }
 
-    // --- Bluetooth callbacks ---
+    // Bluetooth Callback Implementierungen
     @Override
     public void onDeviceFound(BluetoothDevice device) {
         if (!nearbyDevices.contains(device)) {
             nearbyDevices.add(device);
-            adapter.notifyItemInserted(nearbyDevices.size() - 1);
+            customerAdapter.notifyItemInserted(nearbyDevices.size() - 1);
         }
     }
 
     @Override
     public void onScanStarted() {
-        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(true);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(true);
+        }
         nearbyDevices.clear();
-        adapter.notifyDataSetChanged();
+        customerAdapter.notifyDataSetChanged();
+        Toast.makeText(getContext(), "Suche nach Kunden gestartet...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onScanFinished() {
-        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-        Toast.makeText(getContext(), nearbyDevices.size() + " Geräte gefunden", Toast.LENGTH_SHORT).show();
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+        Toast.makeText(getContext(), nearbyDevices.size() + " Kunden in der Nähe gefunden", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onError(String error) {
         Toast.makeText(getContext(), "Fehler: " + error, Toast.LENGTH_SHORT).show();
-        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
-    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @Override
     public void onConnectionSuccess(BluetoothDevice device) {
+        String deviceName = "Unbekannter Kunde";
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+            if (device.getName() != null) deviceName = device.getName();
+            else deviceName = "Unbekannter Kunde";
+        }
         BluetoothManager.setInstance(bluetooth);
-        String name;
-        if (device.getName() != null) name = device.getName();
-        else name = "Unbekannt";
-        Toast.makeText(getContext(), "Verbunden mit " + name, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Verbunden mit Kunde: " + deviceName, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDataSent(boolean success) {
-        // Not used here
+        String message = success ? "Daten erfolgreich an Kunde gesendet" : "Datenübertragung an Kunde fehlgeschlagen";
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDataReceived(UserData data) {
-        // Seller does not expect to receive data
+        // not used here
     }
 
     @Override
     public void onDisconnected() {
-        Toast.makeText(getContext(), "Verbindung getrennt", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Verbindung zu Kunde getrennt", Toast.LENGTH_SHORT).show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     public void onResume() {
         super.onResume();
+        // Automatisch neu scannen wenn Fragment wieder sichtbar wird
         startBluetoothScan();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (bluetooth != null && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
-            bluetooth.cleanup();
+        if (bluetooth != null) {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
+                bluetooth.cleanup();
+            }
         }
     }
 
-    @Override
-    public String getTitle() {
-        return "Koppeln";
-    }
-
-    // --- RecyclerView adapter for Bluetooth devices ---
+    // RecyclerView Adapter für Bluetooth-Kunden
     private static class BluetoothCustomerAdapter extends RecyclerView.Adapter<BluetoothCustomerAdapter.CustomerViewHolder> {
-        private final List<BluetoothDevice> devices;
+        private final List<BluetoothDevice> customers;
         private final OnCustomerClickListener clickListener;
 
-        interface OnCustomerClickListener {
+        public interface OnCustomerClickListener {
             void onCustomerClick(BluetoothDevice device);
         }
 
-        BluetoothCustomerAdapter(List<BluetoothDevice> devices, OnCustomerClickListener clickListener) {
-            this.devices = devices;
+        public BluetoothCustomerAdapter(List<BluetoothDevice> customers, OnCustomerClickListener clickListener) {
+            this.customers = customers;
             this.clickListener = clickListener;
         }
 
@@ -202,20 +219,27 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
 
         @Override
         public void onBindViewHolder(@NonNull CustomerViewHolder holder, int position) {
-            BluetoothDevice device = devices.get(position);
+            BluetoothDevice device = customers.get(position);
 
-            if (ActivityCompat.checkSelfPermission(holder.itemView.getContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                String customerName = device.getName() != null ? device.getName() : "Unbekannt";
+            if (ActivityCompat.checkSelfPermission(holder.itemView.getContext(),
+                    Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+
+                String customerName;
+                if (device.getName() != null) customerName = device.getName();
+                else customerName = "Unbekannter Kunde";
+                String deviceAddress = device.getAddress();
+
                 holder.customerNameTextView.setText(customerName);
-                holder.deviceAddressTextView.setText(device.getAddress());
+                holder.deviceAddressTextView.setText(deviceAddress);
                 holder.statusTextView.setText("In der Nähe");
+
                 holder.itemView.setOnClickListener(v -> clickListener.onCustomerClick(device));
             }
         }
 
         @Override
         public int getItemCount() {
-            return devices.size();
+            return customers.size();
         }
 
         static class CustomerViewHolder extends RecyclerView.ViewHolder {
