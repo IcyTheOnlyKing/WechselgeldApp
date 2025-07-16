@@ -75,79 +75,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertTestData();
     }
 
-    /**
-     * Fügt umfangreiche realistische Testdaten in alle Tabellen ein, inklusive Admin-Zugängen.
-     */
-    public void insertTestData() {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        // Seller (inkl. Admin)
-        db.execSQL("INSERT INTO Seller (shopName, email, passwordHash) VALUES " +
-                "('admin', 'admin@seller.com', 'admin')," +
-                "('Bäckerei Maier', 'maier@shop.com', 'b@eckMa2023')," +
-                "('Kiosk Müller', 'mueller@kiosk.com', 'muellerSecure!')," +
-                "('Trafik Schmid', 'schmid@trafik.com', 'schmid#456')," +
-                "('Blumen Huber', 'huber@flowers.com', 'huberBloom22')," +
-                "('Feinkost Hahn', 'hahn@finefood.com', 'fein#hahn2024');");
-
-        // Customer (inkl. Admin)
-        db.execSQL("INSERT INTO Customer (displayName, email, passwordHash) VALUES " +
-                "('admin', 'admin@customer.com', 'admin')," +
-                "('Max Mustermann', 'max@web.de', 'maxSecure12')," +
-                "('Erika Musterfrau', 'erika@web.de', 'erikaPass99')," +
-                "('Lukas Lehner', 'lukas@web.at', 'lukas!strong')," +
-                "('Anna Berger', 'anna@outlook.com', 'ann4Berger!')," +
-                "('Thomas Meier', 'thomas@mail.com', 'th0mMe!')," +
-                "('Julia König', 'julia@gmx.at', 'juKo2024!')," +
-                "('Sebastian Kurz', 'sebastian@kurz.at', 'kurz1234')," +
-                "('Nina Graf', 'nina@graf.net', 'ninaSafePass');");
-
-        // Devices
-        db.execSQL("INSERT INTO Device (uuid, customerId, sellerId, deviceName) VALUES " +
-                "('uuid-admin-c', 1, NULL, 'Admin Kunden-Gerät')," +
-                "('uuid-admin-s', NULL, 1, 'Admin Verkaufsgerät')," +
-                "('uuid-max', 2, NULL, 'Max Handy')," +
-                "('uuid-erika', 3, NULL, 'Erika Tablet')," +
-                "('uuid-lukas', 4, NULL, 'Lukas Phone')," +
-                "('uuid-anna', 5, NULL, 'Annas iPhone')," +
-                "('uuid-seller1', NULL, 2, 'Maier Kasse 1')," +
-                "('uuid-seller2', NULL, 3, 'Müller Kasse')," +
-                "('uuid-seller3', NULL, 4, 'Trafik-Terminal')," +
-                "('uuid-seller4', NULL, 5, 'Blumen Scanner')," +
-                "('uuid-seller5', NULL, 6, 'Feinkost Terminal');");
-
-        // Balances
-        db.execSQL("INSERT INTO Balance (otherUuid, displayName, balance, timestamp) VALUES " +
-                "('uuid-max', 'Max Mustermann', 25.50, 1720700000)," +
-                "('uuid-erika', 'Erika Musterfrau', 15.75, 1720700050)," +
-                "('uuid-lukas', 'Lukas Lehner', 48.20, 1720700100)," +
-                "('uuid-anna', 'Anna Berger', 33.10, 1720700150)," +
-                "('uuid-admin-c', 'Admin Kunde', 999.99, 1720700200)," +
-                "('uuid-seller1', 'Bäckerei Maier', 120.00, 1720700250)," +
-                "('uuid-seller2', 'Kiosk Müller', 180.40, 1720700300)," +
-                "('uuid-seller3', 'Trafik Schmid', 95.10, 1720700350)," +
-                "('uuid-seller4', 'Blumen Huber', 210.00, 1720700400)," +
-                "('uuid-seller5', 'Feinkost Hahn', 310.50, 1720700450)," +
-                "('uuid-admin-s', 'Admin Verkäufer', 999.99, 1720700500);");
-
-        // Transactions (abwechslungsreich)
-        db.execSQL("INSERT INTO Transactions (amount, timestamp) VALUES " +
-                "(5.00, 1720701000)," +
-                "(10.00, 1720701100)," +
-                "(3.50, 1720701200)," +
-                "(20.00, 1720701300)," +
-                "(7.25, 1720701400)," +
-                "(12.00, 1720701500)," +
-                "(2.75, 1720701600)," +
-                "(50.00, 1720701700)," +
-                "(8.80, 1720701800)," +
-                "(15.60, 1720701900)," +
-                "(22.90, 1720702000)," +
-                "(1.10, 1720702100)," +
-                "(33.33, 1720702200)," +
-                "(44.44, 1720702300)," +
-                "(99.99, 1720702400);");
-    }
 
 
     // Handles database upgrades (drops and recreates tables)
@@ -188,6 +115,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("passwordHash", passwordHash);
         return db.insert("Seller", null, values);
     }
+
+    /**
+     * Returns the id of a seller by their shop name.
+     */
+    public String getSellerIdByName(String shopName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT id FROM Seller WHERE shopName = ?",
+                new String[]{shopName});
+        String id = null;
+        if (cursor.moveToFirst()) {
+            id = cursor.getString(0);
+        }
+        cursor.close();
+        return id;
+    }
+
 
     /**
      * Checks if a seller with the given shopName or email already exists.
@@ -309,27 +253,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // ---------------- PersonalInformation CRUD ---------------- //
 
-    public long insertPersonalInfo(int sellerId, String name, String street, String houseNumber, String zipCode, String city) {
+    public long insertPersonalInfo(int sellerId, String name, String email, String street, String houseNumber, String zipCode, String city) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("seller_id", sellerId);
         values.put("name", name);
+        values.put("email", email);
         values.put("street", street);
         values.put("houseNumber", houseNumber);
         values.put("zipCode", zipCode);
         values.put("city", city);
         return db.insert("PersonalInformation", null, values);
     }
-
     public Cursor getPersonalInfoBySellerId(int sellerId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM PersonalInformation WHERE seller_id = ?", new String[]{String.valueOf(sellerId)});
     }
 
-    public int updatePersonalInfo(int sellerId, String name, String street, String houseNumber, String zipCode, String city) {
+    public int updatePersonalInfo(int sellerId, String name, String email, String street, String houseNumber, String zipCode, String city) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
+        values.put("email", email);  // <-- Email hinzufügen
         values.put("street", street);
         values.put("houseNumber", houseNumber);
         values.put("zipCode", zipCode);
@@ -451,4 +396,96 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // ---------------- End of CRUD ---------------- //
+
+    /**
+     * Inserts comprehensive and realistic test data into all database tables,
+     * including admin accounts and profile data for sellers.
+     * This method is called during database creation to populate initial data
+     * for development and testing purposes.
+     */
+    public void insertTestData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // --- Insert Sellers (including admin) ---
+        db.execSQL("INSERT INTO Seller (shopName, email, passwordHash) VALUES " +
+                "('admin', 'admin@seller.com', 'admin')," +
+                "('Bäckerei Maier', 'maier@shop.com', 'b@eckMa2023')," +
+                "('Kiosk Müller', 'mueller@kiosk.com', 'muellerSecure!')," +
+                "('Trafik Schmid', 'schmid@trafik.com', 'schmid#456')," +
+                "('Blumen Huber', 'huber@flowers.com', 'huberBloom22')," +
+                "('Feinkost Hahn', 'hahn@finefood.com', 'fein#hahn2024');");
+
+        // --- Insert Customers (including admin) ---
+        db.execSQL("INSERT INTO Customer (displayName, email, passwordHash) VALUES " +
+                "('admin', 'admin@customer.com', 'admin')," +
+                "('Max Mustermann', 'max@web.de', 'maxSecure12')," +
+                "('Erika Musterfrau', 'erika@web.de', 'erikaPass99')," +
+                "('Lukas Lehner', 'lukas@web.at', 'lukas!strong')," +
+                "('Anna Berger', 'anna@outlook.com', 'ann4Berger!')," +
+                "('Thomas Meier', 'thomas@mail.com', 'th0mMe!')," +
+                "('Julia König', 'julia@gmx.at', 'juKo2024!')," +
+                "('Sebastian Kurz', 'sebastian@kurz.at', 'kurz1234')," +
+                "('Nina Graf', 'nina@graf.net', 'ninaSafePass');");
+
+        // --- Insert Devices linked to customers and sellers ---
+        db.execSQL("INSERT INTO Device (uuid, customerId, sellerId, deviceName) VALUES " +
+                "('uuid-admin-c', 1, NULL, 'Admin Kunden-Gerät')," +
+                "('uuid-admin-s', NULL, 1, 'Admin Verkaufsgerät')," +
+                "('uuid-max', 2, NULL, 'Max Handy')," +
+                "('uuid-erika', 3, NULL, 'Erika Tablet')," +
+                "('uuid-lukas', 4, NULL, 'Lukas Phone')," +
+                "('uuid-anna', 5, NULL, 'Annas iPhone')," +
+                "('uuid-seller1', NULL, 2, 'Maier Kasse 1')," +
+                "('uuid-seller2', NULL, 3, 'Müller Kasse')," +
+                "('uuid-seller3', NULL, 4, 'Trafik-Terminal')," +
+                "('uuid-seller4', NULL, 5, 'Blumen Scanner')," +
+                "('uuid-seller5', NULL, 6, 'Feinkost Terminal');");
+
+        // --- Insert Balances for each device ---
+        db.execSQL("INSERT INTO Balance (otherUuid, displayName, balance, timestamp) VALUES " +
+                "('uuid-max', 'Max Mustermann', 25.50, 1720700000)," +
+                "('uuid-erika', 'Erika Musterfrau', 15.75, 1720700050)," +
+                "('uuid-lukas', 'Lukas Lehner', 48.20, 1720700100)," +
+                "('uuid-anna', 'Anna Berger', 33.10, 1720700150)," +
+                "('uuid-admin-c', 'Admin Kunde', 999.99, 1720700200)," +
+                "('uuid-seller1', 'Bäckerei Maier', 120.00, 1720700250)," +
+                "('uuid-seller2', 'Kiosk Müller', 180.40, 1720700300)," +
+                "('uuid-seller3', 'Trafik Schmid', 95.10, 1720700350)," +
+                "('uuid-seller4', 'Blumen Huber', 210.00, 1720700400)," +
+                "('uuid-seller5', 'Feinkost Hahn', 310.50, 1720700450)," +
+                "('uuid-admin-s', 'Admin Verkäufer', 999.99, 1720700500);");
+
+        // --- Insert Sample Transactions with realistic variety ---
+        db.execSQL("INSERT INTO Transactions (amount, timestamp) VALUES " +
+                "(5.00, 1720701000)," +
+                "(10.00, 1720701100)," +
+                "(3.50, 1720701200)," +
+                "(20.00, 1720701300)," +
+                "(7.25, 1720701400)," +
+                "(12.00, 1720701500)," +
+                "(2.75, 1720701600)," +
+                "(50.00, 1720701700)," +
+                "(8.80, 1720701800)," +
+                "(15.60, 1720701900)," +
+                "(22.90, 1720702000)," +
+                "(1.10, 1720702100)," +
+                "(33.33, 1720702200)," +
+                "(44.44, 1720702300)," +
+                "(99.99, 1720702400);");
+
+        // --- Insert Personal Information for all sellers (1:1 by seller ID) ---
+        db.execSQL("INSERT INTO PersonalInformation (seller_id, name, email, street, houseNumber, zipCode, city) VALUES " +
+                "(1, 'Admin Verkäufer', 'admin@seller.com', 'Adminstraße', '1A', '1010', 'Wien')," +
+                "(2, 'Maier Bäcker', 'maier@shop.com', 'Brotgasse', '5', '4400', 'Steyr')," +
+                "(3, 'Müller Kiosk', 'mueller@kiosk.com', 'Hauptstraße', '12B', '4020', 'Linz')," +
+                "(4, 'Schmid Trafik', 'schmid@trafik.com', 'Tabakweg', '3', '5020', 'Salzburg')," +
+                "(5, 'Huber Blumen', 'huber@flowers.com', 'Blumenweg', '7', '8010', 'Graz')," +
+                "(6, 'Hahn Feinkost', 'hahn@finefood.com', 'Delikatessenallee', '9', '9020', 'Klagenfurt');");
+    }
+
+
+
+
+
 }
+
