@@ -19,12 +19,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import htl.steyr.wechselgeldapp.Backup.UserData;
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDeviceAdapter;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-public class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
+public abstract class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
 
     private Bluetooth bluetooth;
     private BluetoothDeviceAdapter deviceAdapter;
@@ -163,6 +164,7 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
         });
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @Override
     public void onConnectionSuccess(BluetoothDevice device) {
         requireActivity().runOnUiThread(() ->

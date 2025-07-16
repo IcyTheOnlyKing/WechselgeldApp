@@ -8,7 +8,7 @@ public class UserData {
     private String sellerName;
     private double transactionAmount;
 
-    public UserData() {
+    public UserData(String email, String name, double totalAmount, int transactionCount) {
     }
 
     public UserData(String email, String username, double totalAmount, int transactionCount, String sellerName, double transactionAmount) {

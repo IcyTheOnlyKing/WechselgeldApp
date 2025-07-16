@@ -254,7 +254,7 @@ public class Bluetooth {
         }
     }
 
-    @RequiresPermission(Manifest.permission.BLUETOOTH_ACCEPT)
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT})
     public void startServer() {
         if (adapter == null) return;
 
