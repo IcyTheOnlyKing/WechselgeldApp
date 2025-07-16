@@ -1,6 +1,7 @@
 package htl.steyr.wechselgeldapp.UI.Fragments.Customer;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -19,12 +20,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import htl.steyr.wechselgeldapp.Backup.UserData;
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDeviceAdapter;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-public class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
+public abstract class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
 
     private Bluetooth bluetooth;
     private BluetoothDeviceAdapter deviceAdapter;
@@ -82,8 +84,10 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
     /**
      * Initializes the Bluetooth adapter and updates the UI accordingly.
      */
+    @SuppressLint("MissingPermission")
     private void initializeBluetooth() {
         if (bluetooth.init()) {
+            bluetooth.startServer();
             statusText.setText("Bereit zum Scannen");
             scanButton.setEnabled(true);
         } else {
@@ -160,6 +164,45 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
             statusText.setText("Fehler: " + error);
             Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
         });
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    @Override
+    public void onConnectionSuccess(BluetoothDevice device) {
+        requireActivity().runOnUiThread(() ->
+                Toast.makeText(requireContext(), "Verbunden mit " + device.getName(), Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onDataSent(boolean success) {
+        requireActivity().runOnUiThread(() ->
+                Toast.makeText(requireContext(), success ? "Gesendet" : "Sendefehler", Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onDataReceived(UserData data) {
+        requireActivity().runOnUiThread(() -> {
+            StringBuilder msg = new StringBuilder();
+            msg.append("Name: ").append(data.getUsername());
+            msg.append("\nGuthaben: ").append(data.getTotalAmount());
+            if (data.getSellerName() != null) {
+                msg.append("\nVerkäufer: ").append(data.getSellerName());
+            }
+            if (data.getTransactionAmount() != 0) {
+                msg.append("\nBetrag: ").append(data.getTransactionAmount());
+            }
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Daten empfangen")
+                    .setMessage(msg.toString())
+                    .setPositiveButton("OK", null)
+                    .show();
+        });
+    }
+
+    @Override
+    public void onDisconnected() {
+        requireActivity().runOnUiThread(() ->
+                Toast.makeText(requireContext(), "Verbindung getrennt", Toast.LENGTH_SHORT).show());
     }
 
     /**

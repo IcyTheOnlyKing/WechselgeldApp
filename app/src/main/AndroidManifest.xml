@@ -3,26 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="htl.steyr.wechselgeldapp">
 
-    <!-- Bluetooth Permissions -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- Network Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- Storage Permissions für Backup-Funktionalität -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-
-    <!-- Für neuere Android-Versionen (API 30+) -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <application
         android:allowBackup="true"
@@ -33,7 +24,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WechselgeldApp"
-        android:requestLegacyExternalStorage="true"
         tools:targetApi="31">
 
         <!-- Start-Activity -->
@@ -46,25 +36,17 @@
         </activity>
 
         <activity android:name=".AuthController"/>
-        <activity android:name=".UI.SellerUIController"/>
+
+        <activity
+            android:name=".UI.SellerUIController"
+            android:theme="@style/Theme.WechselgeldApp.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".UI.CustomerUIController"
             android:theme="@style/Theme.WechselgeldApp.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
 
-        <activity android:name=".UI.SettingsController"/>
-        <activity android:name=".UI.SearchController"/>
-
-        <!-- FileProvider für Backup-Anhänge -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="htl.steyr.wechselgeldapp.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
 
     </application>
 

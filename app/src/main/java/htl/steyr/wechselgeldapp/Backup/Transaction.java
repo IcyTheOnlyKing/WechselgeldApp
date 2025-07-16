@@ -4,7 +4,7 @@ public class Transaction {
     private String id;
     private double amount;
     private double changeGiven;
-    private long timestamp;  // Korrigiert: Date → long für Konsistenz
+    private long timestamp;
 
     public Transaction() {
     }
@@ -43,7 +43,7 @@ public class Transaction {
 
     public long getTimestamp() {
         return timestamp;
-    }  // Korrigiert: Date → long
+    }
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
