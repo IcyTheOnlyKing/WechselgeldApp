@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import htl.steyr.wechselgeldapp.Backup.UserData;
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDeviceAdapter;
 import htl.steyr.wechselgeldapp.R;
@@ -33,12 +34,13 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
     private ProgressBar progressBar;
     private Button scanButton;
     private static final int PERMISSION_REQUEST_CODE = 1003;
+    private UserData data;
 
     /**
      * Called when the fragment's view is being created.
      * Initializes UI components, Bluetooth instance, and checks permissions.
      */
-    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.customer_fragment_connect, container, false);
@@ -82,6 +84,7 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
     /**
      * Initializes the Bluetooth adapter and updates the UI accordingly.
      */
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT})
     private void initializeBluetooth() {
         if (bluetooth.init()) {
             bluetooth.startServer();
@@ -163,6 +166,7 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
         });
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @Override
     public void onConnectionSuccess(BluetoothDevice device) {
         requireActivity().runOnUiThread(() ->
@@ -232,6 +236,7 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
     /**
      * Handles the result of the permission request dialog.
      */
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT})
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE) {

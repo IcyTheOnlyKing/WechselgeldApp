@@ -1,6 +1,7 @@
 package htl.steyr.wechselgeldapp.Bluetooth;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
@@ -254,7 +255,8 @@ public class Bluetooth {
         }
     }
 
-    @RequiresPermission(Manifest.permission.BLUETOOTH_ACCEPT)
+    @SuppressLint("SupportAnnotationUsage")
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT})
     public void startServer() {
         if (adapter == null) return;
 
