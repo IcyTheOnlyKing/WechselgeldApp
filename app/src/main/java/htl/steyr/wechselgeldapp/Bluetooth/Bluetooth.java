@@ -24,6 +24,7 @@ package htl.steyr.wechselgeldapp.Bluetooth;
         private final Handler handler = new Handler(Looper.getMainLooper());
         private BluetoothCallback callback;
         private boolean scanning = false;
+        private boolean receiverRegistered = false;
 
         public interface BluetoothCallback {
             void onDeviceFound(BluetoothDevice device);
@@ -51,6 +52,7 @@ package htl.steyr.wechselgeldapp.Bluetooth;
 
             try {
                 context.registerReceiver(receiver, filter);
+                receiverRegistered = true;
                 return true;
             } catch (Exception e) {
                 callback.onError("Receiver-Registrierung fehlgeschlagen");
@@ -141,7 +143,10 @@ package htl.steyr.wechselgeldapp.Bluetooth;
         public void cleanup() {
             try {
                 stopScan();
-                context.unregisterReceiver(receiver);
+                if (receiverRegistered) {
+                    context.unregisterReceiver(receiver);
+                    receiverRegistered = false;
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
