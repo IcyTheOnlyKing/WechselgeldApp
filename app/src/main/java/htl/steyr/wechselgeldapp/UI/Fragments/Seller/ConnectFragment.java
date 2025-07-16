@@ -9,11 +9,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -131,10 +133,13 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
         if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @Override
     public void onConnectionSuccess(BluetoothDevice device) {
         BluetoothManager.setInstance(bluetooth);
-        String name = device.getName() != null ? device.getName() : "Unbekannt";
+        String name;
+        if (device.getName() != null) name = device.getName();
+        else name = "Unbekannt";
         Toast.makeText(getContext(), "Verbunden mit " + name, Toast.LENGTH_SHORT).show();
     }
 

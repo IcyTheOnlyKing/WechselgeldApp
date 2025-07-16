@@ -1,6 +1,7 @@
 package htl.steyr.wechselgeldapp.UI.Fragments.Customer;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -83,6 +84,7 @@ public abstract class ConnectFragment extends BaseFragment implements Bluetooth.
     /**
      * Initializes the Bluetooth adapter and updates the UI accordingly.
      */
+    @SuppressLint("MissingPermission")
     private void initializeBluetooth() {
         if (bluetooth.init()) {
             bluetooth.startServer();
