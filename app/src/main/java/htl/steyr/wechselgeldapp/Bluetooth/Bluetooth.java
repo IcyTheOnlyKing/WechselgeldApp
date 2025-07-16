@@ -142,8 +142,8 @@ package htl.steyr.wechselgeldapp.Bluetooth;
             try {
                 stopScan();
                 context.unregisterReceiver(receiver);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (IllegalArgumentException e) {
+                // Receiver was not registered. Ignore to avoid crashing.
             }
         }
     }
