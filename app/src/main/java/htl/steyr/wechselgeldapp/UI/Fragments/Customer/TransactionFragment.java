@@ -98,9 +98,10 @@ public class TransactionFragment extends BaseFragment {
 
         new Thread(() -> {
             try {
-                // Connect to paired seller device (replace with actual device address)
-                String deviceAddress = "00:11:22:33:44:55";
-                connectedDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
+                for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
+                    connectedDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
+                }
+
 
                 bluetoothSocket = connectedDevice.createRfcommSocketToServiceRecord(MY_UUID);
                 bluetoothSocket.connect();
@@ -168,8 +169,13 @@ public class TransactionFragment extends BaseFragment {
 
         // Custom amount input
         etCustomAmount.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {

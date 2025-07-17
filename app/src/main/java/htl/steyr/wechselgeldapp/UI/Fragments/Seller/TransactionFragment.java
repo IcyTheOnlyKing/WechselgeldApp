@@ -26,6 +26,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.UUID;
 
+import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.Database.Models.Balance;
 import htl.steyr.wechselgeldapp.Database.Models.Transaction;
@@ -85,9 +86,9 @@ public class TransactionFragment extends BaseFragment {
         }
 
         try {
-            // Replace with actual target device MAC address
-            String deviceAddress = "00:11:22:33:44:55";
-            connectedDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
+            for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
+                connectedDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
+            }
 
             bluetoothSocket = connectedDevice.createRfcommSocketToServiceRecord(MY_UUID);
             bluetoothSocket.connect();
@@ -188,7 +189,8 @@ public class TransactionFragment extends BaseFragment {
     }
 
     private void showToast(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show()
+        ;
     }
 
     @Override
