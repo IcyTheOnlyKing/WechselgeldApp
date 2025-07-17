@@ -26,7 +26,7 @@ import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDeviceAdapter;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-public abstract class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
+public class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
 
     private Bluetooth bluetooth;
     private BluetoothDeviceAdapter deviceAdapter;
