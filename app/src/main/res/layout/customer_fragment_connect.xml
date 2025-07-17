@@ -5,29 +5,64 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginHorizontal="8dp"
-    android:layout_marginVertical="4dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:padding="16dp">
 
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Status"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- CardView-style background-->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/status_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btn_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scannen"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_devices"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@id/cardBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_scan"
+        tools:ignore="SpeakableTextPresentCheck"
+        tools:listitem="@layout/item_bluetooth_device" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardBackground"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="8dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="2dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginHorizontal="16dp"
-        app:cardPreventCornerOverlap="false"
-        app:cardUseCompatPadding="true"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="MissingConstraints">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -41,15 +76,13 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <!-- Bluetooth Icon -->
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_connect"
                     android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_connect"
                     android:contentDescription="@string/bluetooth_ger_t" />
 
-                <!-- Device Info -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -73,10 +106,8 @@
                         android:textSize="14sp"
                         android:textColor="@android:color/darker_gray"
                         android:layout_marginTop="2dp" />
-
                 </LinearLayout>
 
-                <!-- Status -->
                 <TextView
                     android:id="@+id/device_status"
                     android:layout_width="wrap_content"
@@ -87,21 +118,16 @@
                     android:background="@drawable/status_background"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="4dp" />
-
             </LinearLayout>
 
-            <!-- Tap to pair hint -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:text="@string/tippen_zum_koppeln"
                 android:textSize="12sp"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginTop="8dp"
-                android:gravity="center" />
-
+                android:textColor="@android:color/darker_gray" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

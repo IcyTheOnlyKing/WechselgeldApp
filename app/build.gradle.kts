@@ -37,6 +37,7 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation(libs.room.common.jvm)
     implementation(libs.firebase.database)
+    implementation(libs.swiperefreshlayout)
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation("com.google.code.gson:gson:2.10.1")
 
