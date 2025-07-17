@@ -442,5 +442,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert("Balance", null, values);
     }
 
+
     // ---------------- End of CRUD ---------------- //
 }
