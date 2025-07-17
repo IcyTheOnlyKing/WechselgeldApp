@@ -38,6 +38,8 @@ dependencies {
     implementation(libs.room.common.jvm)
     implementation(libs.firebase.database)
     annotationProcessor("androidx.room:room-compiler:2.6.1")
+    implementation("com.google.code.gson:gson:2.10.1")
+
     implementation(libs.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)
