@@ -43,8 +43,12 @@ public abstract class ConnectFragment extends BaseFragment implements Bluetooth.
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.customer_fragment_connect, container, false);
+        View view = inflater.inflate(R.layout.customer_fragment_connect_screen, container, false);
 
+        deviceRecyclerView = view.findViewById(R.id.device_recycler_view);
+        statusText = view.findViewById(R.id.status_text);
+        progressBar = view.findViewById(R.id.progress_bar);
+        scanButton = view.findViewById(R.id.scan_button);
 
         deviceAdapter = new BluetoothDeviceAdapter(this::onDeviceClick);
         deviceRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -107,11 +111,13 @@ public abstract class ConnectFragment extends BaseFragment implements Bluetooth.
         }
 
         statusText.setText("Scannen...");
+        progressBar.setVisibility(View.VISIBLE);
 
         scanButton.setEnabled(false);
         deviceAdapter.clearDevices();
 
         if (!bluetooth.startScan()) {
+            progressBar.setVisibility(View.GONE);
             scanButton.setEnabled(true);
             statusText.setText("Scan fehlgeschlagen!");
         }
@@ -125,6 +131,7 @@ public abstract class ConnectFragment extends BaseFragment implements Bluetooth.
     public void onScanStarted() {
         requireActivity().runOnUiThread(() -> {
             statusText.setText("Scannen...");
+            progressBar.setVisibility(View.VISIBLE);
 
         });
     }
@@ -149,6 +156,7 @@ public abstract class ConnectFragment extends BaseFragment implements Bluetooth.
     public void onScanFinished() {
         requireActivity().runOnUiThread(() -> {
             scanButton.setEnabled(true);
+            progressBar.setVisibility(View.GONE);
             statusText.setText(deviceAdapter.getItemCount() + " Geräte gefunden");
         });
     }
@@ -161,6 +169,7 @@ public abstract class ConnectFragment extends BaseFragment implements Bluetooth.
     public void onError(String error) {
         requireActivity().runOnUiThread(() -> {
             scanButton.setEnabled(true);
+            progressBar.setVisibility(View.GONE);
             statusText.setText("Fehler: " + error);
             Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
         });
