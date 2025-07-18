@@ -142,7 +142,7 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint({"MissingPermission", "NotifyDataSetChanged"})
     private void startScan() {
         deviceList.clear();
         adapter.notifyDataSetChanged();
