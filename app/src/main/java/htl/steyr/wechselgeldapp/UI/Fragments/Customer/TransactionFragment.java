@@ -63,7 +63,7 @@ public class TransactionFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.customer_transaction_ui, container, false);
+        View view = inflater.inflate(R.layout.customer_fragment_transaction, container, false);
 
         initializeViews(view);
         setupBluetooth();
