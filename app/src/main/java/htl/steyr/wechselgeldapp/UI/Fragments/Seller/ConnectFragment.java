@@ -1,5 +1,6 @@
 package htl.steyr.wechselgeldapp.UI.Fragments.Seller;
 
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
@@ -46,7 +47,7 @@ public class ConnectFragment extends BaseFragment implements Bluetooth.Bluetooth
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.seller_fragment_bluetootj_devices, container, false);
+        View view = inflater.inflate(R.layout.seller_fragment_connect, container, false);
 
         deviceList = view.findViewById(R.id.customer_list);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);

@@ -1,5 +1,6 @@
 package htl.steyr.wechselgeldapp.UI.Fragments.Seller;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -25,26 +26,13 @@ public class HomeFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.seller_fragment_home, container, false);
-
-        // Initialize RecyclerView
-        deviceListRecyclerView = view.findViewById(R.id.device_list);
-        deviceListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Initialize device list and adapter
-        deviceList = new ArrayList<>();
-        bluetoothDeviceAdapter = new BluetoothDeviceAdapter(deviceList, getContext());
-        deviceListRecyclerView.setAdapter(bluetoothDeviceAdapter);
-
-        // Load bluetooth devices
-        loadBluetoothDevices();
-
-        return view;
+        return inflater.inflate(R.layout.seller_fragment_home, container, false);
     }
 
-    private void loadBluetoothDevices() {
-        // Implementierung zum Laden der Bluetooth-Geräte
-        // Diese Methode sollte die deviceList füllen und den Adapter benachrichtigen
-        bluetoothDeviceAdapter.notifyDataSetChanged();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
     }
+
+
 }

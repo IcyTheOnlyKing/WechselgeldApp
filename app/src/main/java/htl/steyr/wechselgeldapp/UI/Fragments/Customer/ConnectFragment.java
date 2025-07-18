@@ -2,9 +2,15 @@ package htl.steyr.wechselgeldapp.UI.Fragments.Customer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,295 +18,264 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import htl.steyr.wechselgeldapp.Backup.UserData;
-import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
-import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDeviceAdapter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-public abstract class ConnectFragment extends BaseFragment implements Bluetooth.BluetoothCallback {
+public class ConnectFragment extends BaseFragment {
 
-    private Bluetooth bluetooth;
-    private BluetoothDeviceAdapter deviceAdapter;
-    private RecyclerView deviceRecyclerView;
-    private TextView statusText;
+    private static final int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_PERMISSIONS = 2;
+    private static final long SCAN_TIMEOUT = 10000;
+
+    private BluetoothAdapter bluetoothAdapter;
+    private final List<BluetoothDevice> deviceList = new ArrayList<>();
+    private DeviceAdapter adapter;
     private ProgressBar progressBar;
-    private Button scanButton;
-    private static final int PERMISSION_REQUEST_CODE = 1003;
+    private TextView statusText;
+    private Button btnScan;
 
-    /**
-     * Called when the fragment's view is being created.
-     * Initializes UI components, Bluetooth instance, and checks permissions.
-     */
-    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (device != null && !deviceList.contains(device)) {
+                    deviceList.add(device);
+                    adapter.notifyDataSetChanged();
+                    updateStatus("Geräte gefunden: " + deviceList.size());
+                }
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                finishScan();
+            }
+        }
+    };
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.customer_fragment_connect_screen, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.customer_fragment_connect, container, false);
 
-        deviceRecyclerView = view.findViewById(R.id.device_recycler_view);
         statusText = view.findViewById(R.id.status_text);
         progressBar = view.findViewById(R.id.progress_bar);
-        scanButton = view.findViewById(R.id.scan_button);
+        btnScan = view.findViewById(R.id.btn_scan);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_devices);
 
-        deviceAdapter = new BluetoothDeviceAdapter(this::onDeviceClick);
-        deviceRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        deviceRecyclerView.setAdapter(deviceAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adapter = new DeviceAdapter();
+        recyclerView.setAdapter(adapter);
 
-        bluetooth = new Bluetooth(requireContext(), this);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        scanButton.setOnClickListener(v -> startDeviceScan());
+        btnScan.setOnClickListener(v -> {
+            if (bluetoothAdapter == null) {
+                updateStatus("Bluetooth nicht unterstützt");
+                return;
+            }
+            toggleScan();
+        });
 
-        if (hasPermissions()) {
-            initializeBluetooth();
-        } else {
-            requestPermissions();
-        }
+        checkPermissions();
 
         return view;
     }
 
-    /**
-     * Called when a Bluetooth device item is clicked.
-     * Attempts to initiate pairing with the device.
-     */
-    private void onDeviceClick(BluetoothDevice device) {
-        if (hasPermissions()) {
-            try {
-                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                    String deviceName = (device.getName() != null) ? device.getName() : "Unknown device";
-                    device.createBond();
-                    Toast.makeText(requireContext(), "Pairing request sent to " + deviceName, Toast.LENGTH_SHORT).show();
-                }
-            } catch (SecurityException e) {
-                Toast.makeText(requireContext(), "Missing permission", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    /**
-     * Initializes the Bluetooth adapter and updates the UI accordingly.
-     */
-    @SuppressLint("MissingPermission")
-    private void initializeBluetooth() {
-        if (bluetooth.init()) {
-            bluetooth.startServer();
-            statusText.setText("Bereit zum Scannen");
-            scanButton.setEnabled(true);
-        } else {
-            statusText.setText("Bluetooth Fehler");
-            scanButton.setEnabled(false);
-        }
-    }
-
-    /**
-     * Starts scanning for Bluetooth devices and updates UI.
-     */
-    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
-    private void startDeviceScan() {
-        if (!bluetooth.isEnabled()) {
-            Toast.makeText(requireContext(), "Bitte aktivieren Sie Bluetooth", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        statusText.setText("Scannen...");
-        progressBar.setVisibility(View.VISIBLE);
-
-        scanButton.setEnabled(false);
-        deviceAdapter.clearDevices();
-
-        if (!bluetooth.startScan()) {
-            progressBar.setVisibility(View.GONE);
-            scanButton.setEnabled(true);
-            statusText.setText("Scan fehlgeschlagen!");
-        }
-    }
-
-    /**
-     * Called when scanning is started.
-     * Updates UI to show scan is in progress.
-     */
-    @Override
-    public void onScanStarted() {
-        requireActivity().runOnUiThread(() -> {
-            statusText.setText("Scannen...");
-            progressBar.setVisibility(View.VISIBLE);
-
-        });
-    }
-
-    /**
-     * Called when a Bluetooth device is found.
-     * Adds the device to the list and updates UI.
-     */
-    @Override
-    public void onDeviceFound(BluetoothDevice device) {
-        requireActivity().runOnUiThread(() -> {
-            deviceAdapter.addDevice(device);
-            statusText.setText("Geräte: " + deviceAdapter.getItemCount());
-        });
-    }
-
-    /**
-     * Called when scanning is finished.
-     * Updates UI and enables the scan button.
-     */
-    @Override
-    public void onScanFinished() {
-        requireActivity().runOnUiThread(() -> {
-            scanButton.setEnabled(true);
-            progressBar.setVisibility(View.GONE);
-            statusText.setText(deviceAdapter.getItemCount() + " Geräte gefunden");
-        });
-    }
-
-    /**
-     * Called when a Bluetooth error occurs.
-     * Displays the error message.
-     */
-    @Override
-    public void onError(String error) {
-        requireActivity().runOnUiThread(() -> {
-            scanButton.setEnabled(true);
-            progressBar.setVisibility(View.GONE);
-            statusText.setText("Fehler: " + error);
-            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    @Override
-    public void onConnectionSuccess(BluetoothDevice device) {
-        requireActivity().runOnUiThread(() ->
-                Toast.makeText(requireContext(), "Verbunden mit " + device.getName(), Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    public void onDataSent(boolean success) {
-        requireActivity().runOnUiThread(() ->
-                Toast.makeText(requireContext(), success ? "Gesendet" : "Sendefehler", Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    public void onDataReceived(UserData data) {
-        requireActivity().runOnUiThread(() -> {
-            StringBuilder msg = new StringBuilder();
-            msg.append("Name: ").append(data.getUsername());
-            msg.append("\nGuthaben: ").append(data.getTotalAmount());
-            if (data.getSellerName() != null) {
-                msg.append("\nVerkäufer: ").append(data.getSellerName());
-            }
-            if (data.getTransactionAmount() != 0) {
-                msg.append("\nBetrag: ").append(data.getTransactionAmount());
-            }
-            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                    .setTitle("Daten empfangen")
-                    .setMessage(msg.toString())
-                    .setPositiveButton("OK", null)
-                    .show();
-        });
-    }
-
-    @Override
-    public void onDisconnected() {
-        requireActivity().runOnUiThread(() ->
-                Toast.makeText(requireContext(), "Verbindung getrennt", Toast.LENGTH_SHORT).show());
-    }
-
-    /**
-     * Returns the necessary permissions depending on the Android version.
-     */
-    private String[] getPermissions() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            return new String[]{
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            };
-        }
-        return new String[]{
+    private void checkPermissions() {
+        String[] permissions = {
                 Manifest.permission.BLUETOOTH,
                 Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.ACCESS_FINE_LOCATION
         };
-    }
 
-    /**
-     * Checks whether all required permissions are granted.
-     */
-    private boolean hasPermissions() {
-        for (String permission : getPermissions()) {
+        List<String> permissionsNeeded = new ArrayList<>();
+        for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
+                permissionsNeeded.add(permission);
             }
         }
-        return true;
+
+        if (!permissionsNeeded.isEmpty()) {
+            requestPermissions(permissionsNeeded.toArray(new String[0]), REQUEST_PERMISSIONS);
+        } else {
+            initBluetooth();
+        }
     }
 
-    /**
-     * Requests the required permissions.
-     */
-    private void requestPermissions() {
-        requestPermissions(getPermissions(), PERMISSION_REQUEST_CODE);
+    @SuppressLint("MissingPermission")
+    private void initBluetooth() {
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        } else {
+            loadPairedDevices();
+        }
     }
 
-    /**
-     * Handles the result of the permission request dialog.
-     */
+    @SuppressLint("MissingPermission")
+    private void loadPairedDevices() {
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        deviceList.clear();
+        deviceList.addAll(pairedDevices);
+        adapter.notifyDataSetChanged();
+        updateStatus("Gekoppelte Geräte geladen");
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+    private void toggleScan() {
+        if (bluetoothAdapter.isDiscovering()) {
+            cancelScan();
+        } else {
+            startScan();
+        }
+    }
+
+    @SuppressLint({"MissingPermission", "NotifyDataSetChanged"})
+    private void startScan() {
+        deviceList.clear();
+        adapter.notifyDataSetChanged();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        requireActivity().registerReceiver(receiver, filter);
+
+        bluetoothAdapter.startDiscovery();
+        progressBar.setVisibility(View.VISIBLE);
+        btnScan.setText("Scan stoppen");
+        updateStatus("Suche läuft...");
+
+        new Handler().postDelayed(this::finishScan, SCAN_TIMEOUT);
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+    private void finishScan() {
+        if (bluetoothAdapter.isDiscovering()) {
+            cancelScan();
+        }
+        updateStatus("Scan abgeschlossen");
+    }
+
+    @SuppressLint("MissingPermission")
+    private void cancelScan() {
+        bluetoothAdapter.cancelDiscovery();
+        progressBar.setVisibility(View.GONE);
+        btnScan.setText("Scannen");
+        try {
+            requireActivity().unregisterReceiver(receiver);
+        } catch (IllegalArgumentException e) {
+            // Receiver nicht registriert
+        }
+    }
+
+    private void updateStatus(String message) {
+        statusText.setText(message);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        try {
+            requireActivity().unregisterReceiver(receiver);
+        } catch (IllegalArgumentException e) {
+            // Receiver nicht registriert
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            boolean allGranted = true;
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSIONS) {
             for (int result : grantResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
-                    allGranted = false;
-                    break;
+                    updateStatus("Berechtigungen benötigt!");
+                    return;
                 }
             }
-            if (allGranted) {
-                initializeBluetooth();
+            initBluetooth();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == getActivity().RESULT_OK) {
+                loadPairedDevices();
             } else {
-                statusText.setText("Berechtigungen benötigt!");
-                Toast.makeText(requireContext(), "Zugriff verweigert", Toast.LENGTH_LONG).show();
+                updateStatus("Bluetooth nicht aktiviert");
             }
-        }
-    }
-
-    /**
-     * Called when the fragment is paused.
-     * Stops any ongoing Bluetooth scan.
-     */
-    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (bluetooth != null) {
-            bluetooth.stopScan();
-        }
-    }
-
-    /**
-     * Called when the fragment is destroyed.
-     * Cleans up Bluetooth resources.
-     */
-    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (bluetooth != null) {
-            bluetooth.cleanup();
         }
     }
 
     @Override
     public String getTitle() {
         return "Koppeln";
+    }
+
+    private class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView deviceName, deviceAddress, deviceStatus;
+
+            ViewHolder(View view) {
+                super(view);
+                deviceName = view.findViewById(R.id.device_name);
+                deviceAddress = view.findViewById(R.id.device_address);
+                deviceStatus = view.findViewById(R.id.device_status);
+            }
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_bluetooth_device, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @SuppressLint("MissingPermission")
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            BluetoothDevice device = deviceList.get(position);
+
+            holder.deviceName.setText(device.getName() != null ? device.getName() : "Unbekanntes Gerät");
+            holder.deviceAddress.setText(device.getAddress());
+
+            if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                holder.deviceStatus.setText("Gekoppelt");
+                holder.deviceStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.connected));
+            } else {
+                holder.deviceStatus.setText("Nicht gekoppelt");
+                holder.deviceStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.disconnected));
+            }
+
+            holder.itemView.setOnClickListener(v -> {
+                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                    device.createBond(); // Kopplungsanfrage senden
+                    Toast.makeText(requireContext(), "Kopplungsanfrage gesendet an: " + device.getName(), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), device.getName() + " ist bereits gekoppelt", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return deviceList.size();
+        }
     }
 }

@@ -30,7 +30,7 @@
 
             <include
                 android:id="@+id/bottomBar"
-                layout="includes/bottom_icon_bar"
+                layout="@layout/bottom_icon_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </FrameLayout>

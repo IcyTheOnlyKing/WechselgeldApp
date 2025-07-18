@@ -3,10 +3,9 @@ package htl.steyr.wechselgeldapp.Database.Models;
 public class PersonalInformation {
 
     public int id;
-    public int customer_id;
+    public int seller_id;
 
     public String name;
-    public String email;
     public String street;
     public String houseNumber;
     public String zipCode;
@@ -22,12 +21,12 @@ public class PersonalInformation {
         this.id = id;
     }
 
-    public int getCustomer_id() {
-        return customer_id;
+    public int getSeller_id() {
+        return seller_id;
     }
 
-    public void setCustomer_id(int customer_id) {
-        this.customer_id = customer_id;
+    public void setSeller_id(int seller_id) {
+        this.seller_id = seller_id;
     }
 
     public String getName() {
@@ -38,13 +37,6 @@ public class PersonalInformation {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getStreet() {
         return street;
@@ -78,11 +70,10 @@ public class PersonalInformation {
         this.city = city;
     }
 
-    public PersonalInformation(int id, int customer_id, String name, String email, String street, String houseNumber, String zipCode, String city) {
+    public PersonalInformation(int id, int seller_id, String name, String street, String houseNumber, String zipCode, String city) {
         this.id = id;
-        this.customer_id = customer_id;
+        this.seller_id = seller_id;
         this.name = name;
-        this.email = email;
         this.street = street;
         this.houseNumber = houseNumber;
         this.zipCode = zipCode;
