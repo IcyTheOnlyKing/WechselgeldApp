@@ -26,7 +26,10 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.UUID;
 
+import com.google.gson.Gson;
+
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
+import htl.steyr.wechselgeldapp.Bluetooth.TransactionMessage;
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.Database.Models.Balance;
 import htl.steyr.wechselgeldapp.Database.Models.Transaction;
@@ -44,6 +47,7 @@ public class TransactionFragment extends BaseFragment {
     private DatabaseHelper dbHelper;
     private Balance currentBalance;
     private NumberFormat currencyFormat;
+    private Gson gson;
 
     // Bluetooth variables
     private BluetoothAdapter bluetoothAdapter;
@@ -75,6 +79,7 @@ public class TransactionFragment extends BaseFragment {
 
         dbHelper = new DatabaseHelper(getContext());
         currencyFormat = NumberFormat.getCurrencyInstance(Locale.GERMANY);
+        gson = new Gson();
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
@@ -166,12 +171,13 @@ public class TransactionFragment extends BaseFragment {
         }
 
         try {
-            // Format data as JSON (only sending the amount)
-            String paymentData = String.format(Locale.US,
-                    "{\"amount\":%.2f}",
-                    amount);
+            TransactionMessage message = new TransactionMessage(
+                    amount,
+                    "Seller",
+                    System.currentTimeMillis() / 1000
+            );
+            String paymentData = gson.toJson(message);
 
-            // Send data
             outputStream.write(paymentData.getBytes());
             outputStream.flush();
 
