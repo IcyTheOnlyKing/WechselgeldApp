@@ -251,7 +251,7 @@ public class TransactionFragment extends BaseFragment {
 
         // Create new balance record
         Balance newBalance = new Balance(
-                currentBalance.getOtherUuidT(),
+                currentBalance.getOtherUuid(),
                 currentBalance.getDisplayName(),
                 newBalanceValue,
                 System.currentTimeMillis() / 1000

@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.Cursor;
-
+import htl.steyr.wechselgeldapp.Database.Models.Balance;
 /**
  * DatabaseHelper manages creation, versioning and CRUD operations for the local SQLite database.
  */
@@ -374,6 +374,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // --- Insert Personal Information for all sellers (1:1 by seller ID) ---
         db.execSQL("INSERT INTO PersonalInformation (seller_id, name, email, street, houseNumber, zipCode, city) VALUES " + "(1, 'Admin Verkäufer', 'admin@seller.com', 'Adminstraße', '1A', '1010', 'Wien')," + "(2, 'Maier Bäcker', 'maier@shop.com', 'Brotgasse', '5', '4400', 'Steyr')," + "(3, 'Müller Kiosk', 'mueller@kiosk.com', 'Hauptstraße', '12B', '4020', 'Linz')," + "(4, 'Schmid Trafik', 'schmid@trafik.com', 'Tabakweg', '3', '5020', 'Salzburg')," + "(5, 'Huber Blumen', 'huber@flowers.com', 'Blumenweg', '7', '8010', 'Graz')," + "(6, 'Hahn Feinkost', 'hahn@finefood.com', 'Delikatessenallee', '9', '9020', 'Klagenfurt');");
+    }
+    /**
+     * Gibt den aktuellsten Balance-Eintrag zurück.
+     */
+    public Balance getLatestBalance() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM Balance ORDER BY timestamp DESC LIMIT 1", null);
+        Balance balance = null;
+        if (cursor.moveToFirst()) {
+            balance = new Balance(
+                    cursor.getString(cursor.getColumnIndexOrThrow("otherUuid")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("displayName")),
+                    cursor.getDouble(cursor.getColumnIndexOrThrow("balance")),
+                    cursor.getLong(cursor.getColumnIndexOrThrow("timestamp"))
+            );
+        }
+        cursor.close();
+        return balance;
+    }
+
+    /**
+     * Fügt einen neuen Balance-Eintrag hinzu.
+     */
+    public void insertBalance(Balance balance) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("otherUuid", balance.getOtherUuid());
+        values.put("displayName", balance.getDisplayName());
+        values.put("balance", balance.getBalance());
+        values.put("timestamp", balance.getTimestamp());
+        db.insert("Balance", null, values);
     }
 
 
