@@ -28,6 +28,9 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.UUID;
 
+import com.google.gson.Gson;
+import htl.steyr.wechselgeldapp.Bluetooth.TransactionMessage;
+
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.Database.Models.Balance;
 import htl.steyr.wechselgeldapp.R;
@@ -47,6 +50,7 @@ public class TransactionFragment extends BaseFragment {
     private DatabaseHelper dbHelper;
     private Balance currentBalance;
     private NumberFormat currencyFormat;
+    private Gson gson;
 
     // Bluetooth
     private BluetoothAdapter bluetoothAdapter;
@@ -58,6 +62,7 @@ public class TransactionFragment extends BaseFragment {
     // Transaction data
     private double invoiceAmount = 0.0;
     private double selectedPaymentAmount = 0.0;
+    private String sellerName = "";
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @Override
@@ -86,6 +91,7 @@ public class TransactionFragment extends BaseFragment {
 
         dbHelper = new DatabaseHelper(getContext());
         currencyFormat = NumberFormat.getCurrencyInstance(Locale.GERMANY);
+        gson = new Gson();
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
@@ -135,12 +141,14 @@ public class TransactionFragment extends BaseFragment {
 
     private void processReceivedData(String data) {
         try {
-            String amountStr = data.split("\"amount\":")[1].replaceAll("[^0-9.]", "");
-            invoiceAmount = Double.parseDouble(amountStr);
+            TransactionMessage message = gson.fromJson(data, TransactionMessage.class);
+            invoiceAmount = message.amount;
+            sellerName = message.sellerName != null ? message.sellerName : "";
 
             requireActivity().runOnUiThread(() -> {
                 updateUI();
-                Toast.makeText(getContext(), "Rechnung empfangen: " + currencyFormat.format(invoiceAmount),
+                Toast.makeText(getContext(),
+                        "Rechnung von " + sellerName + ": " + currencyFormat.format(invoiceAmount),
                         Toast.LENGTH_SHORT).show();
             });
         } catch (Exception e) {
