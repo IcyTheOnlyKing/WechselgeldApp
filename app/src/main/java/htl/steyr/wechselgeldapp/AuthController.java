@@ -13,7 +13,6 @@ import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.UI.CustomerUIController;
 import htl.steyr.wechselgeldapp.UI.SellerUIController;
 import htl.steyr.wechselgeldapp.Utilities.Security.SecureData;
-import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
 
 import org.mindrot.jbcrypt.BCrypt;
 
