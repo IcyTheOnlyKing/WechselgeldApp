@@ -1,48 +1,49 @@
 plugins {
-            alias(libs.plugins.android.application)
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace = "htl.steyr.wechselgeldapp"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "htl.steyr.wechselgeldapp"
+        minSdk = 23
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+}
 
-        android {
-            namespace = "htl.steyr.wechselgeldapp"
-            compileSdk = 35
+dependencies {
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation ("org.mindrot:jbcrypt:0.4")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation(libs.room.common.jvm)
+    implementation(libs.firebase.database)
+    implementation(libs.swiperefreshlayout)
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    implementation("com.google.code.gson:gson:2.10.1")
 
-            defaultConfig {
-                applicationId = "htl.steyr.wechselgeldapp"
-                minSdk = 23
-                targetSdk = 35
-                versionCode = 1
-                versionName = "1.0"
-
-                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-            }
-
-            buildTypes {
-                release {
-                    isMinifyEnabled = false
-                    proguardFiles(
-                        getDefaultProguardFile("proguard-android-optimize.txt"),
-                        "proguard-rules.pro"
-                    )
-                }
-            }
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_11
-                targetCompatibility = JavaVersion.VERSION_11
-            }
-        }
-
-        dependencies {
-            implementation("androidx.room:room-runtime:2.6.1")
-            implementation("org.mindrot:jbcrypt:0.4")
-            implementation("de.hdodenhof:circleimageview:3.1.0")
-            implementation("com.google.code.gson:gson:2.10.1")
-            implementation(libs.room.common.jvm)
-            implementation(libs.firebase.database)
-            implementation(libs.swiperefreshlayout)
-            annotationProcessor("androidx.room:room-compiler:2.6.1")
-            implementation(libs.appcompat)
-            implementation(libs.material)
-            testImplementation(libs.junit)
-            androidTestImplementation(libs.ext.junit)
-            androidTestImplementation(libs.espresso.core)
-        }
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+}

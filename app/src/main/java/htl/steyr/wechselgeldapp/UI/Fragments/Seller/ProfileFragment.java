@@ -1,14 +1,11 @@
 package htl.steyr.wechselgeldapp.UI.Fragments.Seller;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,11 +14,8 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.Objects;
-
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
-import htl.steyr.wechselgeldapp.StartController;
 
 /**
  * ProfileFragment allows the seller to view and update their personal information.
@@ -30,7 +24,6 @@ import htl.steyr.wechselgeldapp.StartController;
 public class ProfileFragment extends Fragment {
 
     private DatabaseHelper db;
-    private int sellerId = -1;
 
     private TextInputEditText name, email, street, houseNumber, zip, city;
 
