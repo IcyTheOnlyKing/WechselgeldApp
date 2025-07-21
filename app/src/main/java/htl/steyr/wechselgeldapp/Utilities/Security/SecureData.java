@@ -8,13 +8,14 @@ import java.security.NoSuchAlgorithmException;
 public final class SecureData {
 
     // Private constructor to prevent instantiation of this utility class
-    private SecureData() {}
+    private SecureData() {
+    }
 
     /**
      * Hashes input data using SHA-256 algorithm and returns the hex representation.
      * This method is typically used for hashing usernames, emails, or other non-password data.
      *
-     * @param data The input string to be hashed
+     * @param data The input string what will be hashed
      * @return The SHA-256 hashed hex string of the input data
      */
     public static String hashDataViaSHA(String data) {
@@ -47,7 +48,7 @@ public final class SecureData {
     /**
      * Verifies a plaintext password against a previously hashed password using BCrypt.
      *
-     * @param plainPassword The plaintext password entered by the user
+     * @param plainPassword  The plaintext password entered by the user
      * @param hashedPassword The hashed password stored in the database
      * @return True if the password matches the hash, false otherwise
      */

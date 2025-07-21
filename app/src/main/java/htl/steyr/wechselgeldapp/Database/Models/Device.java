@@ -2,7 +2,7 @@ package htl.steyr.wechselgeldapp.Database.Models;
 
 public class Device {
     public int id;
-    public String macAddress;
+    public String uuid;
     public Integer customerId; // null if Seller
     public Integer sellerId;   // null if Customer
     public String deviceName;
@@ -15,12 +15,12 @@ public class Device {
         this.id = id;
     }
 
-    public String getMacAddress() {
-        return macAddress;
+    public String getuuid() {
+        return uuid;
     }
 
-    public void setMacAddress(String macAddress) {
-        this.macAddress = macAddress;
+    public void setuuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public Integer getCustomerId() {
@@ -49,16 +49,16 @@ public class Device {
 
     public Device() {}
 
-    public Device(int id, String macAddress, Integer customerId, Integer sellerId, String deviceName) {
+    public Device(int id, String uuid, Integer customerId, Integer sellerId, String deviceName) {
         this.id = id;
-        this.macAddress = macAddress;
+        this.uuid = uuid;
         this.customerId = customerId;
         this.sellerId = sellerId;
         this.deviceName = deviceName;
     }
 
-    public Device(String macAddress, Integer customerId, Integer sellerId, String deviceName) {
-        this.macAddress = macAddress;
+    public Device(String uuid, Integer customerId, Integer sellerId, String deviceName) {
+        this.uuid = uuid;
         this.customerId = customerId;
         this.sellerId = sellerId;
         this.deviceName = deviceName;

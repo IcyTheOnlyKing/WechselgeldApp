@@ -30,9 +30,7 @@ public class SellerUIController extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.seller_ui);
 
-        // Korrekte Initialisierung des Headers
-        View topAppBar = findViewById(R.id.topAppBar);
-        headerName = topAppBar.findViewById(R.id.restaurant_name); // Wichtig: findViewById auf topAppBar aufrufen
+        headerName = findViewById(R.id.restaurant_name);
 
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ImageButton menuButton = findViewById(R.id.menu_icon);

@@ -2,6 +2,7 @@ package htl.steyr.wechselgeldapp.UI;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -20,53 +21,137 @@ import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Customer.ProfileFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.Seller.ConnectFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HistoryFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.Seller.HomeFragment;
-import htl.steyr.wechselgeldapp.UI.Fragments.Seller.TransactionFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Customer.ConnectFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Customer.HistoryFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Customer.HomeFragment;
+import htl.steyr.wechselgeldapp.UI.Fragments.Customer.TransactionFragment;
 
 public class CustomerUIController extends AppCompatActivity {
-    private TextView headerName; // Geändert von EditText zu TextView
+    private static final String TAG = "CustomerUIController";
+    private TextView headerName;
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.customer_home_ui);
+        try {
+            setContentView(R.layout.customer_ui);
+            Log.d(TAG, "Layout set successfully");
 
-        // Korrekte Initialisierung des Headers
-        View topAppBar = findViewById(R.id.topAppBar);
-        headerName = topAppBar.findViewById(R.id.restaurant_name); // Wichtig: findViewById auf topAppBar aufrufen
+            // Initialize views
+            initializeViews();
 
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        ImageButton menuButton = findViewById(R.id.menu_icon);
-        ImageButton closeButton = findViewById(R.id.btn_close);
+            // Setup navigation
+            setupNavigation();
 
-        menuButton.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-        closeButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+            // Load default fragment
+            loadFragment(new HomeFragment());
 
-        LinearLayout homeIcon = findViewById(R.id.homeIcon);
-        LinearLayout connectIcon = findViewById(R.id.connectIcon);
-        LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
-        LinearLayout historyIcon = findViewById(R.id.historyIcon);
-        ImageView profileIcon = findViewById(R.id.profile_image);
+            Log.d(TAG, "CustomerUIController initialized successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onCreate: " + e.getMessage(), e);
+            Toast.makeText(this, "Fehler beim Laden der Ansicht", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    private void initializeViews() {
+        try {
+            // Direkt auf restaurant_name zugreifen
+            headerName = findViewById(R.id.restaurant_name);
+            if (headerName != null) {
+                SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                String displayName = prefs.getString("user_display_name", "Kunde");
+                headerName.setText(displayName);
+                Log.d(TAG, "Header name set to: " + displayName);
+            } else {
+                Log.e(TAG, "restaurant_name TextView not found");
+            }
 
-        homeIcon.setOnClickListener(v -> loadFragment(new HomeFragment()));
-        connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
-        transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
-        historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
-        profileIcon.setOnClickListener(v-> loadFragment(new ProfileFragment()));
+            drawerLayout = findViewById(R.id.drawer_layout);
+            if (drawerLayout == null) {
+                Log.e(TAG, "drawer_layout not found");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error in initializeViews: " + e.getMessage(), e);
+        }
+    }
 
-        loadFragment(new HomeFragment());
+    private void setupNavigation() {
+        try {
+            // Menu button
+            ImageButton menuButton = findViewById(R.id.menu_icon);
+            if (menuButton != null) {
+                menuButton.setOnClickListener(v -> {
+                    if (drawerLayout != null) {
+                        drawerLayout.openDrawer(GravityCompat.START);
+                    }
+                });
+            }
+
+            // Close button in drawer
+            ImageButton closeButton = findViewById(R.id.btn_close);
+            if (closeButton != null) {
+                closeButton.setOnClickListener(v -> {
+                    if (drawerLayout != null) {
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                    }
+                });
+            }
+
+            // Bottom navigation
+            LinearLayout homeIcon = findViewById(R.id.homeIcon);
+            LinearLayout connectIcon = findViewById(R.id.connectIcon);
+            LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
+            LinearLayout historyIcon = findViewById(R.id.historyIcon);
+            ImageView profileIcon = findViewById(R.id.profile_image);
+
+            if (homeIcon != null) {
+                homeIcon.setOnClickListener(v -> loadFragment(new HomeFragment()));
+            }
+            if (connectIcon != null) {
+                connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
+            }
+            if (transactionIcon != null) {
+                transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
+            }
+            if (historyIcon != null) {
+                historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
+            }
+            if (profileIcon != null) {
+                profileIcon.setOnClickListener(v -> loadFragment(new ProfileFragment()));
+            }
+
+            Log.d(TAG, "Navigation setup completed");
+        } catch (Exception e) {
+            Log.e(TAG, "Error in setupNavigation: " + e.getMessage(), e);
+        }
     }
 
     private void loadFragment(Fragment fragment) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.commit();
+        try {
+            Log.d(TAG, "Loading fragment: " + fragment.getClass().getSimpleName());
 
-        if (fragment instanceof BaseFragment) {
-            headerName.setText(((BaseFragment) fragment).getTitle());
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, fragment);
+            transaction.commit();
+
+            if (fragment instanceof BaseFragment && headerName != null) {
+                String title = ((BaseFragment) fragment).getTitle();
+                headerName.setText(title);
+                Log.d(TAG, "Fragment title set to: " + title);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading fragment: " + e.getMessage(), e);
+            Toast.makeText(this, "Fehler beim Laden des Fragments", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
 }

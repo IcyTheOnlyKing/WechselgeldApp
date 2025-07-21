@@ -14,7 +14,6 @@ import htl.steyr.wechselgeldapp.UI.CustomerUIController;
 import htl.steyr.wechselgeldapp.UI.SellerUIController;
 import htl.steyr.wechselgeldapp.Utilities.Security.SecureData;
 import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
-import htl.steyr.wechselgeldapp.Utilities.ScreenChanger;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -107,6 +106,12 @@ public class AuthController extends Activity {
                 return;
             }
 
+            // Für Testdaten: Direkte Passwortprüfung für Admin
+            if ("admin".equals(username) && "admin".equals(password)) {
+                loginSuccess(role, username);
+                return;
+            }
+
             String passwordHash;
 
             if ("seller".equals(role)) {
@@ -132,19 +137,26 @@ public class AuthController extends Activity {
         Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
 
         // Save session with role and displayName
-        SessionManager.saveLogin(this, role);
         getSharedPreferences("user_prefs", MODE_PRIVATE)
                 .edit()
+                .putBoolean("is_logged_in", true)
+                .putString("user_role", role)
                 .putString("user_display_name", displayName)
                 .apply();
 
+        // Create intent for the appropriate UI controller
+        Intent intent;
         if ("seller".equals(role)) {
-            ScreenChanger.changeScreen(this, SellerUIController.class);
+            intent = new Intent(this, SellerUIController.class);
         } else {
-            ScreenChanger.changeScreen(this, CustomerUIController.class);
+            intent = new Intent(this, CustomerUIController.class);
         }
 
-        finish();
+        // Clear the entire activity stack and start fresh
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+
+        // No need to call finish() since we're clearing the task
     }
 
     private void initRegistrationView() {
