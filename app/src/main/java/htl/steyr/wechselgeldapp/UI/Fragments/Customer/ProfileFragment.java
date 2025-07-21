@@ -24,13 +24,6 @@ public class ProfileFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-
-
-
-
-
-
-
     @Override
     public String getTitle() {
         return "Profil";

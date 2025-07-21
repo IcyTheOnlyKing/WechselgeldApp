@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -16,6 +17,8 @@ import htl.steyr.wechselgeldapp.Utilities.Security.SecureData;
 import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
 
 import org.mindrot.jbcrypt.BCrypt;
+
+import java.util.UUID;
 
 public class AuthController extends Activity {
 
@@ -64,7 +67,7 @@ public class AuthController extends Activity {
                 return;
             }
 
-            String displayName = username; // wird jetzt im Klartext gespeichert
+            String displayName = username;
             String hashedEmail = SecureData.hashDataViaSHA(email);
             String hashedPassword = SecureData.hashPasswordViaBCrypt(password);
 
@@ -106,33 +109,56 @@ public class AuthController extends Activity {
                 return;
             }
 
-            // Für Testdaten: Direkte Passwortprüfung für Admin
-            if ("admin".equals(username) && "admin".equals(password)) {
-                loginSuccess(role, username);
-                return;
-            }
-
-            String passwordHash;
-
-            if ("seller".equals(role)) {
-                passwordHash = db.getSellerPasswordHash(username);
-            } else {
-                passwordHash = db.getCustomerPasswordHash(username);
-            }
-
-            if (passwordHash != null && BCrypt.checkpw(password, passwordHash)) {
-                loginSuccess(role, username); // Weiter mit displayName
-            } else {
-                Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
-            }
+            // Authentifizierung für Admin und normale Benutzer
+            authenticateUser(username, password, "seller".equals(role));
         });
 
         registerLink.setOnClickListener(view -> showRegistrationView());
     }
 
-    /**
-     * Called when login is successful.
-     */
+    private void authenticateUser(String username, String password, boolean isSeller) {
+        // Direkte Passwortprüfung für Admin
+        if ("admin".equals(username) && "admin".equals(password)) {
+            loginSuccess(role, username);
+            return;
+        }
+
+        String passwordHash = isSeller ?
+                db.getSellerPasswordHash(username) :
+                db.getCustomerPasswordHash(username);
+
+        if (passwordHash != null && BCrypt.checkpw(password, passwordHash)) {
+            int userId = isSeller ?
+                    db.getSellerIdByName(username) :
+                    Integer.parseInt(db.getCustomerIdByName(username));
+
+            String uuid = getOrCreateUuid(db, userId, isSeller);
+
+            SessionManager.login(
+                    this,
+                    userId,
+                    isSeller ? "seller" : "customer",
+                    username,
+                    uuid
+            );
+
+            loginSuccess(role, username);
+        } else {
+            Toast.makeText(this, "Ungültige Login-Daten!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String getOrCreateUuid(DatabaseHelper dbHelper, int userId, boolean isSeller) {
+        String uuid = dbHelper.getUuidForUser(userId, isSeller);
+
+        if (uuid == null) {
+            uuid = UUID.randomUUID().toString();
+            dbHelper.saveUserUuid(userId, isSeller, uuid);
+        }
+
+        return uuid;
+    }
+
     private void loginSuccess(String role, String displayName) {
         Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
 
@@ -155,8 +181,6 @@ public class AuthController extends Activity {
         // Clear the entire activity stack and start fresh
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-
-        // No need to call finish() since we're clearing the task
     }
 
     private void initRegistrationView() {

@@ -66,6 +66,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return shopName;
     }
 
+    // NEUE METHODEN FÜR TRANSAKTIONEN
+    public void updateBalance(String uuid, double amount) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        double currentBalance = getBalanceForUuid(uuid);
+        double newBalance = currentBalance + amount;
+
+        ContentValues values = new ContentValues();
+        values.put("balance", newBalance);
+        values.put("timestamp", System.currentTimeMillis());
+
+        db.update("Balance", values, "otherUuid = ?", new String[]{uuid});
+    }
+
+    public double getBalanceForUuid(String uuid) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT balance FROM Balance WHERE otherUuid = ?", new String[]{uuid});
+        if (cursor.moveToFirst()) {
+            return cursor.getDouble(0);
+        }
+        return 0.0;
+    }
+
+    public String getPairedCustomerUuid(String sellerUuid) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT d.uuid FROM Device d " +
+                        "JOIN Seller s ON d.sellerId = s.id " +
+                        "WHERE s.uuid = ? AND d.customerId IS NOT NULL",
+                new String[]{sellerUuid}
+        );
+        if (cursor.moveToFirst()) {
+            return cursor.getString(0);
+        }
+        return null;
+    }
+
     /**
      * Inserts a new seller into the database.
      */
@@ -303,7 +339,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Returns a balance record for a specific otherUuid.
      */
-    public Cursor getBalanceForUuid(String otherUuid) {
+    public Cursor getBalanceCursorForUuid(String otherUuid) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM Balance WHERE otherUuid = ?", new String[]{otherUuid});
     }
@@ -338,6 +374,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Authentifiziert einen Benutzer in der Datenbank
+     *
+     * @param username       Benutzername oder Shopname
+     * @param password       Passwort (bereits gehasht)
+     * @param table          Tabelle ("Seller" oder "Customer")
+     * @param usernameColumn Spaltenname für den Benutzernamen ("shopName" oder "displayName")
+     * @return Benutzer-ID wenn erfolgreich, sonst -1
+     */
+    public int authenticateUser(String username, String password, String table, String usernameColumn) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT id FROM " + table +
+                " WHERE " + usernameColumn + " = ? AND passwordHash = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{username, password});
+
+        int userId = -1;
+        if (cursor.moveToFirst()) {
+            userId = cursor.getInt(0);
+        }
+
+        cursor.close();
+        return userId;
+    }
+
+    /**
      * Deletes all transactions (useful for reset purposes).
      */
     public int deleteAllTransactions() {
@@ -345,6 +406,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.delete("Transactions", null, null);
     }
 
+    public String getUuidForUser(int userId, boolean isSeller) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String table = isSeller ? "Seller" : "Customer";
+        String idColumn = isSeller ? "id" : "id";
+
+        Cursor cursor = db.rawQuery(
+                "SELECT uuid FROM Device WHERE " +
+                        (isSeller ? "sellerId" : "customerId") + " = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            return cursor.getString(0);
+        }
+        return null;
+    }
+
+    public void saveUserUuid(int userId, boolean isSeller, String uuid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("uuid", uuid);
+
+        if (isSeller) {
+            values.put("sellerId", userId);
+        } else {
+            values.put("customerId", userId);
+        }
+
+        values.put("deviceName", "Hauptgerät");
+        db.insert("Device", null, values);
+    }
 
     // ---------------- End of CRUD ---------------- //
 

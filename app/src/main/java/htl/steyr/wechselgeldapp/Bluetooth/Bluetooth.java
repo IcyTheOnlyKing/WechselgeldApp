@@ -13,19 +13,15 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
-
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
-
 import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
 import htl.steyr.wechselgeldapp.Backup.UserData;
 
 public class Bluetooth {
@@ -54,6 +50,7 @@ public class Bluetooth {
         void onDataSent(boolean success);
         void onDataReceived(UserData data);
         void onDisconnected();
+        void onTransactionReceived(TransactionRequest transaction);
     }
 
     public Bluetooth(Context context, BluetoothCallback callback) {
@@ -64,7 +61,7 @@ public class Bluetooth {
 
     public boolean init() {
         if (adapter == null || !adapter.isEnabled()) {
-            if (callback != null) callback.onError("Bluetooth nicht verf\u00fcgbar oder deaktiviert");
+            if (callback != null) callback.onError("Bluetooth nicht verfügbar oder deaktiviert");
             return false;
         }
 
@@ -174,7 +171,7 @@ public class Bluetooth {
         return true;
     }
 
-    public boolean sendUserData(UserData userData) {
+    public boolean sendTransaction(TransactionRequest transaction) {
         if (!connected || socket == null) {
             if (callback != null) callback.onError("Keine aktive Verbindung");
             return false;
@@ -182,21 +179,22 @@ public class Bluetooth {
 
         new Thread(() -> {
             try {
-                String jsonData = gson.toJson(userData);
+                String jsonData = gson.toJson(transaction);
                 OutputStream outputStream = socket.getOutputStream();
                 outputStream.write(jsonData.getBytes());
                 outputStream.flush();
-                handler.post(() -> { if (callback != null) callback.onDataSent(true); });
+                handler.post(() -> {
+                    if (callback != null) callback.onDataSent(true);
+                });
             } catch (IOException e) {
                 handler.post(() -> {
                     if (callback != null) {
                         callback.onDataSent(false);
-                        callback.onError("Daten\u00fcbertragung fehlgeschlagen: " + e.getMessage());
+                        callback.onError("Transaktionsfehler: " + e.getMessage());
                     }
                 });
             }
         }).start();
-
         return true;
     }
 
@@ -265,8 +263,25 @@ public class Bluetooth {
                 int bytes;
                 while ((bytes = is.read(buffer)) != -1) {
                     String json = new String(buffer, 0, bytes);
-                    UserData data = gson.fromJson(json, UserData.class);
-                    handler.post(() -> { if (callback != null) callback.onDataReceived(data); });
+                    try {
+                        // Versuche TransactionRequest zu parsen
+                        TransactionRequest transaction = gson.fromJson(json, TransactionRequest.class);
+                        handler.post(() -> {
+                            if (callback != null) callback.onTransactionReceived(transaction);
+                        });
+                    } catch (Exception e) {
+                        // Fallback zu bestehender Logik
+                        try {
+                            UserData data = gson.fromJson(json, UserData.class);
+                            handler.post(() -> {
+                                if (callback != null) callback.onDataReceived(data);
+                            });
+                        } catch (Exception e2) {
+                            handler.post(() -> {
+                                if (callback != null) callback.onError("Ungültiges Datenformat");
+                            });
+                        }
+                    }
                 }
             } catch (IOException e) {
                 handler.post(() -> {
@@ -275,5 +290,8 @@ public class Bluetooth {
             }
         });
         readThread.start();
+    }
+    public void setCallback(BluetoothCallback callback) {
+        this.callback = callback;
     }
 }
