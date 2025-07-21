@@ -41,6 +41,30 @@ public class Bluetooth {
     private boolean scanning = false;
     private boolean connected = false;
 
+    public void setCallback(BluetoothCallback callback) {
+        this.callback = callback;
+    }
+
+    public boolean sendRawMessage(String message) {
+        if (!connected || socket == null) return false;
+        new Thread(() -> {
+            try {
+                OutputStream os = socket.getOutputStream();
+                os.write((message + "\n").getBytes());
+                os.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+        return true;
+    }
+
+    public BluetoothSocket getConnectedSocket() {
+        return socket;
+    }
+
+
+
     public interface BluetoothCallback {
         void onDeviceFound(BluetoothDevice device);
         void onScanFinished();

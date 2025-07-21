@@ -1,29 +1,33 @@
 package htl.steyr.wechselgeldapp.Bluetooth;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth.BluetoothCallback;
 
 public class BluetoothManager {
     private static Bluetooth instance;
-    private static BluetoothCallback globalCallback;
 
-    private BluetoothManager() {}
+    private BluetoothManager() {} // privater Konstruktor, um Instanziierung zu verhindern
 
-    public static void setInstance(Bluetooth bluetooth) {
-        instance = bluetooth;
-        if (globalCallback != null) {
-            instance.setCallback(globalCallback);
+    public static synchronized Bluetooth getInstance(Context context, Bluetooth.BluetoothCallback callback) {
+        if (instance == null) {
+            instance = new Bluetooth(context.getApplicationContext(), callback);
+        } else {
+            instance.setCallback(callback); // aktuelles Fragment setzt ggf. neuen Callback
         }
-    }
-
-    public static Bluetooth getInstance() {
         return instance;
     }
 
-    public static void setCallback(BluetoothCallback callback) {
-        globalCallback = callback;
+    public static Bluetooth getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("BluetoothManager wurde nicht initialisiert. Rufe zuerst getInstance(context, callback) auf.");
+        }
+        return instance;
+    }
+
+    public static void destroyInstance() {
         if (instance != null) {
-            instance.setCallback(globalCallback);
+            instance.cleanup();
+            instance = null;
         }
     }
 }
