@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,11 +28,21 @@ import htl.steyr.wechselgeldapp.UI.Fragments.Customer.HomeFragment;
 import htl.steyr.wechselgeldapp.UI.Fragments.Customer.TransactionFragment;
 import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
 
+/**
+ * This class manages the main UI for the customer role in the Wechselgeld app.
+ * It handles fragment navigation, drawer interactions, and user-specific features.
+ */
 public class CustomerUIController extends AppCompatActivity {
     private static final String TAG = "CustomerUIController";
     private TextView headerName;
     private DrawerLayout drawerLayout;
 
+    /**
+     * Called when the activity is starting.
+     * Initializes the layout, views, and navigation.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down, this contains the most recent data.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,16 +53,19 @@ public class CustomerUIController extends AppCompatActivity {
             loadFragment(new HomeFragment());
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate: " + e.getMessage(), e);
-            Toast.makeText(this, "Fehler beim Laden der Ansicht", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error loading the view", Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * Initializes UI components like drawer and user display name.
+     */
     private void initializeViews() {
         try {
             headerName = findViewById(R.id.restaurant_name);
             if (headerName != null) {
                 SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-                String displayName = prefs.getString("user_display_name", "Kunde");
+                String displayName = prefs.getString("user_display_name", "Customer");
                 headerName.setText(displayName);
             }
 
@@ -64,6 +75,9 @@ public class CustomerUIController extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets up click listeners and navigation behavior for all menu items and buttons.
+     */
     private void setupNavigation() {
         try {
             ImageButton menuButton = findViewById(R.id.menu_icon);
@@ -112,21 +126,21 @@ public class CustomerUIController extends AppCompatActivity {
 
             if (btnBackup != null) {
                 btnBackup.setOnClickListener(v -> {
-                    Toast.makeText(this, "Backup wird erstellt...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Creating backup...", Toast.LENGTH_SHORT).show();
                     drawerLayout.closeDrawer(GravityCompat.START);
                 });
             }
 
             if (btnUnpair != null) {
                 btnUnpair.setOnClickListener(v -> {
-                    Toast.makeText(this, "Kopplung wird getrennt...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Unpairing...", Toast.LENGTH_SHORT).show();
                     drawerLayout.closeDrawer(GravityCompat.START);
                 });
             }
 
             if (btnLogout != null) {
                 btnLogout.setOnClickListener(v -> {
-                    Toast.makeText(this, "Abmeldung...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Logging out...", Toast.LENGTH_SHORT).show();
                     SessionManager.logout(this);
                     drawerLayout.closeDrawer(GravityCompat.START);
                     startActivity(new Intent(this, StartController.class));
@@ -139,6 +153,11 @@ public class CustomerUIController extends AppCompatActivity {
         }
     }
 
+    /**
+     * Replaces the current fragment in the UI with the given fragment.
+     *
+     * @param fragment The fragment to display.
+     */
     private void loadFragment(Fragment fragment) {
         try {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -151,10 +170,14 @@ public class CustomerUIController extends AppCompatActivity {
             }
         } catch (Exception e) {
             Log.e(TAG, "Error loading fragment: " + e.getMessage(), e);
-            Toast.makeText(this, "Fehler beim Laden des Fragments", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error loading fragment", Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * Handles back button press.
+     * If the drawer is open, it closes it. Otherwise, it calls the default behavior.
+     */
     @Override
     public void onBackPressed() {
         if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
