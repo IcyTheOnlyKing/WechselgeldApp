@@ -32,8 +32,16 @@ import java.util.Set;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
+/**
+ * Fragment that handles scanning for and displaying nearby Bluetooth devices
+ * for seller-side Bluetooth connection in the Wechselgeld-App.
+ * <p>
+ * Devices are listed and optionally bonded upon selection.
+ * This fragment requires appropriate Bluetooth and location permissions.
+ */
 public class ConnectFragment extends BaseFragment {
 
+    /** Duration in milliseconds to perform Bluetooth scanning before timeout. */
     private static final long SCAN_TIMEOUT = 10000;
 
     private BluetoothAdapter bluetoothAdapter;
@@ -44,6 +52,9 @@ public class ConnectFragment extends BaseFragment {
     private ProgressBar progressBar;
     private Button btnScan;
 
+    /**
+     * BroadcastReceiver to handle discovered Bluetooth devices and discovery state changes.
+     */
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
         public void onReceive(Context context, Intent intent) {
@@ -53,7 +64,7 @@ public class ConnectFragment extends BaseFragment {
                 if (device != null && !deviceList.contains(device)) {
                     deviceList.add(device);
                     adapter.notifyDataSetChanged();
-                    updateStatus("Geräte gefunden: " + deviceList.size());
+                    updateStatus("Devices found: " + deviceList.size());
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 finishScan();
@@ -61,6 +72,14 @@ public class ConnectFragment extends BaseFragment {
         }
     };
 
+    /**
+     * Inflates the fragment layout and sets up UI and Bluetooth logic.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate views.
+     * @param container          The parent view the fragment UI should be attached to.
+     * @param savedInstanceState Bundle containing saved state (if any).
+     * @return The root View for the fragment's UI.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,7 +98,7 @@ public class ConnectFragment extends BaseFragment {
 
         btnScan.setOnClickListener(v -> {
             if (bluetoothAdapter == null) {
-                updateStatus("Bluetooth nicht unterstützt");
+                updateStatus("Bluetooth not supported");
                 return;
             }
             toggleScan();
@@ -90,6 +109,9 @@ public class ConnectFragment extends BaseFragment {
         return view;
     }
 
+    /**
+     * Checks if required permissions are granted, and requests them if not.
+     */
     private void checkPermissions() {
         String[] permissions = {
                 Manifest.permission.BLUETOOTH,
@@ -111,24 +133,33 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Initializes Bluetooth by enabling it or loading paired devices if already enabled.
+     */
     @SuppressLint("MissingPermission")
     private void initBluetooth() {
         if (!bluetoothAdapter.isEnabled()) {
-            bluetoothAdapter.enable(); // Oder per Intent
+            bluetoothAdapter.enable();
         } else {
             loadPairedDevices();
         }
     }
 
+    /**
+     * Loads previously paired (bonded) Bluetooth devices and populates the device list.
+     */
     @SuppressLint("MissingPermission")
     private void loadPairedDevices() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         deviceList.clear();
         deviceList.addAll(pairedDevices);
         adapter.notifyDataSetChanged();
-        updateStatus("Gekoppelte Geräte geladen");
+        updateStatus("Paired devices loaded");
     }
 
+    /**
+     * Starts or stops a Bluetooth device discovery scan.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void toggleScan() {
         if (bluetoothAdapter.isDiscovering()) {
@@ -138,6 +169,9 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Starts Bluetooth device discovery, registers broadcast receiver, and sets scan timeout.
+     */
     @SuppressLint("MissingPermission")
     private void startScan() {
         deviceList.clear();
@@ -150,36 +184,50 @@ public class ConnectFragment extends BaseFragment {
 
         bluetoothAdapter.startDiscovery();
         progressBar.setVisibility(View.VISIBLE);
-        btnScan.setText("Scan stoppen");
-        updateStatus("Suche läuft...");
+        btnScan.setText("Stop Scan");
+        updateStatus("Scanning...");
 
         new Handler().postDelayed(this::finishScan, SCAN_TIMEOUT);
     }
 
+    /**
+     * Ends the current Bluetooth scan if still active and updates UI.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void finishScan() {
         if (bluetoothAdapter.isDiscovering()) {
             cancelScan();
         }
-        updateStatus("Scan abgeschlossen");
+        updateStatus("Scan completed");
     }
 
+    /**
+     * Cancels any ongoing discovery and unregisters the broadcast receiver.
+     */
     @SuppressLint("MissingPermission")
     private void cancelScan() {
         bluetoothAdapter.cancelDiscovery();
         progressBar.setVisibility(View.GONE);
-        btnScan.setText("Scannen");
+        btnScan.setText("Scan");
         try {
             requireActivity().unregisterReceiver(receiver);
         } catch (IllegalArgumentException e) {
-            // Receiver nicht registriert
+            // Receiver was not registered
         }
     }
 
+    /**
+     * Updates the status message shown to the user.
+     *
+     * @param message The status message to display.
+     */
     private void updateStatus(String message) {
         statusText.setText(message);
     }
 
+    /**
+     * Cleans up resources by unregistering the Bluetooth receiver when the view is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -189,13 +237,24 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Provides the title for this fragment, shown in the app UI.
+     *
+     * @return The title string for this fragment.
+     */
     @Override
     public String getTitle() {
-        return "Kunde verbinden";
+        return "Connect Customer";
     }
 
+    /**
+     * RecyclerView Adapter for displaying a list of discovered or paired Bluetooth devices.
+     */
     private class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
 
+        /**
+         * ViewHolder that holds references to the views for a single Bluetooth device item.
+         */
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView deviceName, deviceAddress, deviceStatus;
 
@@ -215,33 +274,44 @@ public class ConnectFragment extends BaseFragment {
             return new ViewHolder(view);
         }
 
+        /**
+         * Binds a Bluetooth device to the ViewHolder and sets up interaction logic.
+         *
+         * @param holder   The ViewHolder instance.
+         * @param position The position of the item in the dataset.
+         */
         @SuppressLint("MissingPermission")
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             BluetoothDevice device = deviceList.get(position);
 
-            holder.deviceName.setText(device.getName() != null ? device.getName() : "Unbekannt");
+            holder.deviceName.setText(device.getName() != null ? device.getName() : "Unknown");
             holder.deviceAddress.setText(device.getAddress());
 
             if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                holder.deviceStatus.setText("Gekoppelt");
+                holder.deviceStatus.setText("Paired");
                 holder.deviceStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.connected));
             } else {
-                holder.deviceStatus.setText("Nicht gekoppelt");
+                holder.deviceStatus.setText("Not paired");
                 holder.deviceStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.disconnected));
             }
 
             holder.itemView.setOnClickListener(v -> {
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     device.createBond();
-                    Toast.makeText(requireContext(), "Kopplungsanfrage gesendet an: " + device.getName(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Pairing request sent to: " + device.getName(), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), "Gerät ist bereits gekoppelt", Toast.LENGTH_SHORT).show();
-                    // Optional: Verbindung herstellen
+                    Toast.makeText(requireContext(), "Device already paired", Toast.LENGTH_SHORT).show();
+
                 }
             });
         }
 
+        /**
+         * Returns the number of items in the dataset.
+         *
+         * @return The total number of Bluetooth devices in the list.
+         */
         @Override
         public int getItemCount() {
             return deviceList.size();
