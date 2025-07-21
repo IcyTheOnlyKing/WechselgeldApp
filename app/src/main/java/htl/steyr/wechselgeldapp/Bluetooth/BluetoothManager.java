@@ -61,4 +61,7 @@ public class BluetoothManager {
             instance = null;
         }
     }
+
+    public static void setInstance(Bluetooth bluetooth) {
+    }
 }
