@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
+import htl.steyr.wechselgeldapp.Bluetooth.BluetoothManager;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
@@ -301,10 +303,35 @@ public class ConnectFragment extends BaseFragment {
                     device.createBond();
                     Toast.makeText(requireContext(), "Pairing request sent to: " + device.getName(), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), "Device already paired", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Verbinde mit " + device.getName(), Toast.LENGTH_SHORT).show();
 
+                    BluetoothManager.getInstance(requireContext(), new Bluetooth.BluetoothCallback() {
+                        @Override
+                        public void onConnectionSuccess(BluetoothDevice connectedDevice) {
+                            Toast.makeText(requireContext(), "Verbunden mit: " + connectedDevice.getName(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(requireContext(), "Fehler: " + error, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onDataSent(boolean success) {}
+                        @Override
+                        public void onDeviceFound(BluetoothDevice device) {}
+                        @Override
+                        public void onScanFinished() {}
+                        @Override
+                        public void onScanStarted() {}
+                        @Override
+                        public void onDataReceived(htl.steyr.wechselgeldapp.Backup.UserData data) {}
+                        @Override
+                        public void onDisconnected() {}
+                    }).connectToDevice(device);
                 }
             });
+
         }
 
         /**
