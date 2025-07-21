@@ -214,7 +214,7 @@ public class ConnectFragment extends BaseFragment {
         try {
             requireActivity().unregisterReceiver(receiver);
         } catch (IllegalArgumentException e) {
-            // Receiver was not registered
+
         }
     }
 
