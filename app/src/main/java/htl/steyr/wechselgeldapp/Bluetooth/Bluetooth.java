@@ -293,7 +293,7 @@ public class Bluetooth {
                         handler.post(() -> {
                             if (callback != null) callback.onTransactionReceived(transaction);
                         });
-                    } catch (Exception e) {
+                    } catch (Exception e) {g
                         // Fallback zu bestehender Logik
                         try {
                             UserData data = gson.fromJson(json, UserData.class);
