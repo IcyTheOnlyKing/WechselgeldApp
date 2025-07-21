@@ -6,9 +6,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
-
 import com.google.android.material.textfield.TextInputEditText;
-
 import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.UI.CustomerUIController;
 import htl.steyr.wechselgeldapp.UI.SellerUIController;
