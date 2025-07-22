@@ -8,26 +8,33 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 
-import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
+import java.io.IOException;
+
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDataService;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothManager;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
+/**
+ * Fragment für den Kunden zum Empfangen von Transaktionsdaten via Bluetooth.
+ */
 public class TransactionFragment extends BaseFragment {
 
     private TextView tvInvoiceAmount, tvRemainingAmount;
     private BluetoothDataService dataService;
 
+    /**
+     * Initialisiert das Fragment und macht das Gerät discoverable für den Verkäufer.
+     */
     @RequiresPermission(allOf = {
             Manifest.permission.BLUETOOTH_ADVERTISE,
             Manifest.permission.BLUETOOTH_CONNECT,
@@ -40,6 +47,7 @@ public class TransactionFragment extends BaseFragment {
         tvInvoiceAmount = view.findViewById(R.id.tvInvoiceAmount);
         tvRemainingAmount = view.findViewById(R.id.tvRemainingAmount);
 
+        // Gerät discoverable machen (sichtbar für andere)
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter != null && adapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
             Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -47,52 +55,39 @@ public class TransactionFragment extends BaseFragment {
             startActivity(discoverableIntent);
         }
 
-        // Callback zur Vermeidung von NullPointer
-        Bluetooth bluetooth = BluetoothManager.getInstance(requireContext(), btCallback);
-        bluetooth.setCallback(btCallback);
-        bluetooth.startServer();
+        // Bluetooth-Server starten
+        BluetoothManager.getInstance(requireContext(), null).startServer();
 
+        // Nachrichtenempfang vorbereiten
         tryStartListening();
 
         return view;
     }
 
+    /**
+     * Startet den BluetoothDataService, wenn eine Verbindung besteht.
+     */
     private void tryStartListening() {
         if (BluetoothManager.getInstance().getConnectedSocket() == null) {
+            Log.w("TransactionFragment", "Kein Bluetooth-Socket verbunden – warte auf Verbindung.");
             return;
         }
 
         Handler handler = createMessageHandler();
+
         try {
             dataService = new BluetoothDataService(
                     BluetoothManager.getInstance().getConnectedSocket(), handler);
             dataService.listenForMessages();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(requireContext(), "Bluetooth Empfang fehlgeschlagen", Toast.LENGTH_SHORT).show();
+            Log.d("TransactionFragment", "BluetoothDataService gestartet");
+        } catch (IOException e) {
+            Log.e("TransactionFragment", "Fehler beim Start des DataService: " + e.getMessage());
         }
     }
 
-    private final Bluetooth.BluetoothCallback btCallback = new Bluetooth.BluetoothCallback() {
-        @Override public void onDeviceFound(android.bluetooth.BluetoothDevice device) {}
-        @Override public void onScanFinished() {}
-        @Override public void onScanStarted() {}
-        @Override public void onError(String error) {
-            Toast.makeText(requireContext(), "Bluetooth-Fehler: " + error, Toast.LENGTH_SHORT).show();
-        }
-        @Override public void onConnectionSuccess(android.bluetooth.BluetoothDevice device) {}
-        @Override public void onDataSent(boolean success) {}
-        @Override public void onDataReceivedRaw(String message) {
-            if (message.startsWith("amount:")) {
-                String amount = message.substring(7).trim();
-                tvInvoiceAmount.setText("€" + amount);
-                tvRemainingAmount.setText("€" + amount);
-            }
-        }
-        @Override public void onDataReceived(htl.steyr.wechselgeldapp.Backup.UserData data) {}
-        @Override public void onDisconnected() {}
-    };
-
+    /**
+     * Erstellt einen Handler, um empfangene Nachrichten zu verarbeiten.
+     */
     private Handler createMessageHandler() {
         return new Handler(Looper.getMainLooper()) {
             @SuppressLint("SetTextI18n")
@@ -100,13 +95,14 @@ public class TransactionFragment extends BaseFragment {
             public void handleMessage(@NonNull Message msg) {
                 if (msg.obj instanceof String) {
                     String message = (String) msg.obj;
+                    Log.d("TransactionFragment", "Empfangen: " + message);
+
                     if (message.startsWith("amount:")) {
                         String amount = message.substring(7).trim();
                         tvInvoiceAmount.setText("€" + amount);
                         tvRemainingAmount.setText("€" + amount);
                     }
                 }
-
             }
         };
     }
