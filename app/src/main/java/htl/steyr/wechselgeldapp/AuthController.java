@@ -28,7 +28,6 @@ public class AuthController extends Activity {
     private Button registerBTN;
     private TextView loginLink;
 
-    // Login Views
     private TextView loginTitle;
     private TextInputEditText loginUsernameInput;
     private TextInputEditText loginPasswordInput;
@@ -61,7 +60,7 @@ public class AuthController extends Activity {
                 return;
             }
 
-            String displayName = username; // wird jetzt im Klartext gespeichert
+            String displayName = username;
             String hashedEmail = SecureData.hashDataViaSHA(email);
             String hashedPassword = SecureData.hashPasswordViaBCrypt(password);
 

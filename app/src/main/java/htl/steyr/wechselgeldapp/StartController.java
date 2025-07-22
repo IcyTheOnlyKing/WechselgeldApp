@@ -18,9 +18,9 @@ import htl.steyr.wechselgeldapp.UI.CustomerUIController;
 import htl.steyr.wechselgeldapp.UI.SellerUIController;
 
 /**
- * Startcontroller für die Wechselgeld-App.
- * Zeigt bei App-Start die Rollenwahl an, sofern der Nutzer nicht eingeloggt ist.
- * Fragt notwendige Bluetooth- und Standortberechtigungen beim ersten Start ab.
+ * Start controller for the Wechselgeld app.
+ * Displays role selection at app launch if the user is not logged in.
+ * Requests necessary Bluetooth and location permissions on first start.
  */
 public class StartController extends Activity {
 
@@ -30,7 +30,7 @@ public class StartController extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // UI anzeigen, bevor Berechtigungsdialog kommt
+        // Show UI before permission dialog appears
         setContentView(R.layout.start_view);
 
         if (!hasAllPermissions()) {
@@ -41,7 +41,8 @@ public class StartController extends Activity {
     }
 
     /**
-     * Gibt die zur Laufzeit abzufragenden Berechtigungen je nach Android-Version zurück.
+     * Returns the permissions that need to be requested at runtime,
+     * depending on the Android version.
      */
     private String[] getRequiredPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -68,14 +69,17 @@ public class StartController extends Activity {
         return true;
     }
 
+    /**
+     * Shows a dialog explaining the required permissions and then requests them.
+     */
     private void showPermissionDialogAndRequest() {
         new android.app.AlertDialog.Builder(this)
-                .setTitle("Berechtigungen erforderlich")
-                .setMessage("Diese App benötigt Bluetooth- und Standortrechte, um mit Geräten in der Nähe zu kommunizieren.")
+                .setTitle("Permissions Required")
+                .setMessage("This app requires Bluetooth and location permissions to communicate with nearby devices.")
                 .setPositiveButton("OK", (dialog, which) ->
                         ActivityCompat.requestPermissions(this, getRequiredPermissions(), PERMISSION_REQUEST_CODE))
-                .setNegativeButton("Abbrechen", (dialog, which) -> {
-                    Toast.makeText(this, "Ohne Berechtigungen kann die App nicht funktionieren.", Toast.LENGTH_LONG).show();
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    Toast.makeText(this, "The app cannot function without permissions.", Toast.LENGTH_LONG).show();
                     finish();
                 })
                 .setCancelable(false)
@@ -89,7 +93,7 @@ public class StartController extends Activity {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             for (int result : grantResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Alle Berechtigungen müssen akzeptiert werden.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "All permissions must be granted.", Toast.LENGTH_LONG).show();
                     finish();
                     return;
                 }
@@ -99,7 +103,8 @@ public class StartController extends Activity {
     }
 
     /**
-     * Wird aufgerufen, wenn alle Berechtigungen erteilt wurden.
+     * Called when all permissions have been granted.
+     * Navigates to the appropriate UI depending on login status and user role.
      */
     private void proceedAfterPermission() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
@@ -119,7 +124,7 @@ public class StartController extends Activity {
     }
 
     /**
-     * Initialisiert die Buttons zur Rollenwahl (Customer/Seller).
+     * Initializes the buttons for role selection (Customer/Seller).
      */
     private void setupButtons() {
         Button customerBTN = findViewById(R.id.customerBTN);
@@ -129,6 +134,11 @@ public class StartController extends Activity {
         sellerBTN.setOnClickListener(view -> navigateTo("seller"));
     }
 
+    /**
+     * Starts the AuthController and passes the selected role as an intent extra.
+     *
+     * @param role The selected user role ("customer" or "seller")
+     */
     private void navigateTo(String role) {
         Intent intent = new Intent(this, AuthController.class);
         intent.putExtra("user_role", role);
