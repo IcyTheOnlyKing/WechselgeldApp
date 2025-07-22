@@ -7,6 +7,18 @@
     <string name="tippen_zum_koppeln">Tippen zum Koppeln</string>
     <string name="navigation_drawer_open">Drawer öffnen</string>
     <string name="navigation_drawer_close">Drawer schließen</string>
+    <!-- res/values/strings.xml -->
+    <string name="scan">Scan</string>
+    <string name="stop_scan">Stop Scan</string>
+    <string name="scanning">Scanning...</string>
+    <string name="scan_complete">Scan completed</string>
+    <string name="paired">Paired</string>
+    <string name="not_paired">Not paired</string>
+    <string name="error_enter_amount">Enter amount</string>
+    <string name="error_invalid_amount">Invalid amount format</string>
+    <string name="error_not_connected">Not connected</string>
+    <string name="send_failed">Send failed</string>
+    <string name="sent_amount">Sent: €%1$s</string>
 
 
 </resources>
