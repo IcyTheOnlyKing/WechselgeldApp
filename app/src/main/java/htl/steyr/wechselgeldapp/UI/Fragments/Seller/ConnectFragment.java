@@ -3,6 +3,7 @@ package htl.steyr.wechselgeldapp.UI.Fragments.Seller;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,59 +30,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import htl.steyr.wechselgeldapp.Backup.UserData;
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothManager;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-/**
- * Fragment that handles scanning for and displaying nearby Bluetooth devices
- * for seller-side Bluetooth connection in the Wechselgeld-App.
- * <p>
- * Devices are listed and optionally bonded upon selection.
- * This fragment requires appropriate Bluetooth and location permissions.
- */
 public class ConnectFragment extends BaseFragment {
 
-    /** Duration in milliseconds to perform Bluetooth scanning before timeout. */
     private static final long SCAN_TIMEOUT = 10000;
 
     private BluetoothAdapter bluetoothAdapter;
     private final List<BluetoothDevice> deviceList = new ArrayList<>();
     private DeviceAdapter adapter;
-
     private TextView statusText;
     private ProgressBar progressBar;
     private Button btnScan;
+    private boolean receiverRegistered = false;
+    private boolean isConnecting = false;
 
-    /**
-     * BroadcastReceiver to handle discovered Bluetooth devices and discovery state changes.
-     */
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+        @SuppressLint("NotifyDataSetChanged")
+        @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device != null && !deviceList.contains(device)) {
+                if (device != null && !isAlreadyDiscovered(device) && isSmartphone(device)) {
                     deviceList.add(device);
                     adapter.notifyDataSetChanged();
                     updateStatus("Devices found: " + deviceList.size());
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 finishScan();
+            } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
+                int prevState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.ERROR);
+
+                if (state == BluetoothDevice.BOND_BONDED && prevState == BluetoothDevice.BOND_BONDING && device != null) {
+                    Toast.makeText(context, "Pairing complete, connecting to: " + device.getName(), Toast.LENGTH_SHORT).show();
+                    connectToDevice(device);
+                }
             }
         }
     };
 
-    /**
-     * Inflates the fragment layout and sets up UI and Bluetooth logic.
-     *
-     * @param inflater           The LayoutInflater object that can be used to inflate views.
-     * @param container          The parent view the fragment UI should be attached to.
-     * @param savedInstanceState Bundle containing saved state (if any).
-     * @return The root View for the fragment's UI.
-     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -107,13 +102,9 @@ public class ConnectFragment extends BaseFragment {
         });
 
         checkPermissions();
-
         return view;
     }
 
-    /**
-     * Checks if required permissions are granted, and requests them if not.
-     */
     private void checkPermissions() {
         String[] permissions = {
                 Manifest.permission.BLUETOOTH,
@@ -135,33 +126,31 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
-    /**
-     * Initializes Bluetooth by enabling it or loading paired devices if already enabled.
-     */
     @SuppressLint("MissingPermission")
     private void initBluetooth() {
         if (!bluetoothAdapter.isEnabled()) {
-            bluetoothAdapter.enable();
-        } else {
-            loadPairedDevices();
+            boolean success = bluetoothAdapter.enable();
+            if (!success) {
+                updateStatus("Failed to enable Bluetooth.");
+                return;
+            }
         }
+        loadPairedDevices();
     }
 
-    /**
-     * Loads previously paired (bonded) Bluetooth devices and populates the device list.
-     */
     @SuppressLint("MissingPermission")
     private void loadPairedDevices() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         deviceList.clear();
-        deviceList.addAll(pairedDevices);
+        for (BluetoothDevice device : pairedDevices) {
+            if (isSmartphone(device)) {
+                deviceList.add(device);
+            }
+        }
         adapter.notifyDataSetChanged();
         updateStatus("Paired devices loaded");
     }
 
-    /**
-     * Starts or stops a Bluetooth device discovery scan.
-     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void toggleScan() {
         if (bluetoothAdapter.isDiscovering()) {
@@ -171,92 +160,121 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
-    /**
-     * Starts Bluetooth device discovery, registers broadcast receiver, and sets scan timeout.
-     */
     @SuppressLint("MissingPermission")
     private void startScan() {
         deviceList.clear();
         adapter.notifyDataSetChanged();
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        requireActivity().registerReceiver(receiver, filter);
+        registerReceiverIfNeeded();
 
         bluetoothAdapter.startDiscovery();
         progressBar.setVisibility(View.VISIBLE);
-        btnScan.setText("Stop Scan");
-        updateStatus("Scanning...");
+        btnScan.setText(R.string.stop_scan); // Use string resource
+        updateStatus(getString(R.string.scanning));
 
         new Handler().postDelayed(this::finishScan, SCAN_TIMEOUT);
     }
 
-    /**
-     * Ends the current Bluetooth scan if still active and updates UI.
-     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void finishScan() {
         if (bluetoothAdapter.isDiscovering()) {
             cancelScan();
         }
-        updateStatus("Scan completed");
+        updateStatus(getString(R.string.scan_complete));
     }
 
-    /**
-     * Cancels any ongoing discovery and unregisters the broadcast receiver.
-     */
     @SuppressLint("MissingPermission")
     private void cancelScan() {
         bluetoothAdapter.cancelDiscovery();
         progressBar.setVisibility(View.GONE);
-        btnScan.setText("Scan");
-        try {
-            requireActivity().unregisterReceiver(receiver);
-        } catch (IllegalArgumentException e) {
+        btnScan.setText(R.string.scan);
+        unregisterReceiverIfNeeded();
+    }
 
+    private void registerReceiverIfNeeded() {
+        if (!receiverRegistered) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothDevice.ACTION_FOUND);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+            filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+            requireActivity().registerReceiver(receiver, filter);
+            receiverRegistered = true;
         }
     }
 
-    /**
-     * Updates the status message shown to the user.
-     *
-     * @param message The status message to display.
-     */
+    private void unregisterReceiverIfNeeded() {
+        if (receiverRegistered) {
+            try {
+                requireActivity().unregisterReceiver(receiver);
+            } catch (IllegalArgumentException ignored) {}
+            receiverRegistered = false;
+        }
+    }
+
     private void updateStatus(String message) {
         statusText.setText(message);
     }
 
-    /**
-     * Cleans up resources by unregistering the Bluetooth receiver when the view is destroyed.
-     */
+    private boolean isAlreadyDiscovered(BluetoothDevice device) {
+        for (BluetoothDevice d : deviceList) {
+            if (d.getAddress().equals(device.getAddress())) return true;
+        }
+        return false;
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private boolean isSmartphone(BluetoothDevice device) {
+        BluetoothClass bluetoothClass = device.getBluetoothClass();
+        return bluetoothClass != null &&
+                bluetoothClass.getDeviceClass() == BluetoothClass.Device.PHONE_SMART;
+    }
+
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
+    private void connectToDevice(BluetoothDevice device) {
+        if (isConnecting) return;
+        isConnecting = true;
+
+        BluetoothManager.getInstance(requireContext(), new Bluetooth.BluetoothCallback() {
+            @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+            @Override
+            public void onConnectionSuccess(BluetoothDevice connectedDevice) {
+                isConnecting = false;
+                Toast.makeText(requireContext(), "Connected to: " + connectedDevice.getName(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(String error) {
+                isConnecting = false;
+                Toast.makeText(requireContext(), "Connection error: " + error, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override public void onDataSent(boolean success) {}
+            @Override public void onDataReceived(UserData data) {}
+
+            @Override
+            public void onDataReceivedRaw(String message) {
+
+            }
+
+            @Override public void onDisconnected() {}
+            @Override public void onScanStarted() {}
+            @Override public void onScanFinished() {}
+            @Override public void onDeviceFound(BluetoothDevice device) {}
+        }).connectToDevice(device);
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        try {
-            requireActivity().unregisterReceiver(receiver);
-        } catch (IllegalArgumentException ignored) {
-        }
+        unregisterReceiverIfNeeded();
     }
 
-    /**
-     * Provides the title for this fragment, shown in the app UI.
-     *
-     * @return The title string for this fragment.
-     */
     @Override
     public String getTitle() {
         return "Connect Customer";
     }
 
-    /**
-     * RecyclerView Adapter for displaying a list of discovered or paired Bluetooth devices.
-     */
     private class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
 
-        /**
-         * ViewHolder that holds references to the views for a single Bluetooth device item.
-         */
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView deviceName, deviceAddress, deviceStatus;
 
@@ -276,12 +294,6 @@ public class ConnectFragment extends BaseFragment {
             return new ViewHolder(view);
         }
 
-        /**
-         * Binds a Bluetooth device to the ViewHolder and sets up interaction logic.
-         *
-         * @param holder   The ViewHolder instance.
-         * @param position The position of the item in the dataset.
-         */
         @SuppressLint("MissingPermission")
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -291,54 +303,22 @@ public class ConnectFragment extends BaseFragment {
             holder.deviceAddress.setText(device.getAddress());
 
             if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                holder.deviceStatus.setText("Paired");
+                holder.deviceStatus.setText(R.string.paired);
                 holder.deviceStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.connected));
             } else {
-                holder.deviceStatus.setText("Not paired");
+                holder.deviceStatus.setText(R.string.not_paired);
                 holder.deviceStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.disconnected));
             }
 
             holder.itemView.setOnClickListener(v -> {
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     device.createBond();
-                    Toast.makeText(requireContext(), "Pairing request sent to: " + device.getName(), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), "Verbinde mit " + device.getName(), Toast.LENGTH_SHORT).show();
-
-                    BluetoothManager.getInstance(requireContext(), new Bluetooth.BluetoothCallback() {
-                        @Override
-                        public void onConnectionSuccess(BluetoothDevice connectedDevice) {
-                            Toast.makeText(requireContext(), "Verbunden mit: " + connectedDevice.getName(), Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            Toast.makeText(requireContext(), "Fehler: " + error, Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onDataSent(boolean success) {}
-                        @Override
-                        public void onDeviceFound(BluetoothDevice device) {}
-                        @Override
-                        public void onScanFinished() {}
-                        @Override
-                        public void onScanStarted() {}
-                        @Override
-                        public void onDataReceived(htl.steyr.wechselgeldapp.Backup.UserData data) {}
-                        @Override
-                        public void onDisconnected() {}
-                    }).connectToDevice(device);
+                    connectToDevice(device);
                 }
             });
-
         }
 
-        /**
-         * Returns the number of items in the dataset.
-         *
-         * @return The total number of Bluetooth devices in the list.
-         */
         @Override
         public int getItemCount() {
             return deviceList.size();
