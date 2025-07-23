@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
@@ -24,7 +23,7 @@
             android:paddingTop="24dp"
             android:paddingBottom="32dp">
 
-            <!-- Balance Card -->
+            <!-- BALANCE CARD -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -94,7 +93,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Payment Card -->
+            <!-- PAYMENT CARD -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -117,7 +116,7 @@
                         android:textSize="16sp"
                         android:textStyle="bold"/>
 
-                    <!-- Quick amount buttons -->
+                    <!-- Quick Amount Buttons -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -127,50 +126,49 @@
                         android:weightSum="3">
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAmount5"
+                            android:id="@+id/btnAmount1"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
-                            android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="@string/amount_5"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/amount_1"
                             app:strokeColor="@color/connected"
                             app:strokeWidth="1dp"
                             android:textColor="@color/connected"/>
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAmount10"
+                            android:id="@+id/btnAmount2"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
-                            android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="@string/amount_10"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/amount_2"
                             app:strokeColor="@color/connected"
                             app:strokeWidth="1dp"
                             android:textColor="@color/connected"/>
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAmount20"
+                            android:id="@+id/btnAmount3"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="@string/amount_20"
+                            android:text="@string/amount_3"
                             app:strokeColor="@color/connected"
                             app:strokeWidth="1dp"
                             android:textColor="@color/connected"/>
                     </LinearLayout>
 
-                    <!-- Custom amount -->
+                    <!-- Custom Amount -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="16dp"
                         app:endIconMode="clear_text"
-                        app:boxStrokeColor="@color/light_gray"
-                        android:textColorHint="@color/gray">
+                        app:boxStrokeColor="@color/light_gray">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCustomAmount"
@@ -180,7 +178,7 @@
                             android:inputType="numberDecimal"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Selected -->
+                    <!-- Selected amount -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -190,6 +188,25 @@
 
                     <TextView
                         android:id="@+id/tvSelectedAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="€0,00"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+
+                    <!-- Amount to pay -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/amount_to_pay"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvAmountToPay"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"

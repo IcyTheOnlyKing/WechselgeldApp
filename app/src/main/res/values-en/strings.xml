@@ -63,4 +63,10 @@
     <string name="sample_shop_name">Bakery Mueller</string>
     <string name="monthly_expenses">Monthly expenses</string>
     <string name="sample_change">Change</string>
+
+    <string name="amount_1">+1€</string>
+    <string name="amount_2">+2€</string>
+    <string name="amount_3">+3€</string>
+    <string name="amount_to_pay">Amount to pay:</string>
+
 </resources>

@@ -52,6 +52,9 @@
     <string name="custom_amount">Anderer Betrag (€)</string>
     <string name="selected_amount">Ausgewählter Betrag:</string>
     <string name="send_payment">Zahlung senden</string>
+    <string name="no_invoice_received">Kein Rechnungsbetrag empfangen</string>
+    <string name="not_enough_balance">Nicht genug Guthaben</string>
+
 
     <!-- Profil -->
     <string name="profile_title">Profil</string>
@@ -66,4 +69,10 @@
     <string name="your_favorites">Deine Favoriten</string>
     <string name="current_offers">Angebote</string>
     <string name="_00_00_00_00_00_00">00:00:00:00:00:00</string>
+
+    <string name="amount_1">+1€</string>
+    <string name="amount_2">+2€</string>
+    <string name="amount_3">+3€</string>
+    <string name="amount_to_pay">Zu bezahlender Betrag:</string>
+
 </resources>

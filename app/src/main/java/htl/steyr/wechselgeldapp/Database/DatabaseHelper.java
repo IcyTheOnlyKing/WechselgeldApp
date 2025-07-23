@@ -35,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE PersonalInformation (" + "id INTEGER PRIMARY KEY AUTOINCREMENT," + "seller_id INTEGER NOT NULL," + "name TEXT," + "email TEXT," + "street TEXT," + "houseNumber TEXT," + "zipCode TEXT," + "city TEXT," + "FOREIGN KEY (seller_id) REFERENCES Seller(id) ON DELETE CASCADE" + ");");
 
 
-        insertTestData();
+        insertTestData(db);
     }
 
 
@@ -354,8 +354,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * This method is called during database creation to populate initial data
      * for development and testing purposes.
      */
-    public void insertTestData() {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void insertTestData(SQLiteDatabase db) {
 
         // --- Insert Sellers (including admin) ---
         db.execSQL("INSERT INTO Seller (shopName, email, passwordHash) VALUES " + "('admin', 'admin@seller.com', 'admin')," + "('Bäckerei Maier', 'maier@shop.com', 'b@eckMa2023')," + "('Kiosk Müller', 'mueller@kiosk.com', 'muellerSecure!')," + "('Trafik Schmid', 'schmid@trafik.com', 'schmid#456')," + "('Blumen Huber', 'huber@flowers.com', 'huberBloom22')," + "('Feinkost Hahn', 'hahn@finefood.com', 'fein#hahn2024');");
