@@ -151,7 +151,12 @@ public class TransactionFragment extends BaseFragment {
         double baseToPay = Math.max(invoiceAmount - currentBalance, 0);
         double newBalance = currentBalance - (amount - baseToPay);
 
-      //  dbHelper.updateBalance(getCurrentCustomerId(), newBalance);
+        // TODO: Aktualisiertes Guthaben in die DB speichern!
+        //
+        // TODO: UpdateBalance Methode machen
+        //
+        // dbHelper.updateBalance(getCurrentCustomerId(), newBalance);
+
         currentBalance = newBalance;
 
         tvCustomerBalance.setText(String.format("€%.2f", newBalance));
