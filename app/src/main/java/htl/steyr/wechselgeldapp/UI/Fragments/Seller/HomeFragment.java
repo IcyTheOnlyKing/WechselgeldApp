@@ -18,8 +18,9 @@ import java.util.List;
 
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothDeviceAdapter;
 import htl.steyr.wechselgeldapp.R;
+import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
     private RecyclerView deviceListRecyclerView;
     private BluetoothDeviceAdapter bluetoothDeviceAdapter;
     private List<BluetoothDevice> deviceList;
@@ -35,4 +36,8 @@ public class HomeFragment extends Fragment {
     }
 
 
+    @Override
+    public String getTitle() {
+        return "Wechselgeld App";
+    }
 }

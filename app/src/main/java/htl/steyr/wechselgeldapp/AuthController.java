@@ -61,22 +61,21 @@ public class AuthController extends Activity {
                 return;
             }
 
-            String displayName = username; // wird jetzt im Klartext gespeichert
-            String hashedEmail = SecureData.hashDataViaSHA(email);
+
             String hashedPassword = SecureData.hashPasswordViaBCrypt(password);
 
             if ("seller".equals(role)) {
-                if (db.sellerExists(displayName, hashedEmail)) {
+                if (db.sellerExists(username, email)) {
                     Toast.makeText(this, "Geschäftsname oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                db.insertSeller(displayName, hashedEmail, hashedPassword);
+                db.insertSeller(username, email, hashedPassword);
             } else {
-                if (db.customerExists(displayName, hashedEmail)) {
+                if (db.customerExists(username, email)) {
                     Toast.makeText(this, "Benutzername oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                db.insertCustomer(displayName, hashedEmail, hashedPassword);
+                db.insertCustomer(username, email, hashedPassword);
             }
 
             Toast.makeText(this, "Registrierung erfolgreich!", Toast.LENGTH_SHORT).show();
@@ -133,15 +132,23 @@ public class AuthController extends Activity {
     private void loginSuccess(String role, String displayName) {
         Toast.makeText(this, "Login erfolgreich!", Toast.LENGTH_SHORT).show();
 
-        // Save session with role and displayName
+        int userId = -1;
+        if ("seller".equals(role)) {
+            userId = db.getSellerIdByName(displayName);
+        } else {
+            try {
+                userId = Integer.parseInt(db.getCustomerIdByName(displayName));
+            } catch (NumberFormatException ignored) {}
+        }
+
         getSharedPreferences("user_prefs", MODE_PRIVATE)
                 .edit()
                 .putBoolean("is_logged_in", true)
                 .putString("user_role", role)
                 .putString("user_display_name", displayName)
+                .putInt("user_id", userId)
                 .apply();
 
-        // Create intent for the appropriate UI controller
         Intent intent;
         if ("seller".equals(role)) {
             intent = new Intent(this, SellerUIController.class);
@@ -149,11 +156,8 @@ public class AuthController extends Activity {
             intent = new Intent(this, CustomerUIController.class);
         }
 
-        // Clear the entire activity stack and start fresh
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-
-        // No need to call finish() since we're clearing the task
     }
 
     private void initRegistrationView() {

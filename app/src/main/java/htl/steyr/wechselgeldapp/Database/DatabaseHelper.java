@@ -248,6 +248,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert("Device", null, values);
     }
 
+    public void saveConnectedDevice(String macAddress, String deviceName, Integer customerId, Integer sellerId) {
+        if (macAddress == null) return;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT id FROM Device WHERE uuid = ?", new String[]{macAddress});
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+
+        if (!exists) {
+            ContentValues values = new ContentValues();
+            values.put("uuid", macAddress);
+            values.put("deviceName", deviceName);
+            values.put("customerId", customerId);
+            values.put("sellerId", sellerId);
+            db.insert("Device", null, values);
+        }
+    }
+
+
     /**
      * Returns all devices in the database.
      */
@@ -361,12 +381,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // --- Insert Customers (including admin) ---
         db.execSQL("INSERT INTO Customer (displayName, email, passwordHash) VALUES " + "('admin', 'admin@customer.com', 'admin')," + "('Max Mustermann', 'max@web.de', 'maxSecure12')," + "('Erika Musterfrau', 'erika@web.de', 'erikaPass99')," + "('Lukas Lehner', 'lukas@web.at', 'lukas!strong')," + "('Anna Berger', 'anna@outlook.com', 'ann4Berger!')," + "('Thomas Meier', 'thomas@mail.com', 'th0mMe!')," + "('Julia König', 'julia@gmx.at', 'juKo2024!')," + "('Sebastian Kurz', 'sebastian@kurz.at', 'kurz1234')," + "('Nina Graf', 'nina@graf.net', 'ninaSafePass');");
-
-        // --- Insert Devices linked to customers and sellers ---
-        db.execSQL("INSERT INTO Device (uuid, customerId, sellerId, deviceName) VALUES " + "('uuid-admin-c', 1, NULL, 'Admin Kunden-Gerät')," + "('uuid-admin-s', NULL, 1, 'Admin Verkaufsgerät')," + "('uuid-max', 2, NULL, 'Max Handy')," + "('uuid-erika', 3, NULL, 'Erika Tablet')," + "('uuid-lukas', 4, NULL, 'Lukas Phone')," + "('uuid-anna', 5, NULL, 'Annas iPhone')," + "('uuid-seller1', NULL, 2, 'Maier Kasse 1')," + "('uuid-seller2', NULL, 3, 'Müller Kasse')," + "('uuid-seller3', NULL, 4, 'Trafik-Terminal')," + "('uuid-seller4', NULL, 5, 'Blumen Scanner')," + "('uuid-seller5', NULL, 6, 'Feinkost Terminal');");
-
-        // --- Insert Balances for each device ---
-        db.execSQL("INSERT INTO Balance (otherUuid, displayName, balance, timestamp) VALUES " + "('uuid-max', 'Max Mustermann', 25.50, 1720700000)," + "('uuid-erika', 'Erika Musterfrau', 15.75, 1720700050)," + "('uuid-lukas', 'Lukas Lehner', 48.20, 1720700100)," + "('uuid-anna', 'Anna Berger', 33.10, 1720700150)," + "('uuid-admin-c', 'Admin Kunde', 999.99, 1720700200)," + "('uuid-seller1', 'Bäckerei Maier', 120.00, 1720700250)," + "('uuid-seller2', 'Kiosk Müller', 180.40, 1720700300)," + "('uuid-seller3', 'Trafik Schmid', 95.10, 1720700350)," + "('uuid-seller4', 'Blumen Huber', 210.00, 1720700400)," + "('uuid-seller5', 'Feinkost Hahn', 310.50, 1720700450)," + "('uuid-admin-s', 'Admin Verkäufer', 999.99, 1720700500);");
 
         // --- Insert Sample Transactions with realistic variety ---
         db.execSQL("INSERT INTO Transactions (amount, timestamp) VALUES " + "(5.00, 1720701000)," + "(10.00, 1720701100)," + "(3.50, 1720701200)," + "(20.00, 1720701300)," + "(7.25, 1720701400)," + "(12.00, 1720701500)," + "(2.75, 1720701600)," + "(50.00, 1720701700)," + "(8.80, 1720701800)," + "(15.60, 1720701900)," + "(22.90, 1720702000)," + "(1.10, 1720702100)," + "(33.33, 1720702200)," + "(44.44, 1720702300)," + "(99.99, 1720702400);");

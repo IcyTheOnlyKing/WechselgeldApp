@@ -49,7 +49,7 @@ public class TransactionFragment extends BaseFragment {
     private double invoiceAmount = 0;
     private double selectedTip = 0;
 
-    @SuppressLint("DefaultLocale")
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @RequiresPermission(allOf = {
             Manifest.permission.BLUETOOTH_ADVERTISE,
             Manifest.permission.BLUETOOTH_CONNECT,
@@ -70,9 +70,19 @@ public class TransactionFragment extends BaseFragment {
         btnSendPayment = view.findViewById(R.id.btnSendPayment);
         etCustomAmount = view.findViewById(R.id.etCustomAmount);
 
+        tvInvoiceAmount.setText("€0,00");
+        tvRemainingAmount.setText("0,00");
+
         dbHelper = new DatabaseHelper(requireContext());
         int customerId = getCurrentCustomerId();
-        currentBalance = dbHelper.getBalanceForCustomer(customerId);
+
+        if (dbHelper.getBalanceForCustomer(customerId) == null || dbHelper.getBalanceForCustomer(customerId) == 0){
+            currentBalance = 0;
+        } else {
+            currentBalance = dbHelper.getBalanceForCustomer(customerId);
+        }
+
+
         tvCustomerBalance.setText(String.format("€%.2f", currentBalance));
 
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
@@ -89,6 +99,7 @@ public class TransactionFragment extends BaseFragment {
         return view;
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private void setupButtonListeners() {
         btnAmount1.setOnClickListener(v -> {
             selectedTip = 1;
@@ -146,25 +157,31 @@ public class TransactionFragment extends BaseFragment {
         tvAmountToPay.setText(String.format("€%.2f", totalAmount));
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @SuppressLint("DefaultLocale")
     private void processPayment(double amount) {
         double baseToPay = Math.max(invoiceAmount - currentBalance, 0);
         double newBalance = currentBalance - (amount - baseToPay);
 
-        // TODO: Aktualisiertes Guthaben in die DB speichern!
-        //
-        // TODO: UpdateBalance Methode machen
-        //
-        // dbHelper.updateBalance(getCurrentCustomerId(), newBalance);
+
+        Bluetooth bt = BluetoothManager.getInstance();
+        if (bt.isConnected() && bt.getConnectedSocket() != null) {
+            String otherUuid = bt.getConnectedSocket().getRemoteDevice().getAddress();  // MAC-Adresse
+            String displayName = bt.getConnectedSocket().getRemoteDevice().getName();
+            long timestamp = System.currentTimeMillis();
+
+            dbHelper.insertOrUpdateBalance(otherUuid, displayName, newBalance, timestamp);
+        }
+
 
         currentBalance = newBalance;
-
         tvCustomerBalance.setText(String.format("€%.2f", newBalance));
 
         Toast.makeText(requireContext(),
                 String.format("Zahlung über €%.2f erfolgreich", amount),
                 Toast.LENGTH_SHORT).show();
     }
+
 
     private void tryStartListening() {
         Bluetooth bt = BluetoothManager.getInstance();

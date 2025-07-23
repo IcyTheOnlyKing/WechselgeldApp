@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import htl.steyr.wechselgeldapp.Backup.UserData;
+import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 
 public class Bluetooth {
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -173,6 +175,8 @@ public class Bluetooth {
                 connected = true;
                 Log.d(TAG, "Connected to " + device.getName());
 
+                saveConnectedDevice(device);
+
                 handler.post(() -> {
                     if (callback != null) callback.onConnectionSuccess(device);
                 });
@@ -295,9 +299,13 @@ public class Bluetooth {
                 serverSocket = adapter.listenUsingRfcommWithServiceRecord("WechselgeldApp", MY_UUID);
                 socket = serverSocket.accept();
                 connected = true;
-                Log.d(TAG, "Server accepted connection from " + socket.getRemoteDevice().getName());
+                BluetoothDevice device = socket.getRemoteDevice();
+                Log.d(TAG, "Server accepted connection from " + device.getName());
+
+                saveConnectedDevice(device);
+
                 handler.post(() -> {
-                    if (callback != null) callback.onConnectionSuccess(socket.getRemoteDevice());
+                    if (callback != null) callback.onConnectionSuccess(device);
                 });
                 startReadThread();
             } catch (IOException e) {
@@ -345,6 +353,25 @@ public class Bluetooth {
             }
         });
         readThread.start();
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private void saveConnectedDevice(BluetoothDevice device) {
+        SharedPreferences prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+        String role = prefs.getString("user_role", "");
+
+        if (userId == -1 || role.isEmpty()) return;
+
+        String mac = device.getAddress();
+        String name = device.getName();
+
+        DatabaseHelper db = new DatabaseHelper(context);
+        if (role.equals("customer")) {
+            db.insertDevice(mac, userId, null, name);
+        } else if (role.equals("seller")) {
+            db.insertDevice(mac, null, userId, name);
+        }
     }
 
     public BluetoothSocket getConnectedSocket() {

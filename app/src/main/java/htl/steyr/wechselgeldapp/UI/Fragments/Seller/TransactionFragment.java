@@ -32,7 +32,6 @@ public class TransactionFragment extends BaseFragment {
         etPaymentAmount = view.findViewById(R.id.etPaymentAmount);
         btnSendPayment = view.findViewById(R.id.btnSendPayment);
 
-        // 🛠️ Wichtig: Callback setzen, um Absturz bei Bluetooth-Events zu vermeiden
         BluetoothManager.getInstance(requireContext(), new Bluetooth.BluetoothCallback() {
             @Override public void onDeviceFound(android.bluetooth.BluetoothDevice device) {}
             @Override public void onScanFinished() {}
