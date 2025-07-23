@@ -18,7 +18,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints">
-        <!-- Card 1: Last payment -->
+
+        <!-- Card 1: Last Payment -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -35,7 +36,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Letzte Zahlung"
+                    android:text="@string/last_payment"
                     android:textColor="#888888"
                     android:textSize="14sp" />
 
@@ -54,13 +55,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Bäckerei Müller"
+                    android:text="@string/sample_shop_name"
                     android:textColor="#888888"
                     android:textSize="12sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card 2: Monthly expenses -->
+        <!-- Card 2: Monthly Expenses -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -76,7 +77,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Monatsausgaben"
+                    android:text="@string/monthly_expenses"
                     android:textColor="#888888"
                     android:textSize="14sp" />
 
@@ -95,7 +96,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="+12% letzter Monat"
+                    android:text="@string/sample_change"
                     android:textColor="#888888"
                     android:textSize="12sp"/>
             </LinearLayout>
@@ -125,7 +126,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Deine Favoriten"
+                android:text="@string/your_favorites"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -161,7 +162,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Aktuelle Angebote"
+                android:text="@string/current_offers"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -173,6 +174,5 @@
                 android:nestedScrollingEnabled="false" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

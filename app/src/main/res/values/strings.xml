@@ -1,24 +1,61 @@
 <resources>
     <string name="app_name">WechselgeldApp</string>
-    <string name="nicht_gekoppelt">Nicht gekoppelt</string>
-    <string name="bluetooth_ger_t">Bluetooth Gerät</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Start</string>
+    <string name="nav_connect">Koppeln</string>
+    <string name="nav_transactions">Transaktionen</string>
+    <string name="nav_history">Verlauf</string>
+
+    <!-- Bluetooth & Geräte -->
+    <string name="bluetooth_ger_t">Bluetooth-Gerät</string>
     <string name="ger_tename">Gerätename</string>
-    <string name="_00_00_00_00_00_00">00:00:00:00:00:00</string>
+    <string name="nicht_gekoppelt">Nicht gekoppelt</string>
+    <string name="paired">Gekoppelt</string>
+    <string name="not_paired">Nicht gekoppelt</string>
+    <string name="scanning">Scanne...</string>
+    <string name="scan_complete">Scan abgeschlossen</string>
+    <string name="scan">Scannen</string>
+    <string name="stop_scan">Scan stoppen</string>
     <string name="tippen_zum_koppeln">Tippen zum Koppeln</string>
-    <string name="navigation_drawer_open">Drawer öffnen</string>
-    <string name="navigation_drawer_close">Drawer schließen</string>
-    <!-- res/values/strings.xml -->
-    <string name="scan">Scan</string>
-    <string name="stop_scan">Stop Scan</string>
-    <string name="scanning">Scanning...</string>
-    <string name="scan_complete">Scan completed</string>
-    <string name="paired">Paired</string>
-    <string name="not_paired">Not paired</string>
-    <string name="error_enter_amount">Enter amount</string>
-    <string name="error_invalid_amount">Invalid amount format</string>
-    <string name="error_not_connected">Not connected</string>
-    <string name="send_failed">Send failed</string>
-    <string name="sent_amount">Sent: €%1$s</string>
 
+    <!-- Fehler & Hinweise -->
+    <string name="error_enter_amount">Bitte Betrag eingeben</string>
+    <string name="error_invalid_amount">Ungültiges Betragsformat</string>
+    <string name="error_not_connected">Keine Verbindung</string>
+    <string name="send_failed">Senden fehlgeschlagen</string>
+    <string name="sent_amount">Gesendet: €%1$s</string>
 
+    <!-- Login -->
+    <string name="login_title">Login</string>
+    <string name="hint_username">Benutzername</string>
+    <string name="hint_password">Passwort</string>
+    <string name="btn_login">Anmelden</string>
+    <string name="login_hint">Sie haben noch kein Konto?</string>
+    <string name="link_register">Registrieren</string>
+
+    <!-- Registrierung -->
+    <string name="registration_title">Registrieren</string>
+    <string name="hint_email">E-Mail</string>
+    <string name="btn_register">Registrieren</string>
+    <string name="register_hint">Sie haben schon ein Konto?</string>
+    <string name="link_login">Einloggen</string>
+
+    <!-- Zahlungsdaten -->
+    <string name="current_balance">Aktuelles Guthaben</string>
+    <string name="invoice_amount">Rechnungsbetrag</string>
+    <string name="remaining_amount">Fälliger Restbetrag</string>
+    <string name="enter_amount">Zahlbetrag festlegen</string>
+    <string name="amount_5">€5</string>
+    <string name="amount_10">€10</string>
+    <string name="amount_20">€20</string>
+    <string name="custom_amount">Anderer Betrag (€)</string>
+    <string name="selected_amount">Ausgewählter Betrag:</string>
+    <string name="send_payment">Zahlung senden</string>
+
+    <!-- Profil -->
+    <string name="profile_title">Profil</string>
+    <string name="personal_info">Persönliche Informationen</string>
+    <string name="change_password">Passwort ändern</string>
+    <string name="save">Speichern</string>
 </resources>

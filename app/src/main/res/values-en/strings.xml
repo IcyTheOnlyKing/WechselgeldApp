@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">ChangeApp</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_connect">Connect</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_history">History</string>
+
+    <!-- Bluetooth & Devices -->
+    <string name="bluetooth_ger_t">Bluetooth Device</string>
+    <string name="ger_tename">Device Name</string>
+    <string name="nicht_gekoppelt">Not paired</string>
+    <string name="paired">Paired</string>
+    <string name="not_paired">Not paired</string>
+    <string name="scanning">Scanning...</string>
+    <string name="scan_complete">Scan complete</string>
+    <string name="scan">Scan</string>
+    <string name="stop_scan">Stop scan</string>
+    <string name="tippen_zum_koppeln">Tap to pair</string>
+
+    <!-- Errors & Notices -->
+    <string name="error_enter_amount">Please enter an amount</string>
+    <string name="error_invalid_amount">Invalid amount format</string>
+    <string name="error_not_connected">Not connected</string>
+    <string name="send_failed">Sending failed</string>
+    <string name="sent_amount">Sent: €%1$s</string>
+
+    <!-- Login -->
+    <string name="login_title">Login</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">Login</string>
+    <string name="login_hint">Don't have an account?</string>
+    <string name="link_register">Register</string>
+
+    <!-- Registration -->
+    <string name="registration_title">Register</string>
+    <string name="hint_email">Email</string>
+    <string name="btn_register">Register</string>
+    <string name="register_hint">Already have an account?</string>
+    <string name="link_login">Log in</string>
+
+    <!-- Payment -->
+    <string name="current_balance">Current Balance</string>
+    <string name="invoice_amount">Invoice Amount</string>
+    <string name="remaining_amount">Amount Due</string>
+    <string name="enter_amount">Set Payment Amount</string>
+    <string name="amount_5">€5</string>
+    <string name="amount_10">€10</string>
+    <string name="amount_20">€20</string>
+    <string name="custom_amount">Custom Amount (€)</string>
+    <string name="selected_amount">Selected Amount:</string>
+    <string name="send_payment">Send Payment</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Profile</string>
+    <string name="personal_info">Personal Information</string>
+    <string name="change_password">Change Password</string>
+    <string name="save">Save</string>
+</resources>

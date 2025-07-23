@@ -7,97 +7,30 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-
     <ScrollView
         android:id="@+id/scroll_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        tools:ignore="MissingConstraints">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="25dp">
+            android:paddingTop="24dp"
+            android:paddingBottom="32dp">
 
-            <!-- Balance-Information -->
+            <!-- Balance Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 app:cardElevation="2dp"
-                app:strokeColor="#EEEEEE"
-                app:strokeWidth="1dp"
-                >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Aktuelles Guthaben"
-                        android:textColor="#757575"
-                        android:textSize="14sp"/>
-
-                    <TextView
-                        android:id="@+id/tvCustomerBalance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="€50,00"
-                        android:textColor="#4CAF50"
-                        android:textSize="24sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Rechnungsbetrag"
-                        android:textColor="#757575"
-                        android:textSize="14sp"/>
-
-                    <TextView
-                        android:id="@+id/tvInvoiceAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="€65,00"
-                        android:textColor="#212121"
-                        android:textSize="24sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Fälliger Restbetrag"
-                        android:textColor="#757575"
-                        android:textSize="14sp"/>
-
-                    <TextView
-                        android:id="@+id/tvRemainingAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="€15,00"
-                        android:textColor="#F44336"
-                        android:textSize="24sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Payment area -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="#EEEEEE"
+                app:strokeColor="@color/light_gray"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -109,12 +42,82 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Zahlbetrag festlegen"
-                        android:textColor="#212121"
+                        android:text="@string/current_balance"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvCustomerBalance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="€50,00"
+                        android:textColor="@color/connected"
+                        android:textSize="24sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/invoice_amount"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvInvoiceAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="€65,00"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/remaining_amount"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvRemainingAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="€15,00"
+                        android:textColor="@color/disconnected"
+                        android:textSize="24sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Payment Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/light_gray"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/enter_amount"
+                        android:textColor="@color/black"
                         android:textSize="16sp"
                         android:textStyle="bold"/>
 
-                    <!-- Betragsauswahl Buttons -->
+                    <!-- Quick amount buttons -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -130,10 +133,10 @@
                             android:layout_height="48dp"
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="€5"
-                            app:strokeColor="#4CAF50"
+                            android:text="@string/amount_5"
+                            app:strokeColor="@color/connected"
                             app:strokeWidth="1dp"
-                            android:textColor="#4CAF50"/>
+                            android:textColor="@color/connected"/>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAmount10"
@@ -142,10 +145,10 @@
                             android:layout_height="48dp"
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="€10"
-                            app:strokeColor="#4CAF50"
+                            android:text="@string/amount_10"
+                            app:strokeColor="@color/connected"
                             app:strokeWidth="1dp"
-                            android:textColor="#4CAF50"/>
+                            android:textColor="@color/connected"/>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAmount20"
@@ -153,36 +156,36 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="€20"
-                            app:strokeColor="#4CAF50"
+                            android:text="@string/amount_20"
+                            app:strokeColor="@color/connected"
                             app:strokeWidth="1dp"
-                            android:textColor="#4CAF50"/>
+                            android:textColor="@color/connected"/>
                     </LinearLayout>
 
-                    <!-- Manual amount entry -->
+                    <!-- Custom amount -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="16dp"
                         app:endIconMode="clear_text"
-                        app:boxStrokeColor="#BDBDBD"
-                        android:textColorHint="#BDBDBD">
+                        app:boxStrokeColor="@color/light_gray"
+                        android:textColorHint="@color/gray">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCustomAmount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Anderer Betrag (€)"
+                            android:hint="@string/custom_amount"
                             android:inputType="numberDecimal"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Selected amount -->
+                    <!-- Selected -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ausgewählter Betrag:"
-                        android:textColor="#757575"
+                        android:text="@string/selected_amount"
+                        android:textColor="@color/gray"
                         android:textSize="14sp"/>
 
                     <TextView
@@ -191,22 +194,22 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="€0,00"
-                        android:textColor="#212121"
+                        android:textColor="@color/black"
                         android:textSize="18sp"
                         android:textStyle="bold"/>
 
-                    <!-- Send button -->
+                    <!-- Send Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSendPayment"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="24dp"
-                        android:text="Zahlung senden"
+                        android:text="@string/send_payment"
                         android:textAllCaps="false"
                         android:textSize="16sp"
-                        app:backgroundTint="#4CAF50"
+                        app:backgroundTint="@color/connected"
                         app:cornerRadius="8dp"
-                        android:textColor="#FFFFFF"/>
+                        android:textColor="@android:color/white"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

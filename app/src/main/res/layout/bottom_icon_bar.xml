@@ -24,7 +24,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start"
+            android:text="@string/nav_home"
             android:textSize="12sp"
             android:textColor="#000000"
             android:layout_marginTop="4dp"/>
@@ -46,7 +46,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Koppeln"
+            android:text="@string/nav_connect"
             android:textSize="12sp"
             android:textColor="#000000"
             android:layout_marginTop="4dp"/>
@@ -68,7 +68,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Transaktionen"
+            android:text="@string/nav_transactions"
             android:textSize="12sp"
             android:textColor="#000000"
             android:layout_marginTop="4dp"/>
@@ -90,7 +90,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Verlauf"
+            android:text="@string/nav_history"
             android:textSize="12sp"
             android:textColor="#000000"
             android:layout_marginTop="4dp"/>
