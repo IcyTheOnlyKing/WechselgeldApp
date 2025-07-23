@@ -307,7 +307,7 @@ public class Bluetooth {
                         }
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException e)
                 handler.post(() -> {
                     if (callback != null) callback.onError("Lesefehler: " + e.getMessage());
                 });
