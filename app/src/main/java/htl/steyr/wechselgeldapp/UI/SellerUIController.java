@@ -3,6 +3,7 @@ package htl.steyr.wechselgeldapp.UI;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,6 +32,7 @@ public class SellerUIController extends AppCompatActivity {
 
     private TextView headerName;
     private DrawerLayout drawerLayout;
+    private Fragment currentFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,14 @@ public class SellerUIController extends AppCompatActivity {
             headerName.setText(displayName);
         }
 
+        setupDrawerButtons();
+        setupNavigation();
+
+        // Lade Startfragment (Home)
+        loadFragment(new HomeFragment());
+    }
+
+    private void setupDrawerButtons() {
         ImageButton menuButton = findViewById(R.id.menu_icon);
         ImageButton closeButton = findViewById(R.id.btn_close);
 
@@ -56,6 +66,40 @@ public class SellerUIController extends AppCompatActivity {
             closeButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
         }
 
+        MaterialButton btnBackup = findViewById(R.id.btn_backup);
+        MaterialButton btnUnpair = findViewById(R.id.btn_unpair);
+        MaterialButton btnLogout = findViewById(R.id.btn_logout);
+
+        if (btnBackup != null) {
+            btnBackup.setOnClickListener(v -> {
+                Toast.makeText(this, "Backup wird erstellt...", Toast.LENGTH_SHORT).show();
+                drawerLayout.closeDrawer(GravityCompat.START);
+                // TODO: Backup-Logik integrieren
+            });
+        }
+
+        if (btnUnpair != null) {
+            btnUnpair.setOnClickListener(v -> {
+                Toast.makeText(this, "Kopplung wird aufgehoben...", Toast.LENGTH_SHORT).show();
+                drawerLayout.closeDrawer(GravityCompat.START);
+                // TODO: Unpair-Logik integrieren
+            });
+        }
+
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                Toast.makeText(this, "Abmeldung...", Toast.LENGTH_SHORT).show();
+                SessionManager.logout(this);
+                drawerLayout.closeDrawer(GravityCompat.START);
+                Intent intent = new Intent(this, StartController.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        }
+    }
+
+    private void setupNavigation() {
         LinearLayout homeIcon = findViewById(R.id.homeIcon);
         LinearLayout connectIcon = findViewById(R.id.connectIcon);
         LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
@@ -77,48 +121,31 @@ public class SellerUIController extends AppCompatActivity {
         if (profileIcon != null) {
             profileIcon.setOnClickListener(v -> loadFragment(new ProfileFragment()));
         }
-
-        MaterialButton btnBackup = findViewById(R.id.btn_backup);
-        MaterialButton btnUnpair = findViewById(R.id.btn_unpair);
-        MaterialButton btnLogout = findViewById(R.id.btn_logout);
-
-        if (btnBackup != null) {
-            btnBackup.setOnClickListener(v -> {
-                Toast.makeText(this, "Backup wird erstellt...", Toast.LENGTH_SHORT).show();
-                drawerLayout.closeDrawer(GravityCompat.START);
-            });
-        }
-
-        if (btnUnpair != null) {
-            btnUnpair.setOnClickListener(v -> {
-                Toast.makeText(this, "Kopplung wird getrennt...", Toast.LENGTH_SHORT).show();
-                drawerLayout.closeDrawer(GravityCompat.START);
-            });
-        }
-
-        if (btnLogout != null) {
-            btnLogout.setOnClickListener(v -> {
-                Toast.makeText(this, "Abmeldung...", Toast.LENGTH_SHORT).show();
-                SessionManager.logout(this);
-                drawerLayout.closeDrawer(GravityCompat.START);
-                Intent intent = new Intent(this, StartController.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        loadFragment(new HomeFragment());
     }
 
     private void loadFragment(Fragment fragment) {
+        if (fragment == null) return;
+
+        // Verhindere doppeltes Neuladen des selben Fragments
+        if (currentFragment != null && fragment.getClass().equals(currentFragment.getClass())) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        }
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
 
+        currentFragment = fragment;
+        drawerLayout.closeDrawer(GravityCompat.START);
+
+        // Setze Überschrift passend zum Fragment
         if (fragment instanceof BaseFragment && headerName != null) {
-            headerName.setText(((BaseFragment) fragment).getTitle());
+            String title = ((BaseFragment) fragment).getTitle();
+            headerName.setText(title != null ? title : "Wechselgeld");
         }
+
+        Log.d("SellerUI", "Fragment geladen: " + fragment.getClass().getSimpleName());
     }
 
     @Override

@@ -2,7 +2,9 @@ package htl.steyr.wechselgeldapp.UI.Fragments.Customer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,7 +24,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,14 +46,16 @@ public class ConnectFragment extends BaseFragment {
     private ProgressBar progressBar;
     private TextView statusText;
     private Button btnScan;
+    private boolean receiverRegistered = false;
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+        @SuppressLint("NotifyDataSetChanged")
+        @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device != null && !deviceList.contains(device)) {
+                if (device != null && !isAlreadyDiscovered(device) && isSmartphone(device)) {
                     deviceList.add(device);
                     adapter.notifyDataSetChanged();
                     updateStatus("Geräte gefunden: " + deviceList.size());
@@ -65,8 +68,7 @@ public class ConnectFragment extends BaseFragment {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.customer_fragment_connect, container, false);
 
         statusText = view.findViewById(R.id.status_text);
@@ -89,7 +91,6 @@ public class ConnectFragment extends BaseFragment {
         });
 
         checkPermissions();
-
         return view;
     }
 
@@ -128,7 +129,11 @@ public class ConnectFragment extends BaseFragment {
     private void loadPairedDevices() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         deviceList.clear();
-        deviceList.addAll(pairedDevices);
+        for (BluetoothDevice device : pairedDevices) {
+            if (isSmartphone(device)) {
+                deviceList.add(device);
+            }
+        }
         adapter.notifyDataSetChanged();
         updateStatus("Gekoppelte Geräte geladen");
     }
@@ -142,15 +147,11 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
-    @SuppressLint({"MissingPermission", "NotifyDataSetChanged"})
+    @SuppressLint("MissingPermission")
     private void startScan() {
         deviceList.clear();
         adapter.notifyDataSetChanged();
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        requireActivity().registerReceiver(receiver, filter);
+        registerReceiverIfNeeded();
 
         bluetoothAdapter.startDiscovery();
         progressBar.setVisibility(View.VISIBLE);
@@ -173,10 +174,25 @@ public class ConnectFragment extends BaseFragment {
         bluetoothAdapter.cancelDiscovery();
         progressBar.setVisibility(View.GONE);
         btnScan.setText("Scannen");
-        try {
-            requireActivity().unregisterReceiver(receiver);
-        } catch (IllegalArgumentException e) {
-            // Receiver nicht registriert
+        unregisterReceiverIfNeeded();
+    }
+
+    private void registerReceiverIfNeeded() {
+        if (!receiverRegistered) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothDevice.ACTION_FOUND);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+            requireActivity().registerReceiver(receiver, filter);
+            receiverRegistered = true;
+        }
+    }
+
+    private void unregisterReceiverIfNeeded() {
+        if (receiverRegistered) {
+            try {
+                requireActivity().unregisterReceiver(receiver);
+            } catch (IllegalArgumentException ignored) {}
+            receiverRegistered = false;
         }
     }
 
@@ -184,14 +200,24 @@ public class ConnectFragment extends BaseFragment {
         statusText.setText(message);
     }
 
+    private boolean isAlreadyDiscovered(BluetoothDevice device) {
+        for (BluetoothDevice d : deviceList) {
+            if (d.getAddress().equals(device.getAddress())) return true;
+        }
+        return false;
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private boolean isSmartphone(BluetoothDevice device) {
+        BluetoothClass btClass = device.getBluetoothClass();
+        return btClass != null &&
+                btClass.getDeviceClass() == BluetoothClass.Device.PHONE_SMART;
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        try {
-            requireActivity().unregisterReceiver(receiver);
-        } catch (IllegalArgumentException e) {
-            // Receiver nicht registriert
-        }
+        unregisterReceiverIfNeeded();
     }
 
     @Override
@@ -211,12 +237,10 @@ public class ConnectFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_ENABLE_BT) {
-            if (resultCode == getActivity().RESULT_OK) {
-                loadPairedDevices();
-            } else {
-                updateStatus("Bluetooth nicht aktiviert");
-            }
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
+            loadPairedDevices();
+        } else {
+            updateStatus("Bluetooth nicht aktiviert");
         }
     }
 
@@ -251,7 +275,7 @@ public class ConnectFragment extends BaseFragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             BluetoothDevice device = deviceList.get(position);
 
-            holder.deviceName.setText(device.getName() != null ? device.getName() : "Unbekanntes Gerät");
+            holder.deviceName.setText(device.getName() != null ? device.getName() : "Unbekannt");
             holder.deviceAddress.setText(device.getAddress());
 
             if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
@@ -264,13 +288,12 @@ public class ConnectFragment extends BaseFragment {
 
             holder.itemView.setOnClickListener(v -> {
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    device.createBond(); // Kopplungsanfrage senden
+                    device.createBond();
                     Toast.makeText(requireContext(), "Kopplungsanfrage gesendet an: " + device.getName(), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(requireContext(), device.getName() + " ist bereits gekoppelt", Toast.LENGTH_SHORT).show();
                 }
             });
-
         }
 
         @Override

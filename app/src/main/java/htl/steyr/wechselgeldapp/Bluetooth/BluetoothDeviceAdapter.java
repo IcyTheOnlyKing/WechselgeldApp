@@ -6,13 +6,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 import htl.steyr.wechselgeldapp.R;
 
+/**
+ * RecyclerView adapter for displaying a list of Bluetooth devices.
+ */
 public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDeviceAdapter.ViewHolder> {
 
     public interface OnDeviceClickListener {
@@ -31,7 +36,7 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.customer_fragment_connect, parent, false);
+                .inflate(R.layout.item_bluetooth_device, parent, false); // RICHTIGES ITEM-LAYOUT!
         return new ViewHolder(view);
     }
 

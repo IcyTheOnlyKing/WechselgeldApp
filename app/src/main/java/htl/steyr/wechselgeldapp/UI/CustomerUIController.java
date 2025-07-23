@@ -1,17 +1,17 @@
 package htl.steyr.wechselgeldapp.UI;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.button.MaterialButton;
 
+import htl.steyr.wechselgeldapp.Bluetooth.BluetoothManager;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.StartController;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
@@ -31,127 +32,119 @@ import htl.steyr.wechselgeldapp.UI.Fragments.Customer.TransactionFragment;
 import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
 
 public class CustomerUIController extends AppCompatActivity {
+
     private static final String TAG = "CustomerUIController";
+
     private TextView headerName;
     private DrawerLayout drawerLayout;
+    private Fragment currentFragment;
 
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            setContentView(R.layout.customer_ui);
-            initializeViews();
-            setupNavigation();
-            loadFragment(new HomeFragment());
-        } catch (Exception e) {
-            Log.e(TAG, "Error in onCreate: " + e.getMessage(), e);
-            Toast.makeText(this, "Fehler beim Laden der Ansicht", Toast.LENGTH_SHORT).show();
-        }
+        setContentView(R.layout.customer_ui);
+
+        initializeViews();
+        setupNavigation();
+        loadFragment(new HomeFragment());
     }
 
     private void initializeViews() {
-        try {
-            headerName = findViewById(R.id.restaurant_name);
-            if (headerName != null) {
-                SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-                String displayName = prefs.getString("user_display_name", "Kunde");
-                headerName.setText(displayName);
-            }
+        headerName = findViewById(R.id.restaurant_name);
+        drawerLayout = findViewById(R.id.drawer_layout);
 
-            drawerLayout = findViewById(R.id.drawer_layout);
-        } catch (Exception e) {
-            Log.e(TAG, "Error in initializeViews: " + e.getMessage(), e);
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        String displayName = prefs.getString("user_display_name", "Customer");
+
+        if (headerName != null) {
+            headerName.setText(displayName);
         }
     }
 
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT})
     private void setupNavigation() {
-        try {
-            ImageButton menuButton = findViewById(R.id.menu_icon);
-            if (menuButton != null) {
-                menuButton.setOnClickListener(v -> {
-                    if (drawerLayout != null) {
-                        drawerLayout.openDrawer(GravityCompat.START);
-                    }
-                });
-            }
+        ImageButton menuButton = findViewById(R.id.menu_icon);
+        ImageButton closeButton = findViewById(R.id.btn_close);
 
-            ImageButton closeButton = findViewById(R.id.btn_close);
-            if (closeButton != null) {
-                closeButton.setOnClickListener(v -> {
-                    if (drawerLayout != null) {
-                        drawerLayout.closeDrawer(GravityCompat.START);
-                    }
-                });
-            }
+        if (menuButton != null) {
+            menuButton.setOnClickListener(v -> {
+                if (drawerLayout != null) drawerLayout.openDrawer(GravityCompat.START);
+            });
+        }
 
-            LinearLayout homeIcon = findViewById(R.id.homeIcon);
-            LinearLayout connectIcon = findViewById(R.id.connectIcon);
-            LinearLayout transactionIcon = findViewById(R.id.transactionIcon);
-            LinearLayout historyIcon = findViewById(R.id.historyIcon);
-            ImageView profileIcon = findViewById(R.id.profile_image);
+        if (closeButton != null) {
+            closeButton.setOnClickListener(v -> {
+                if (drawerLayout != null) drawerLayout.closeDrawer(GravityCompat.START);
+            });
+        }
 
-            if (homeIcon != null) {
-                homeIcon.setOnClickListener(v -> loadFragment(new HomeFragment()));
-            }
-            if (connectIcon != null) {
-                connectIcon.setOnClickListener(v -> loadFragment(new ConnectFragment()));
-            }
-            if (transactionIcon != null) {
-                transactionIcon.setOnClickListener(v -> loadFragment(new TransactionFragment()));
-            }
-            if (historyIcon != null) {
-                historyIcon.setOnClickListener(v -> loadFragment(new HistoryFragment()));
-            }
-            if (profileIcon != null) {
-                profileIcon.setOnClickListener(v -> loadFragment(new ProfileFragment()));
-            }
+        findViewById(R.id.homeIcon).setOnClickListener(v -> loadFragment(new HomeFragment()));
+        findViewById(R.id.connectIcon).setOnClickListener(v -> loadFragment(new ConnectFragment()));
+        findViewById(R.id.transactionIcon).setOnClickListener(v -> loadFragment(new TransactionFragment()));
+        findViewById(R.id.historyIcon).setOnClickListener(v -> loadFragment(new HistoryFragment()));
+        findViewById(R.id.profile_image).setOnClickListener(v -> loadFragment(new ProfileFragment()));
 
-            MaterialButton btnBackup = findViewById(R.id.btn_backup);
-            MaterialButton btnUnpair = findViewById(R.id.btn_unpair);
-            MaterialButton btnLogout = findViewById(R.id.btn_logout);
+        MaterialButton btnBackup = findViewById(R.id.btn_backup);
+        MaterialButton btnUnpair = findViewById(R.id.btn_unpair);
+        MaterialButton btnLogout = findViewById(R.id.btn_logout);
 
-            if (btnBackup != null) {
-                btnBackup.setOnClickListener(v -> {
-                    Toast.makeText(this, "Backup wird erstellt...", Toast.LENGTH_SHORT).show();
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                });
-            }
+        if (btnBackup != null) {
+            btnBackup.setOnClickListener(v -> {
+                Toast.makeText(this, "Creating backup...", Toast.LENGTH_SHORT).show();
+                drawerLayout.closeDrawer(GravityCompat.START);
+                // TODO: Backup implementieren
+            });
+        }
 
-            if (btnUnpair != null) {
-                btnUnpair.setOnClickListener(v -> {
-                    Toast.makeText(this, "Kopplung wird getrennt...", Toast.LENGTH_SHORT).show();
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                });
-            }
+        if (btnUnpair != null) {
+            btnUnpair.setOnClickListener(v -> {
+                Toast.makeText(this, "Unpairing...", Toast.LENGTH_SHORT).show();
+                drawerLayout.closeDrawer(GravityCompat.START);
+                // TODO: Unpairing implementieren
+            });
+        }
 
-            if (btnLogout != null) {
-                btnLogout.setOnClickListener(v -> {
-                    Toast.makeText(this, "Abmeldung...", Toast.LENGTH_SHORT).show();
-                    SessionManager.logout(this);
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    startActivity(new Intent(this, StartController.class));
-                    finish();
-                });
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error in setupNavigation: " + e.getMessage(), e);
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                Toast.makeText(this, "Logging out...", Toast.LENGTH_SHORT).show();
+                SessionManager.logout(this);
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(new Intent(this, StartController.class));
+                finish();
+            });
         }
     }
 
+    @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT})
     private void loadFragment(Fragment fragment) {
-        try {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, fragment);
-            transaction.commit();
+        if (fragment == null) return;
 
-            if (fragment instanceof BaseFragment && headerName != null) {
-                String title = ((BaseFragment) fragment).getTitle();
-                headerName.setText(title);
+        if (currentFragment != null && fragment.getClass().equals(currentFragment.getClass())) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return; // vermeidet doppeltes Neuladen
+        }
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commitAllowingStateLoss(); // vermeidet Abstürze bei schnellen Wechseln
+
+        currentFragment = fragment;
+        drawerLayout.closeDrawer(GravityCompat.START);
+
+        // Setze Fragment-Titel (optional)
+        if (fragment instanceof BaseFragment && headerName != null) {
+            String title = ((BaseFragment) fragment).getTitle();
+            headerName.setText(title != null ? title : "Wechselgeld");
+        }
+
+        // Starte Bluetooth-Server nur bei Transaktion
+        if (fragment instanceof TransactionFragment) {
+            try {
+                BluetoothManager.getInstance(this, null).startServer();
+            } catch (Exception e) {
+                Log.e(TAG, "Bluetooth server start failed: " + e.getMessage());
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Error loading fragment: " + e.getMessage(), e);
-            Toast.makeText(this, "Fehler beim Laden des Fragments", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -13,19 +13,26 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
+
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
 import htl.steyr.wechselgeldapp.Backup.UserData;
 
 public class Bluetooth {
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static final String TAG = "Bluetooth";
 
     private final BluetoothAdapter adapter;
     private final Context context;
@@ -39,31 +46,7 @@ public class Bluetooth {
     private Thread acceptThread;
     private Thread readThread;
     private boolean scanning = false;
-    private boolean connected = false;
-
-    public void setCallback(BluetoothCallback callback) {
-        this.callback = callback;
-    }
-
-    public boolean sendRawMessage(String message) {
-        if (!connected || socket == null) return false;
-        new Thread(() -> {
-            try {
-                OutputStream os = socket.getOutputStream();
-                os.write((message + "\n").getBytes());
-                os.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        return true;
-    }
-
-    public BluetoothSocket getConnectedSocket() {
-        return socket;
-    }
-
-
+    private volatile boolean connected = false;
 
     public interface BluetoothCallback {
         void onDeviceFound(BluetoothDevice device);
@@ -73,8 +56,8 @@ public class Bluetooth {
         void onConnectionSuccess(BluetoothDevice device);
         void onDataSent(boolean success);
         void onDataReceived(UserData data);
+        void onDataReceivedRaw(String message);
         void onDisconnected();
-        void onTransactionReceived(TransactionRequest transaction);
     }
 
     public Bluetooth(Context context, BluetoothCallback callback) {
@@ -83,9 +66,13 @@ public class Bluetooth {
         this.adapter = BluetoothAdapter.getDefaultAdapter();
     }
 
+    public void setCallback(BluetoothCallback callback) {
+        this.callback = callback;
+    }
+
     public boolean init() {
         if (adapter == null || !adapter.isEnabled()) {
-            if (callback != null) callback.onError("Bluetooth nicht verfügbar oder deaktiviert");
+            if (callback != null) callback.onError("Bluetooth not available or disabled");
             return false;
         }
 
@@ -98,7 +85,7 @@ public class Bluetooth {
             context.registerReceiver(receiver, filter);
             return true;
         } catch (Exception e) {
-            if (callback != null) callback.onError("Receiver-Registrierung fehlgeschlagen");
+            if (callback != null) callback.onError("Receiver registration failed");
             return false;
         }
     }
@@ -112,14 +99,14 @@ public class Bluetooth {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device != null && isPhoneDevice(device) && devices.add(device)) {
-                    handler.post(() -> { if (callback != null) callback.onDeviceFound(device); });
+                    handler.post(() -> callback.onDeviceFound(device));
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                 scanning = true;
-                handler.post(() -> { if (callback != null) callback.onScanStarted(); });
+                handler.post(callback::onScanStarted);
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 scanning = false;
-                handler.post(() -> { if (callback != null) callback.onScanFinished(); });
+                handler.post(callback::onScanFinished);
             }
         }
     };
@@ -128,18 +115,18 @@ public class Bluetooth {
     private boolean isPhoneDevice(BluetoothDevice device) {
         BluetoothClass bluetoothClass = device.getBluetoothClass();
         if (bluetoothClass == null) return false;
-        int majorDeviceClass = bluetoothClass.getMajorDeviceClass();
-        int deviceClass = bluetoothClass.getDeviceClass();
-        return majorDeviceClass == BluetoothClass.Device.Major.PHONE ||
-                deviceClass == BluetoothClass.Device.PHONE_CELLULAR ||
-                deviceClass == BluetoothClass.Device.PHONE_SMART ||
-                deviceClass == BluetoothClass.Device.PHONE_UNCATEGORIZED;
+        int major = bluetoothClass.getMajorDeviceClass();
+        int type = bluetoothClass.getDeviceClass();
+        return major == BluetoothClass.Device.Major.PHONE ||
+                type == BluetoothClass.Device.PHONE_CELLULAR ||
+                type == BluetoothClass.Device.PHONE_SMART ||
+                type == BluetoothClass.Device.PHONE_UNCATEGORIZED;
     }
 
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
     public boolean startScan() {
         if (adapter == null || !hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
-            if (callback != null) callback.onError("Keine Scan-Berechtigung");
+            if (callback != null) callback.onError("Scan permission denied");
             return false;
         }
 
@@ -156,7 +143,7 @@ public class Bluetooth {
         if (paired != null) {
             for (BluetoothDevice device : paired) {
                 if (isPhoneDevice(device) && devices.add(device)) {
-                    handler.post(() -> { if (callback != null) callback.onDeviceFound(device); });
+                    handler.post(() -> callback.onDeviceFound(device));
                 }
             }
         }
@@ -172,22 +159,29 @@ public class Bluetooth {
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN})
     public boolean connectToDevice(BluetoothDevice device) {
         if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
-            if (callback != null) callback.onError("Keine Verbindungsberechtigung");
+            if (callback != null) callback.onError("Connection permission denied");
             return false;
         }
 
         new Thread(() -> {
             try {
                 if (scanning) adapter.cancelDiscovery();
+                if (socket != null && socket.isConnected()) socket.close();
+
                 socket = device.createRfcommSocketToServiceRecord(MY_UUID);
                 socket.connect();
                 connected = true;
-                handler.post(() -> { if (callback != null) callback.onConnectionSuccess(device); });
+                Log.d(TAG, "Connected to " + device.getName());
+
+                handler.post(() -> {
+                    if (callback != null) callback.onConnectionSuccess(device);
+                });
                 startReadThread();
             } catch (IOException e) {
                 connected = false;
+                Log.e(TAG, "Connection failed", e);
                 handler.post(() -> {
-                    if (callback != null) callback.onError("Verbindung fehlgeschlagen: " + e.getMessage());
+                    if (callback != null) callback.onError("Connection failed: " + e.getMessage());
                 });
             }
         }).start();
@@ -195,26 +189,58 @@ public class Bluetooth {
         return true;
     }
 
-    public boolean sendTransaction(TransactionRequest transaction) {
+    public boolean sendRawMessage(String message) {
         if (!connected || socket == null) {
-            if (callback != null) callback.onError("Keine aktive Verbindung");
+            handler.post(() -> {
+                if (callback != null) callback.onDataSent(false);
+            });
             return false;
         }
 
         new Thread(() -> {
             try {
-                String jsonData = gson.toJson(transaction);
-                OutputStream outputStream = socket.getOutputStream();
-                outputStream.write(jsonData.getBytes());
-                outputStream.flush();
+                OutputStream os = socket.getOutputStream();
+                os.write((message + "\n").getBytes());
+                os.flush();
+                Log.d(TAG, "Sent raw: " + message);
                 handler.post(() -> {
                     if (callback != null) callback.onDataSent(true);
                 });
             } catch (IOException e) {
+                Log.e(TAG, "Send failed", e);
+                handler.post(() -> {
+                    if (callback != null) {
+                        callback.onError("Send failed: " + e.getMessage());
+                        callback.onDataSent(false);
+                    }
+                });
+            }
+        }).start();
+        return true;
+    }
+
+    public boolean sendUserData(UserData userData) {
+        if (!connected || socket == null) {
+            if (callback != null) callback.onError("No active connection");
+            return false;
+        }
+
+        new Thread(() -> {
+            try {
+                String json = gson.toJson(userData);
+                OutputStream os = socket.getOutputStream();
+                os.write(json.getBytes());
+                os.flush();
+                handler.post(() -> {
+                    if (callback != null) callback.onDataSent(true);
+                });
+                Log.d(TAG, "Sent JSON: " + json);
+            } catch (IOException e) {
+                Log.e(TAG, "Send JSON failed", e);
                 handler.post(() -> {
                     if (callback != null) {
                         callback.onDataSent(false);
-                        callback.onError("Transaktionsfehler: " + e.getMessage());
+                        callback.onError("Data transmission failed: " + e.getMessage());
                     }
                 });
             }
@@ -227,7 +253,9 @@ public class Bluetooth {
             if (socket != null && connected) {
                 socket.close();
                 connected = false;
-                if (callback != null) callback.onDisconnected();
+                handler.post(() -> {
+                    if (callback != null) callback.onDisconnected();
+                });
             }
             if (serverSocket != null) serverSocket.close();
         } catch (IOException ignored) {}
@@ -255,7 +283,6 @@ public class Bluetooth {
             stopScan();
             context.unregisterReceiver(receiver);
         } catch (Exception ignored) {}
-
         callback = null;
     }
 
@@ -268,10 +295,15 @@ public class Bluetooth {
                 serverSocket = adapter.listenUsingRfcommWithServiceRecord("WechselgeldApp", MY_UUID);
                 socket = serverSocket.accept();
                 connected = true;
-                handler.post(() -> { if (callback != null) callback.onConnectionSuccess(socket.getRemoteDevice()); });
+                Log.d(TAG, "Server accepted connection from " + socket.getRemoteDevice().getName());
+                handler.post(() -> {
+                    if (callback != null) callback.onConnectionSuccess(socket.getRemoteDevice());
+                });
                 startReadThread();
             } catch (IOException e) {
-                handler.post(() -> { if (callback != null) callback.onError("Serverfehler: " + e.getMessage()); });
+                handler.post(() -> {
+                    if (callback != null) callback.onError("Server error: " + e.getMessage());
+                });
             }
         });
         acceptThread.start();
@@ -286,36 +318,36 @@ public class Bluetooth {
                 byte[] buffer = new byte[1024];
                 int bytes;
                 while ((bytes = is.read(buffer)) != -1) {
-                    String json = new String(buffer, 0, bytes);
-                    try {
-                        // Versuche TransactionRequest zu parsen
-                        TransactionRequest transaction = gson.fromJson(json, TransactionRequest.class);
+                    String message = new String(buffer, 0, bytes).trim();
+
+                    if (message.startsWith("amount:")) {
                         handler.post(() -> {
-                            if (callback != null) callback.onTransactionReceived(transaction);
+                            if (callback != null) callback.onDataReceivedRaw(message);
                         });
-                    } catch (Exception e) {g
-                        // Fallback zu bestehender Logik
+                    } else {
                         try {
-                            UserData data = gson.fromJson(json, UserData.class);
+                            UserData data = gson.fromJson(message, UserData.class);
                             handler.post(() -> {
                                 if (callback != null) callback.onDataReceived(data);
                             });
-                        } catch (Exception e2) {
+                        } catch (JsonSyntaxException e) {
                             handler.post(() -> {
-                                if (callback != null) callback.onError("Ungültiges Datenformat");
+                                if (callback != null) callback.onError("Invalid data format received");
                             });
                         }
                     }
                 }
-            } catch (IOException e)
+            } catch (IOException e) {
+                Log.e(TAG, "Read failed", e);
                 handler.post(() -> {
-                    if (callback != null) callback.onError("Lesefehler: " + e.getMessage());
+                    if (callback != null) callback.onError("Read error: " + e.getMessage());
                 });
             }
         });
         readThread.start();
     }
-    public void setCallback(BluetoothCallback callback) {
-        this.callback = callback;
+
+    public BluetoothSocket getConnectedSocket() {
+        return socket;
     }
 }

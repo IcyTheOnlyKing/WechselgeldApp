@@ -11,11 +11,15 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.button.MaterialButton;
 
+import htl.steyr.wechselgeldapp.Backup.UserData;
 import htl.steyr.wechselgeldapp.Bluetooth.Bluetooth;
 import htl.steyr.wechselgeldapp.Bluetooth.BluetoothManager;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
+/**
+ * Fragment for the seller to enter and send a payment amount to the connected customer via Bluetooth.
+ */
 public class TransactionFragment extends BaseFragment {
 
     private EditText etPaymentAmount;
@@ -28,27 +32,64 @@ public class TransactionFragment extends BaseFragment {
         etPaymentAmount = view.findViewById(R.id.etPaymentAmount);
         btnSendPayment = view.findViewById(R.id.btnSendPayment);
 
-        btnSendPayment.setOnClickListener(v -> {
-            String amount = etPaymentAmount.getText().toString().trim();
-            if (amount.isEmpty()) {
-                Toast.makeText(getContext(), "Bitte Betrag eingeben", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Bluetooth bluetooth = BluetoothManager.getInstance();
-            if (bluetooth != null && bluetooth.isConnected()) {
-                bluetooth.sendRawMessage("amount:" + amount);
-                Toast.makeText(getContext(), "Betrag gesendet: €" + amount, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Keine aktive Bluetooth-Verbindung", Toast.LENGTH_SHORT).show();
-            }
+        // 🛠️ Wichtig: Callback setzen, um Absturz bei Bluetooth-Events zu vermeiden
+        BluetoothManager.getInstance(requireContext(), new Bluetooth.BluetoothCallback() {
+            @Override public void onDeviceFound(android.bluetooth.BluetoothDevice device) {}
+            @Override public void onScanFinished() {}
+            @Override public void onScanStarted() {}
+            @Override public void onError(String error) {}
+            @Override public void onConnectionSuccess(android.bluetooth.BluetoothDevice device) {}
+            @Override public void onDataSent(boolean success) {}
+            @Override public void onDataReceived(UserData data) {}
+            @Override public void onDataReceivedRaw(String message) {}
+            @Override public void onDisconnected() {}
         });
+
+        btnSendPayment.setOnClickListener(v -> sendPayment());
 
         return view;
     }
 
+    private void sendPayment() {
+        String amountText = etPaymentAmount.getText().toString().trim().replace(",", ".");
+
+        if (amountText.isEmpty()) {
+            Toast.makeText(requireContext(), getString(R.string.error_enter_amount), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double amount;
+        try {
+            amount = Double.parseDouble(amountText);
+            if (amount <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            Toast.makeText(requireContext(), getString(R.string.error_invalid_amount), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Bluetooth bt = BluetoothManager.getInstance();
+        if (bt == null || !bt.isConnected()) {
+            Toast.makeText(requireContext(), getString(R.string.error_not_connected), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnSendPayment.setEnabled(false); // optional: temporär deaktivieren
+
+        new Thread(() -> {
+            boolean sent = bt.sendRawMessage("amount:" + amountText);
+            requireActivity().runOnUiThread(() -> {
+                if (sent) {
+                    Toast.makeText(requireContext(), getString(R.string.sent_amount, amountText), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), getString(R.string.send_failed), Toast.LENGTH_SHORT).show();
+                }
+                btnSendPayment.setEnabled(true);
+            });
+        }).start();
+    }
+
     @Override
     public String getTitle() {
-        return "Transaktionen";
+        return "Transactions";
     }
 }
