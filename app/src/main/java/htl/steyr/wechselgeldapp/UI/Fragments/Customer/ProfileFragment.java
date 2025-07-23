@@ -1,20 +1,20 @@
 package htl.steyr.wechselgeldapp.UI.Fragments.Customer;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.database.Cursor;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.textfield.TextInputEditText;
-
-import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
+import htl.steyr.wechselgeldapp.Database.DatabaseHelper;
+import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class ProfileFragment extends BaseFragment {
 
@@ -27,18 +27,24 @@ public class ProfileFragment extends BaseFragment {
         return inflater.inflate(R.layout.customer_fragment_profile, container, false);
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         etName = view.findViewById(R.id.et_name);
         etEmail = view.findViewById(R.id.et_email);
+        MaterialButton saveButton = view.findViewById(R.id.btn_save);
 
-        SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        int customerId = prefs.getInt("user_id", -1);
-
+        int customerId = SessionManager.getCurrentUserId(requireContext());
         if (customerId != -1) {
             loadCustomerProfile(customerId);
+
+            saveButton.setOnClickListener(v -> {
+                String name = etName.getText().toString();
+                String email = etEmail.getText().toString();
+                db.updateCustomerProfile(customerId, name, email);
+            });
         }
     }
 
@@ -61,6 +67,6 @@ public class ProfileFragment extends BaseFragment {
 
     @Override
     public String getTitle() {
-        return "Profile";
+        return "Profil";
     }
 }

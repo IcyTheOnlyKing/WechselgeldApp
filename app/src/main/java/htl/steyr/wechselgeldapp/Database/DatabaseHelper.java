@@ -488,6 +488,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 // --------------- Ende Profile SELECT-Abfragen -------------- //
 
+    // ---------------- Profile SELECT/UPDATE ---------------- //
+
+    public Cursor getSellerProfile(int sellerId) {
+        SQLiteDatabase db = getReadableDatabase();
+        return db.rawQuery(
+                "SELECT s.shopName, s.email, p.street, p.houseNumber, p.zipCode, p.city " +
+                        "FROM Seller s LEFT JOIN PersonalInformation p ON s.id = p.seller_id WHERE s.id = ?",
+                new String[]{String.valueOf(sellerId)}
+        );
+    }
+
+    public Cursor getCustomerProfile(int customerId) {
+        SQLiteDatabase db = getReadableDatabase();
+        return db.rawQuery(
+                "SELECT displayName, email FROM Customer WHERE id = ?",
+                new String[]{String.valueOf(customerId)}
+        );
+    }
+
+    public int updateSellerProfile(int sellerId, String shopName, String email) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("shopName", shopName);
+        values.put("email", email);
+        return db.update("Seller", values, "id = ?", new String[]{String.valueOf(sellerId)});
+    }
+
+    public int updateCustomerProfile(int customerId, String displayName, String email) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("displayName", displayName);
+        values.put("email", email);
+        return db.update("Customer", values, "id = ?", new String[]{String.valueOf(customerId)});
+    }
+
 
 }
 
