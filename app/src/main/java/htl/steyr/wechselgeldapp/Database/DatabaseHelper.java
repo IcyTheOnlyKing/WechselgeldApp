@@ -467,6 +467,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // --- Insert Personal Information for all sellers (1:1 by seller ID) ---
         db.execSQL("INSERT INTO PersonalInformation (seller_id, name, email, street, houseNumber, zipCode, city) VALUES " + "(1, 'Admin Verkäufer', 'admin@seller.com', 'Adminstraße', '1A', '1010', 'Wien')," + "(2, 'Maier Bäcker', 'maier@shop.com', 'Brotgasse', '5', '4400', 'Steyr')," + "(3, 'Müller Kiosk', 'mueller@kiosk.com', 'Hauptstraße', '12B', '4020', 'Linz')," + "(4, 'Schmid Trafik', 'schmid@trafik.com', 'Tabakweg', '3', '5020', 'Salzburg')," + "(5, 'Huber Blumen', 'huber@flowers.com', 'Blumenweg', '7', '8010', 'Graz')," + "(6, 'Hahn Feinkost', 'hahn@finefood.com', 'Delikatessenallee', '9', '9020', 'Klagenfurt');");
     }
+    // ---------------- Profile SELECT-Abfragen ---------------- //
+
+    public Cursor getSellerProfile(int sellerId) {
+        SQLiteDatabase db = getReadableDatabase();
+        return db.rawQuery(
+                "SELECT s.shopName, s.email, p.name, p.street, p.houseNumber, p.zipCode, p.city " +
+                        "FROM Seller s LEFT JOIN PersonalInformation p ON s.id = p.seller_id WHERE s.id = ?",
+                new String[]{String.valueOf(sellerId)}
+        );
+    }
+
+    public Cursor getCustomerProfile(int customerId) {
+        SQLiteDatabase db = getReadableDatabase();
+        return db.rawQuery(
+                "SELECT displayName, email FROM Customer WHERE id = ?",
+                new String[]{String.valueOf(customerId)}
+        );
+    }
+
+// --------------- Ende Profile SELECT-Abfragen -------------- //
 
 
 }
