@@ -58,4 +58,12 @@
     <string name="personal_info">Persönliche Informationen</string>
     <string name="change_password">Passwort ändern</string>
     <string name="save">Speichern</string>
+    <string name="status_label">Scannen nach Geräten</string>
+    <string name="last_payment">Letzte Zahlung</string>
+    <string name="sample_shop_name">Bäckerei Müller</string>
+    <string name="monthly_expenses">Monatliche Ausgaben</string>
+    <string name="sample_change">Guthaben</string>
+    <string name="your_favorites">Deine Favoriten</string>
+    <string name="current_offers">Angebote</string>
+    <string name="_00_00_00_00_00_00">00:00:00:00:00:00</string>
 </resources>

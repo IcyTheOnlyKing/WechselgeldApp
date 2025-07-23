@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:padding="32dp"
     android:background="?android:attr/windowBackground"
-    tools:context=".ui.LoginActivity">
+    tools:context=".AuthController">
 
     <TextView
         android:id="@+id/loginTitle"
@@ -39,13 +39,13 @@
             android:layout_marginEnd="12dp"
             android:src="@drawable/ic_person_24"
             android:contentDescription="@string/hint_username"
-            android:tint="?attr/colorPrimary" />
+            app:tint="?attr/colorPrimary" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:boxBackgroundMode="outlined"
+            app:boxBackgroundMode="outline"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
@@ -77,13 +77,13 @@
             android:layout_marginEnd="12dp"
             android:src="@drawable/ic_lock_24"
             android:contentDescription="@string/hint_password"
-            android:tint="?attr/colorPrimary" />
+            app:tint="?attr/colorPrimary" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:boxBackgroundMode="outlined"
+            app:boxBackgroundMode="outline"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"

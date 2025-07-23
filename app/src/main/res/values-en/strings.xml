@@ -31,7 +31,7 @@
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="btn_login">Login</string>
-    <string name="login_hint">Don't have an account?</string>
+    <string name="login_hint">Don\'t have an account?</string>
     <string name="link_register">Register</string>
 
     <!-- Registration -->
@@ -58,4 +58,9 @@
     <string name="personal_info">Personal Information</string>
     <string name="change_password">Change Password</string>
     <string name="save">Save</string>
+    <string name="status_label">Scanning for devices</string>
+    <string name="last_payment">Last Payment</string>
+    <string name="sample_shop_name">Bakery Mueller</string>
+    <string name="monthly_expenses">Monthly expenses</string>
+    <string name="sample_change">Change</string>
 </resources>

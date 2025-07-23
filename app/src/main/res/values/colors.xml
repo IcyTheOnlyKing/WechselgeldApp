@@ -22,6 +22,9 @@
     <color name="gray">#888888</color>
     <color name="light_gray">#DDDDDD</color>
 
+    <color name="purple_700">#9A00FF</color>
+    <color name="purple_900">#9903F6</color>
+
     <!-- Verbindungsstatus -->
     <color name="connected">#4CAF50</color>     <!-- Grün -->
     <color name="connecting">#FF9800</color>    <!-- Orange -->
