@@ -124,36 +124,36 @@
                         android:weightSum="3">
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAmount5"
+                            android:id="@+id/btnAmount1"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="€5"
+                            android:text="+1€"
                             app:strokeColor="#4CAF50"
                             app:strokeWidth="1dp"
                             android:textColor="#4CAF50"/>
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAmount10"
+                            android:id="@+id/btnAmount2"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="€10"
+                            android:text="+2€"
                             app:strokeColor="#4CAF50"
                             app:strokeWidth="1dp"
                             android:textColor="#4CAF50"/>
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAmount20"
+                            android:id="@+id/btnAmount3"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="€20"
+                            android:text="+3€"
                             app:strokeColor="#4CAF50"
                             app:strokeWidth="1dp"
                             android:textColor="#4CAF50"/>
@@ -187,6 +187,24 @@
 
                     <TextView
                         android:id="@+id/tvSelectedAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="€0,00"
+                        android:textColor="#212121"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Zu bezahlender Betrag:"
+                        android:textColor="#757575"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvAmountToPay"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
