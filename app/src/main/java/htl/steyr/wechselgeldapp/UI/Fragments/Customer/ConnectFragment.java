@@ -33,7 +33,11 @@ import java.util.Set;
 
 import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
-
+/**
+ * ConnectFragment allows the customer to scan for nearby seller devices
+ * via Bluetooth, display them in a list, and pair with them if not already paired.
+ * Only smartphones are shown.
+ */
 public class ConnectFragment extends BaseFragment {
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -48,6 +52,9 @@ public class ConnectFragment extends BaseFragment {
     private Button btnScan;
     private boolean receiverRegistered = false;
 
+    /**
+     * BroadcastReceiver to handle Bluetooth scan results and scan completion.
+     */
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @SuppressLint("NotifyDataSetChanged")
         @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT})
@@ -66,6 +73,9 @@ public class ConnectFragment extends BaseFragment {
         }
     };
 
+    /**
+     * Inflates the layout and sets up views and event handlers.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,6 +104,9 @@ public class ConnectFragment extends BaseFragment {
         return view;
     }
 
+    /**
+     * Checks and requests the required Bluetooth and location permissions.
+     */
     private void checkPermissions() {
         String[] permissions = {
                 Manifest.permission.BLUETOOTH,
@@ -115,6 +128,9 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Enables Bluetooth if it's not already enabled.
+     */
     @SuppressLint("MissingPermission")
     private void initBluetooth() {
         if (!bluetoothAdapter.isEnabled()) {
@@ -125,6 +141,9 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Loads already paired devices and filters for smartphones.
+     */
     @SuppressLint("MissingPermission")
     private void loadPairedDevices() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
@@ -138,6 +157,9 @@ public class ConnectFragment extends BaseFragment {
         updateStatus("Gekoppelte Geräte geladen");
     }
 
+    /**
+     * Toggles between starting and stopping a Bluetooth scan.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void toggleScan() {
         if (bluetoothAdapter.isDiscovering()) {
@@ -147,6 +169,9 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Starts Bluetooth device discovery.
+     */
     @SuppressLint("MissingPermission")
     private void startScan() {
         deviceList.clear();
@@ -161,6 +186,9 @@ public class ConnectFragment extends BaseFragment {
         new Handler().postDelayed(this::finishScan, SCAN_TIMEOUT);
     }
 
+    /**
+     * Stops the scan after timeout or when manually stopped.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private void finishScan() {
         if (bluetoothAdapter.isDiscovering()) {
@@ -169,6 +197,9 @@ public class ConnectFragment extends BaseFragment {
         updateStatus("Scan abgeschlossen");
     }
 
+    /**
+     * Cancels an active Bluetooth scan and resets the UI.
+     */
     @SuppressLint("MissingPermission")
     private void cancelScan() {
         bluetoothAdapter.cancelDiscovery();
@@ -177,6 +208,9 @@ public class ConnectFragment extends BaseFragment {
         unregisterReceiverIfNeeded();
     }
 
+    /**
+     * Registers the Bluetooth receiver if it hasn't been registered yet.
+     */
     private void registerReceiverIfNeeded() {
         if (!receiverRegistered) {
             IntentFilter filter = new IntentFilter();
@@ -187,6 +221,9 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Unregisters the Bluetooth receiver if it was registered.
+     */
     private void unregisterReceiverIfNeeded() {
         if (receiverRegistered) {
             try {
@@ -196,10 +233,16 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Updates the status text shown on the screen.
+     */
     private void updateStatus(String message) {
         statusText.setText(message);
     }
 
+    /**
+     * Checks if a device is already in the list.
+     */
     private boolean isAlreadyDiscovered(BluetoothDevice device) {
         for (BluetoothDevice d : deviceList) {
             if (d.getAddress().equals(device.getAddress())) return true;
@@ -207,6 +250,9 @@ public class ConnectFragment extends BaseFragment {
         return false;
     }
 
+    /**
+     * Returns true if the device is a smartphone.
+     */
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private boolean isSmartphone(BluetoothDevice device) {
         BluetoothClass btClass = device.getBluetoothClass();
@@ -214,12 +260,18 @@ public class ConnectFragment extends BaseFragment {
                 btClass.getDeviceClass() == BluetoothClass.Device.PHONE_SMART;
     }
 
+    /**
+     * Unregisters receiver when the view is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         unregisterReceiverIfNeeded();
     }
 
+    /**
+     * Handles the result of permission requests.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -234,6 +286,9 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Handles the result from the Bluetooth enable request.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -244,13 +299,24 @@ public class ConnectFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Provides the title of the fragment.
+     *
+     * @return The fragment title
+     */
     @Override
     public String getTitle() {
         return "Koppeln";
     }
 
+    /**
+     * Adapter class for displaying Bluetooth devices in a RecyclerView.
+     */
     private class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
 
+        /**
+         * ViewHolder for each device entry.
+         */
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView deviceName, deviceAddress, deviceStatus;
 
@@ -270,6 +336,9 @@ public class ConnectFragment extends BaseFragment {
             return new ViewHolder(view);
         }
 
+        /**
+         * Binds Bluetooth device info to the view.
+         */
         @SuppressLint("MissingPermission")
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {

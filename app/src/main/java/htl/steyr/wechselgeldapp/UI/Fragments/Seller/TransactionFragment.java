@@ -18,13 +18,25 @@ import htl.steyr.wechselgeldapp.R;
 import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
 /**
- * Fragment for the seller to enter and send a payment amount to the connected customer via Bluetooth.
+ * TransactionFragment allows the seller to input a payment amount
+ * and send it to the connected customer via Bluetooth.
  */
 public class TransactionFragment extends BaseFragment {
 
+    /** Input field for the payment amount */
     private EditText etPaymentAmount;
+
+    /** Button to trigger sending the payment */
     private MaterialButton btnSendPayment;
 
+    /**
+     * Creates the view hierarchy and sets up Bluetooth callbacks and button listeners.
+     *
+     * @param inflater Used to inflate the layout
+     * @param container Parent view that the fragment attaches to
+     * @param savedInstanceState Saved state of the fragment (if any)
+     * @return The inflated fragment view
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.seller_fragment_transactions, container, false);
@@ -32,6 +44,7 @@ public class TransactionFragment extends BaseFragment {
         etPaymentAmount = view.findViewById(R.id.etPaymentAmount);
         btnSendPayment = view.findViewById(R.id.btnSendPayment);
 
+        // Initialize Bluetooth manager with empty callback implementation
         BluetoothManager.getInstance(requireContext(), new Bluetooth.BluetoothCallback() {
             @Override public void onDeviceFound(android.bluetooth.BluetoothDevice device) {}
             @Override public void onScanFinished() {}
@@ -44,14 +57,20 @@ public class TransactionFragment extends BaseFragment {
             @Override public void onDisconnected() {}
         });
 
+        // Set click listener for sending the payment
         btnSendPayment.setOnClickListener(v -> sendPayment());
 
         return view;
     }
 
+    /**
+     * Reads and validates the payment amount, then sends it to the customer.
+     * Shows success or failure via Toast messages.
+     */
     private void sendPayment() {
         String amountText = etPaymentAmount.getText().toString().trim().replace(",", ".");
 
+        // Check if input is empty
         if (amountText.isEmpty()) {
             Toast.makeText(requireContext(), getString(R.string.error_enter_amount), Toast.LENGTH_SHORT).show();
             return;
@@ -66,14 +85,17 @@ public class TransactionFragment extends BaseFragment {
             return;
         }
 
+        // Get current Bluetooth connection
         Bluetooth bt = BluetoothManager.getInstance();
         if (bt == null || !bt.isConnected()) {
             Toast.makeText(requireContext(), getString(R.string.error_not_connected), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        btnSendPayment.setEnabled(false); // optional: temporär deaktivieren
+        // Disable button to prevent duplicate taps
+        btnSendPayment.setEnabled(false);
 
+        // Send payment in background thread
         new Thread(() -> {
             boolean sent = bt.sendRawMessage("amount:" + amountText);
             requireActivity().runOnUiThread(() -> {
@@ -82,11 +104,16 @@ public class TransactionFragment extends BaseFragment {
                 } else {
                     Toast.makeText(requireContext(), getString(R.string.send_failed), Toast.LENGTH_SHORT).show();
                 }
-                btnSendPayment.setEnabled(true);
+                btnSendPayment.setEnabled(true); // Re-enable button
             });
         }).start();
     }
 
+    /**
+     * Returns the title used in the UI for this fragment.
+     *
+     * @return A string title
+     */
     @Override
     public String getTitle() {
         return "Transactions";
