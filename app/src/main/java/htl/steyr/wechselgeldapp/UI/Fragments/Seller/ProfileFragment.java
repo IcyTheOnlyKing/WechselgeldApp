@@ -1,7 +1,8 @@
 package htl.steyr.wechselgeldapp.UI.Fragments.Seller;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import htl.steyr.wechselgeldapp.Utilities.Security.SessionManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,11 +46,35 @@ public class ProfileFragment extends Fragment {
         city = view.findViewById(R.id.et_city);
         MaterialButton saveChanges = view.findViewById(R.id.btn_save);
 
-        // Load seller name from shared preferences
-        SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        String shopName = prefs.getString("user_display_name",null);
+        int sellerId = SessionManager.getCurrentUserId(requireContext());
+        if (sellerId != -1) {
+            loadSellerProfile(sellerId);
 
-        name.setText(shopName);
+            saveChanges.setOnClickListener(v -> {
+                String shop = name.getText().toString();
+                String mail = email.getText().toString();
+                String str = street.getText().toString();
+                String hNr = houseNumber.getText().toString();
+                String plz = zip.getText().toString();
+                String stadt = city.getText().toString();
+
+                db.updateSellerProfile(sellerId, shop, mail);
+                db.updatePersonalInfo(sellerId, shop, mail, str, hNr, plz, stadt);
+            });
+        }
+    }
+
+    private void loadSellerProfile(int sellerId) {
+        Cursor cursor = db.getSellerProfile(sellerId);
+        if (cursor.moveToFirst()) {
+            name.setText(cursor.getString(cursor.getColumnIndexOrThrow("shopName")));
+            email.setText(cursor.getString(cursor.getColumnIndexOrThrow("email")));
+            street.setText(cursor.getString(cursor.getColumnIndexOrThrow("street")));
+            houseNumber.setText(cursor.getString(cursor.getColumnIndexOrThrow("houseNumber")));
+            zip.setText(cursor.getString(cursor.getColumnIndexOrThrow("zipCode")));
+            city.setText(cursor.getString(cursor.getColumnIndexOrThrow("city")));
+        }
+        cursor.close();
     }
 
 
