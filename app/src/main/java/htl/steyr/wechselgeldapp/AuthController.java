@@ -75,7 +75,7 @@ public class AuthController extends Activity {
                     Toast.makeText(this, "Benutzername oder Email bereits vergeben!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                db.insertCustomer(username, email, hashedPassword);
+                db.insertCustomer(username, email, hashedPassword, 50);
             }
 
             Toast.makeText(this, "Registrierung erfolgreich!", Toast.LENGTH_SHORT).show();

@@ -34,6 +34,8 @@ import htl.steyr.wechselgeldapp.UI.Fragments.BaseFragment;
 
 public class TransactionFragment extends BaseFragment {
 
+    // TODO: btnAmount1 , 2 , 3 soll im textfeld stehen
+
     private TextView tvInvoiceAmount;
     private TextView tvRemainingAmount;
     private TextView tvSelectedAmount;
@@ -76,7 +78,7 @@ public class TransactionFragment extends BaseFragment {
         dbHelper = new DatabaseHelper(requireContext());
         int customerId = getCurrentCustomerId();
 
-        if (dbHelper.getBalanceForCustomer(customerId) == null || dbHelper.getBalanceForCustomer(customerId) == 0){
+        if ((dbHelper.getBalanceForCustomer(customerId) == null) || (dbHelper.getBalanceForCustomer(customerId) == 0)){
             currentBalance = 0;
         } else {
             currentBalance = dbHelper.getBalanceForCustomer(customerId);
@@ -148,12 +150,14 @@ public class TransactionFragment extends BaseFragment {
         });
     }
 
+    @SuppressLint("DefaultLocale")
     private void updateCalculatedAmounts() {
         double baseToPay = Math.max(invoiceAmount - currentBalance, 0);
         double totalAmount = baseToPay + selectedTip;
 
         tvRemainingAmount.setText(String.format("€%.2f", baseToPay));
         tvSelectedAmount.setText(String.format("€%.2f", selectedTip));
+        etCustomAmount.setText(String.format("€%.2f", selectedTip));
         tvAmountToPay.setText(String.format("€%.2f", totalAmount));
     }
 

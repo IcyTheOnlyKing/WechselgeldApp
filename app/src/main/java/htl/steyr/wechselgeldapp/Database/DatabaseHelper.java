@@ -24,7 +24,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE Seller (" + "id INTEGER PRIMARY KEY AUTOINCREMENT," + "shopName TEXT NOT NULL," + "email TEXT," + "passwordHash TEXT" + ");");
 
-        db.execSQL("CREATE TABLE Customer (" + "id INTEGER PRIMARY KEY AUTOINCREMENT," + "displayName TEXT NOT NULL," + "email TEXT," + "passwordHash TEXT" + ");");
+        db.execSQL("CREATE TABLE Customer (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "displayName TEXT NOT NULL," +
+                "email TEXT," +
+                "passwordHash TEXT," +
+                "balance REAL DEFAULT 0" +
+                ");");
 
         db.execSQL("CREATE TABLE Device (" + "id INTEGER PRIMARY KEY AUTOINCREMENT," + "uuid TEXT NOT NULL UNIQUE," + "customerId INTEGER," + "sellerId INTEGER," + "deviceName TEXT," + "FOREIGN KEY (customerId) REFERENCES Customer(id)," + "FOREIGN KEY (sellerId) REFERENCES Seller(id)" + ");");
 
@@ -123,13 +129,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Inserts a new customer into the database.
      */
-    public void insertCustomer(String displayName, String email, String passwordHash) {
+    public void insertCustomer(String displayName, String email, String passwordHash, double balance) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("displayName", displayName);
         values.put("email", email);
         values.put("passwordHash", passwordHash);
+        values.put("balance", balance);
         db.insert("Customer", null, values);
+    }
+
+    public Double getBalanceForCustomer(int customerId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT balance FROM Customer WHERE id = ?", new String[]{String.valueOf(customerId)});
+        Double balance = null;
+        if (cursor.moveToFirst()) {
+            balance = cursor.isNull(0) ? null : cursor.getDouble(0);
+        }
+        cursor.close();
+        return balance;
     }
 
 
@@ -187,19 +205,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return name;
     }
 
-    /**
-     * Returns the balance value for a specific customer id.
-     */
-    public Double getBalanceForCustomer(int customerId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT b.balance FROM Balance b JOIN Device d ON b.otherUuid = d.uuid WHERE d.customerId = ?", new String[]{String.valueOf(customerId)});
-        Double balance = null;
-        if (cursor.moveToFirst()) {
-            balance = cursor.getDouble(0);
-        }
-        cursor.close();
-        return balance;
-    }
 
     // ---------------- PersonalInformation CRUD ---------------- //
 
@@ -375,18 +380,70 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * for development and testing purposes.
      */
     public void insertTestData(SQLiteDatabase db) {
+        // --- Seller ---
+        db.execSQL("INSERT INTO Seller (shopName, email, passwordHash) VALUES " +
+                "('admin', 'admin@seller.com', 'admin')," +
+                "('Bäckerei Maier', 'maier@shop.com', 'b@eckMa2023')," +
+                "('Kiosk Müller', 'mueller@kiosk.com', 'muellerSecure!')," +
+                "('Trafik Schmid', 'schmid@trafik.com', 'schmid#456')," +
+                "('Blumen Huber', 'huber@flowers.com', 'huberBloom22')," +
+                "('Feinkost Hahn', 'hahn@finefood.com', 'fein#hahn2024');");
 
-        // --- Insert Sellers (including admin) ---
-        db.execSQL("INSERT INTO Seller (shopName, email, passwordHash) VALUES " + "('admin', 'admin@seller.com', 'admin')," + "('Bäckerei Maier', 'maier@shop.com', 'b@eckMa2023')," + "('Kiosk Müller', 'mueller@kiosk.com', 'muellerSecure!')," + "('Trafik Schmid', 'schmid@trafik.com', 'schmid#456')," + "('Blumen Huber', 'huber@flowers.com', 'huberBloom22')," + "('Feinkost Hahn', 'hahn@finefood.com', 'fein#hahn2024');");
+        // --- Customer ---
+        // --- Customer ---
+        db.execSQL("INSERT INTO Customer (displayName, email, passwordHash, balance) VALUES " +
+                "('admin', 'admin@customer.com', 'admin', 0.00)," +
+                "('Max Mustermann', 'max@web.de', 'maxSecure12', 12.50)," +
+                "('Erika Musterfrau', 'erika@web.de', 'erikaPass99', 7.25)," +
+                "('Lukas Lehner', 'lukas@web.at', 'lukas!strong', 3.00)," +
+                "('Anna Berger', 'anna@outlook.com', 'ann4Berger!', 0.00)," +
+                "('Thomas Meier', 'thomas@mail.com', 'th0mMe!', 5.00)," +
+                "('Julia König', 'julia@gmx.at', 'juKo2024!', 8.20)," +
+                "('Sebastian Kurz', 'sebastian@kurz.at', 'kurz1234', 15.00)," +
+                "('Nina Graf', 'nina@graf.net', 'ninaSafePass', 2.75);");
 
-        // --- Insert Customers (including admin) ---
-        db.execSQL("INSERT INTO Customer (displayName, email, passwordHash) VALUES " + "('admin', 'admin@customer.com', 'admin')," + "('Max Mustermann', 'max@web.de', 'maxSecure12')," + "('Erika Musterfrau', 'erika@web.de', 'erikaPass99')," + "('Lukas Lehner', 'lukas@web.at', 'lukas!strong')," + "('Anna Berger', 'anna@outlook.com', 'ann4Berger!')," + "('Thomas Meier', 'thomas@mail.com', 'th0mMe!')," + "('Julia König', 'julia@gmx.at', 'juKo2024!')," + "('Sebastian Kurz', 'sebastian@kurz.at', 'kurz1234')," + "('Nina Graf', 'nina@graf.net', 'ninaSafePass');");
+        // --- Transactions ---
+        db.execSQL("INSERT INTO Transactions (amount, timestamp) VALUES " +
+                "(5.00, 1720701000)," +
+                "(10.00, 1720701100)," +
+                "(3.50, 1720701200)," +
+                "(20.00, 1720701300)," +
+                "(7.25, 1720701400)," +
+                "(12.00, 1720701500)," +
+                "(2.75, 1720701600)," +
+                "(50.00, 1720701700)," +
+                "(8.80, 1720701800)," +
+                "(15.60, 1720701900)," +
+                "(22.90, 1720702000)," +
+                "(1.10, 1720702100)," +
+                "(33.33, 1720702200)," +
+                "(44.44, 1720702300)," +
+                "(99.99, 1720702400);");
 
-        // --- Insert Sample Transactions with realistic variety ---
-        db.execSQL("INSERT INTO Transactions (amount, timestamp) VALUES " + "(5.00, 1720701000)," + "(10.00, 1720701100)," + "(3.50, 1720701200)," + "(20.00, 1720701300)," + "(7.25, 1720701400)," + "(12.00, 1720701500)," + "(2.75, 1720701600)," + "(50.00, 1720701700)," + "(8.80, 1720701800)," + "(15.60, 1720701900)," + "(22.90, 1720702000)," + "(1.10, 1720702100)," + "(33.33, 1720702200)," + "(44.44, 1720702300)," + "(99.99, 1720702400);");
+        // --- Personal Information ---
+        db.execSQL("INSERT INTO PersonalInformation (seller_id, name, email, street, houseNumber, zipCode, city) VALUES " +
+                "(1, 'Admin Verkäufer', 'admin@seller.com', 'Adminstraße', '1A', '1010', 'Wien')," +
+                "(2, 'Maier Bäcker', 'maier@shop.com', 'Brotgasse', '5', '4400', 'Steyr')," +
+                "(3, 'Müller Kiosk', 'mueller@kiosk.com', 'Hauptstraße', '12B', '4020', 'Linz')," +
+                "(4, 'Schmid Trafik', 'schmid@trafik.com', 'Tabakweg', '3', '5020', 'Salzburg')," +
+                "(5, 'Huber Blumen', 'huber@flowers.com', 'Blumenweg', '7', '8010', 'Graz')," +
+                "(6, 'Hahn Feinkost', 'hahn@finefood.com', 'Delikatessenallee', '9', '9020', 'Klagenfurt');");
 
-        // --- Insert Personal Information for all sellers (1:1 by seller ID) ---
-        db.execSQL("INSERT INTO PersonalInformation (seller_id, name, email, street, houseNumber, zipCode, city) VALUES " + "(1, 'Admin Verkäufer', 'admin@seller.com', 'Adminstraße', '1A', '1010', 'Wien')," + "(2, 'Maier Bäcker', 'maier@shop.com', 'Brotgasse', '5', '4400', 'Steyr')," + "(3, 'Müller Kiosk', 'mueller@kiosk.com', 'Hauptstraße', '12B', '4020', 'Linz')," + "(4, 'Schmid Trafik', 'schmid@trafik.com', 'Tabakweg', '3', '5020', 'Salzburg')," + "(5, 'Huber Blumen', 'huber@flowers.com', 'Blumenweg', '7', '8010', 'Graz')," + "(6, 'Hahn Feinkost', 'hahn@finefood.com', 'Delikatessenallee', '9', '9020', 'Klagenfurt');");
+        // --- Device ---
+        db.execSQL("INSERT INTO Device (uuid, customerId, sellerId, deviceName) VALUES " +
+                "('00:11:22:33:44:55', 2, null, 'Max’s Phone')," +
+                "('11:22:33:44:55:66', 3, null, 'Erika’s Android')," +
+                "('22:33:44:55:66:77', 4, null, 'Lukas Bluetooth')," +
+                "('33:44:55:66:77:88', null, 2, 'Maier Terminal')," +
+                "('44:55:66:77:88:99', null, 3, 'Müller Scanner');");
+
+        // --- Balance ---
+        db.execSQL("INSERT INTO Balance (otherUuid, displayName, balance, timestamp) VALUES " +
+                "('00:11:22:33:44:55', 'Max Mustermann', 12.50, 1720701000)," +
+                "('11:22:33:44:55:66', 'Erika Musterfrau', 7.25, 1720701100)," +
+                "('22:33:44:55:66:77', 'Lukas Lehner', 3.00, 1720701200)," +
+                "('33:44:55:66:77:88', 'Bäckerei Maier', -5.00, 1720701300)," +
+                "('44:55:66:77:88:99', 'Kiosk Müller', 0.00, 1720701400);");
     }
 
 
